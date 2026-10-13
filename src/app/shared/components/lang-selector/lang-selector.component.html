@@ -1,0 +1,18 @@
+<div
+  class="lang-selector"
+  role="group"
+  *transloco="let t"
+  [attr.aria-label]="t('langSelector.label')"
+>
+  @for (lang of languageStore.supportedLangs; track lang) {
+    <button
+      class="lang-selector__button"
+      type="button"
+      [attr.aria-label]="labels[lang]"
+      [attr.aria-pressed]="lang === languageStore.currentLang()"
+      (click)="languageStore.setLang(lang)"
+    >
+      {{ lang.toUpperCase() }}
+    </button>
+  }
+</div>

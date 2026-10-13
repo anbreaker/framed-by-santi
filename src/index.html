@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Framed by Santi</title>
+    <base href="/" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta
+      content="Framed by Santi — street photography from New York, shot on a Fujifilm X100VI."
+      name="description"
+    />
+    <script>
+      (function () {
+        var langs = ['en', 'es', 'pt'];
+        var stored = null;
+        try {
+          stored = localStorage.getItem('framed-lang');
+        } catch (error) {
+          stored = null;
+        }
+        var lang = stored || navigator.language.slice(0, 2);
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'fetch';
+        link.crossOrigin = 'anonymous';
+        link.href = '/assets/i18n/' + (langs.indexOf(lang) > -1 ? lang : 'en') + '.json';
+        document.head.appendChild(link);
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+    <script src="./main.ts" type="module"></script>
+  </body>
+</html>

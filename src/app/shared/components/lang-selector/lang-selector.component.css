@@ -1,0 +1,30 @@
+.lang-selector {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.lang-selector__button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: var(--space-1) var(--space-3);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+}
