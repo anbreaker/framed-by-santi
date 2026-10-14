@@ -5,7 +5,7 @@
     [attr.aria-label]="t('nav.home')"
     (click)="closeMenu()"
   >
-    Framed by Santi
+    <span class="link-grow">Framed by Santi</span>
   </a>
 
   <button
@@ -42,7 +42,7 @@
         routerLinkActive="site-header__link--active"
         (click)="closeMenu()"
       >
-        {{ t('nav.gallery') }}
+        <span class="link-grow">{{ t('nav.gallery') }}</span>
       </a>
       <a
         class="site-header__link"
@@ -50,7 +50,7 @@
         routerLinkActive="site-header__link--active"
         (click)="closeMenu()"
       >
-        {{ t('nav.about') }}
+        <span class="link-grow">{{ t('nav.about') }}</span>
       </a>
     </nav>
 

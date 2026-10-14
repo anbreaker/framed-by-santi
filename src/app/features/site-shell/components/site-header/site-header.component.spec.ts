@@ -79,4 +79,12 @@ describe('SiteHeaderComponent', () => {
   it('should include the language selector inside the menu panel', () => {
     expect(panel().querySelector('app-lang-selector')).not.toBeNull();
   });
+
+  it('should wrap each link label so the hover underline hugs the text', () => {
+    const labels = Array.from(root().querySelectorAll('a > .link-grow')).map((label) =>
+      label.textContent?.trim()
+    );
+
+    expect(labels).toEqual(['Framed by Santi', 'Gallery', 'About']);
+  });
 });

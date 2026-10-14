@@ -24,12 +24,6 @@
   font-size: 0.875rem;
   min-height: var(--touch-target);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
-
-  &:hover,
-  &:focus-visible {
-    color: var(--color-text);
-  }
 }
 
 @media (min-width: 768px) {
