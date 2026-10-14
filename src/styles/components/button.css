@@ -1,4 +1,8 @@
 .btn {
+  --frame-color: var(--color-text);
+  --frame-length: 0.875rem;
+  --frame-thickness: 2px;
+
   align-items: center;
   background: transparent;
   border: 1px solid transparent;
@@ -11,13 +15,69 @@
   justify-content: center;
   min-height: 3rem;
   padding-inline: var(--space-4);
+  position: relative;
   text-decoration: none;
   transition:
     border-color var(--duration-fast) var(--ease-out),
     filter var(--duration-fast) var(--ease-out);
+
+  /* The focus frame replaces the default outline; the corners are drawn in the colour of the button. */
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+/* Viewfinder corners that close in around the button on hover and keyboard focus. */
+.btn::after {
+  background:
+    linear-gradient(var(--frame-color), var(--frame-color)) left top / var(--frame-length)
+      var(--frame-thickness) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) left top / var(--frame-thickness)
+      var(--frame-length) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) right top / var(--frame-length)
+      var(--frame-thickness) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) right top / var(--frame-thickness)
+      var(--frame-length) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) left bottom / var(--frame-length)
+      var(--frame-thickness) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) left bottom / var(--frame-thickness)
+      var(--frame-length) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) right bottom / var(--frame-length)
+      var(--frame-thickness) no-repeat,
+    linear-gradient(var(--frame-color), var(--frame-color)) right bottom / var(--frame-thickness)
+      var(--frame-length) no-repeat;
+  content: '';
+  inset: -0.625rem;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transform: scale(1.12);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+
+.btn:focus-visible::after {
+  opacity: 1;
+  transform: none;
+}
+
+@media (hover: hover) {
+  .btn:hover::after {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::after {
+    transform: none;
+  }
 }
 
 .btn--primary {
+  --frame-color: var(--color-accent);
+
   background: var(--color-accent);
   color: var(--color-on-accent);
 
@@ -27,6 +87,8 @@
 }
 
 .btn--ghost {
+  --frame-color: var(--color-text);
+
   border-color: var(--color-border);
   color: var(--color-text);
 
