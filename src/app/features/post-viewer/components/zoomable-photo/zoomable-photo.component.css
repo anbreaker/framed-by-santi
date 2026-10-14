@@ -1,0 +1,84 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.zoomable {
+  cursor: zoom-in;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  /* Vertical drags keep scrolling the page until the photo is zoomed in. */
+  touch-action: pan-y;
+}
+
+.zoomable--zoomed {
+  cursor: zoom-out;
+  touch-action: none;
+}
+
+.zoomable--dragging {
+  cursor: grabbing;
+}
+
+.zoomable__content {
+  height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.zoomable__photo {
+  --post-photo-fit: contain;
+  --post-photo-height: 100%;
+}
+
+.zoomable__controls {
+  align-items: center;
+  background: rgb(14 13 12 / 0.8);
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+  bottom: var(--space-2);
+  display: flex;
+  padding: var(--space-1);
+  position: absolute;
+  right: var(--space-2);
+}
+
+.zoomable__button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-text);
+  cursor: pointer;
+  display: inline-flex;
+  height: var(--touch-target);
+  justify-content: center;
+  width: var(--touch-target);
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-raised);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.3;
+  }
+}
+
+.zoomable__level {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.25rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zoomable__content {
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .zoomable--dragging .zoomable__content {
+    transition: none;
+  }
+}
