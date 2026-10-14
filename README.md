@@ -2,7 +2,19 @@
 
 Landing page and private work dashboard for [@framedbysanti](https://www.instagram.com/framedbysanti), an amateur photographer's portfolio shot on a Fujifilm X100VI in New York. Trilingual: English (US, default), Spanish and Portuguese (PT).
 
-> Status: scaffold only. Firebase (auth + Firestore), Cloudinary (image hosting), the dashboard and the final design come next.
+> Status: public landing prototype (home, gallery of photo sets, post viewer with zoom, about) running on local photos. Firebase (auth + Firestore), Cloudinary (image hosting), the private dashboard and the final design come next.
+
+## What is in it
+
+- **Posts are sets**: one post holds several photos, like an Instagram carousel. The gallery shows one tile per post, the viewer walks through the set (arrows, keyboard, swipe, thumbnails).
+- **Zoom and pan** in the viewer: pinch, drag and double tap on touch; click, buttons, Ctrl or Cmd + wheel and keyboard on desktop.
+- **Motion with care**: View Transitions between pages and from gallery tile to viewer, scroll reveals, all off under `prefers-reduced-motion`.
+- **Locale-aware**: dates, plurals and percentages follow the site language (`en-US`, `es-ES`, `pt-PT`).
+- **No public sign-in link**: the future dashboard is reached only by a direct route.
+
+## Photos while developing
+
+Photos are never committed. Local WebP files live in `public/local-photos/` (served as `/local-photos/...`) and the raw exports in `santiImages/`; both are git-ignored. Every image goes through `photoUrl()` in `features/photo-posts/utils/photo-url.ts`, the single place to switch to Cloudinary (`f_auto,q_auto`).
 
 ## Stack
 
@@ -29,7 +41,8 @@ Requires Node >= 22.19 and npm >= 10.9.
 ```
 src/app/
   core/       const, services, store, utils (app-wide singletons)
-  features/   gallery, admin, auth (one folder per business capability)
+  features/   photo-posts, gallery, post-viewer, landing, about, site-shell, scroll-reveal
+              (one folder per business capability; admin and auth come later)
   pages/      routed screens
   shared/     reusable components, directives, pipes
 ```
@@ -49,7 +62,19 @@ Path aliases: `@core`, `@features`, `@pages`, `@shared`, `@environments`, `@asse
 
 Landing page y panel de trabajo privado para [@framedbysanti](https://www.instagram.com/framedbysanti), el portfolio de un fotógrafo aficionado que dispara con una Fujifilm X100VI en Nueva York. Trilingüe: inglés (EE. UU., por defecto), español y portugués (PT).
 
-> Estado: solo el scaffold. Firebase (auth + Firestore), Cloudinary (alojamiento de imágenes), el panel y el diseño final vienen después.
+> Estado: prototipo de la landing pública (home, galería de paquetes de fotos, visor con zoom, sobre mí) funcionando con fotos locales. Firebase (auth + Firestore), Cloudinary (alojamiento de imágenes), el panel privado y el diseño final vienen después.
+
+## Qué incluye
+
+- **Los posts son paquetes**: un post tiene varias fotos, como un carrusel de Instagram. La galería muestra una celda por post y el visor recorre el paquete (flechas, teclado, deslizamiento y miniaturas).
+- **Zoom y movimiento** en el visor: pellizco, arrastre y doble toque en táctil; clic, botones, Ctrl o Cmd + rueda y teclado en escritorio.
+- **Movimiento con cuidado**: View Transitions entre páginas y de la celda al visor, aparición al hacer scroll, todo desactivado con `prefers-reduced-motion`.
+- **Formatos por idioma**: fechas, plurales y porcentajes siguen el idioma del sitio (`en-US`, `es-ES`, `pt-PT`).
+- **Sin enlace público de login**: el futuro panel solo se alcanza por una ruta directa.
+
+## Fotos durante el desarrollo
+
+Las fotos nunca se commitean. Los WebP locales están en `public/local-photos/` (se sirven como `/local-photos/...`) y los originales exportados en `santiImages/`; ambas carpetas están ignoradas por git. Toda imagen pasa por `photoUrl()` en `features/photo-posts/utils/photo-url.ts`, el único sitio que hay que cambiar para usar Cloudinary (`f_auto,q_auto`).
 
 ## Cómo arrancar
 

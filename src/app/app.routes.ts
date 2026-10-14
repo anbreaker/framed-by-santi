@@ -14,5 +14,9 @@ export const routes: Routes = [
     loadComponent: async () =>
       (await import('@pages/post-viewer/post-viewer.page')).PostViewerPageComponent,
   },
+  {
+    path: 'about',
+    loadComponent: async () => (await import('@pages/about/about.page')).AboutPageComponent,
+  },
   { path: '**', redirectTo: '' },
 ];

@@ -38,6 +38,6 @@
   }
 
   .about-teaser__photo {
-    max-width: none;
+    max-width: 30rem;
   }
 }
