@@ -68,6 +68,7 @@
     "backToGallery": "Back to gallery",
     "counterLabel": "Photo {{current}} of {{total}}",
     "next": "Next photo",
+    "notFound": "We could not find this set.",
     "previous": "Previous photo",
     "takenOn": "Taken on {{date}}",
     "thumbnails": "Photos in this set"

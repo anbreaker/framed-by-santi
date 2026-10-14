@@ -1,0 +1,54 @@
+<main class="viewer" id="main-content" tabindex="-1" *transloco="let t">
+  @if (post(); as current) {
+  <a class="viewer__back" routerLink="/gallery">
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="18"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.6"
+      viewBox="0 0 24 24"
+      width="18"
+    >
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+    {{ t('viewer.backToGallery') }}
+  </a>
+
+  <app-set-stage
+    [isFirst]="isFirst()"
+    [isLast]="isLast()"
+    [photo]="activePhoto()"
+    [transitionName]="'cover-' + current.id"
+    (next)="step(1)"
+    (previous)="step(-1)"
+  />
+
+  <div class="viewer__bar">
+    <p
+      class="meta viewer__counter"
+      aria-live="polite"
+      [attr.aria-label]="
+          t('viewer.counterLabel', { current: activeIndex() + 1, total: photos().length })
+        "
+    >
+      {{ counter() }}
+    </p>
+    <app-set-thumbnails [activeIndex]="activeIndex()" [photos]="photos()" (picked)="pick($event)" />
+  </div>
+
+  <header class="viewer__info">
+    <h1 class="viewer__title">{{ current.caption }}</h1>
+    <p class="meta">
+      {{ t('viewer.takenOn', { date: (current.takenAt | localizedDate: lang() : 'long') }) }}
+    </p>
+  </header>
+  } @else {
+  <div class="viewer__missing">
+    <p>{{ t('viewer.notFound') }}</p>
+    <a class="btn btn--ghost" routerLink="/gallery">{{ t('viewer.backToGallery') }}</a>
+  </div>
+  }
+</main>
