@@ -3,4 +3,5 @@
 @import './base/typography.css';
 @import './base/view-transitions.css';
 @import './components/button.css';
+@import './components/link-grow.css';
 @import '../app/features/scroll-reveal/scroll-reveal.css';

@@ -35,8 +35,7 @@
   color: var(--color-text);
   display: inline-flex;
   min-height: var(--touch-target);
-  text-decoration-color: var(--color-accent);
-  text-underline-offset: 0.25em;
+  text-decoration: none;
 }
 
 .about-details__actions {

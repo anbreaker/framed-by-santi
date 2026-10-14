@@ -55,4 +55,12 @@ describe('SiteFooterComponent', () => {
     expect(root().textContent?.toLowerCase()).not.toMatch(/sign.?in|log.?in|admin/);
     expect(hrefs.join(' ')).not.toMatch(/login|admin|auth/);
   });
+
+  it('should wrap each link label so the hover underline hugs the text', () => {
+    const labels = Array.from(root().querySelectorAll('a > .link-grow')).map((label) =>
+      label.textContent?.trim()
+    );
+
+    expect(labels).toEqual(['Instagram ↗', 'About']);
+  });
 });
