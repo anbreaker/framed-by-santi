@@ -1,0 +1,11 @@
+/** Public build-time variables (prefix `NG_APP_`, read from `.env.local` or the host). */
+interface ImportMetaEnv {
+  readonly NG_APP_CLOUDINARY_CLOUD_NAME?: string;
+  readonly NG_APP_CLOUDINARY_ID_PREFIX?: string;
+  readonly NG_APP_FIREBASE_API_KEY?: string;
+  readonly NG_APP_FIREBASE_APP_ID?: string;
+  readonly NG_APP_FIREBASE_AUTH_DOMAIN?: string;
+  readonly NG_APP_FIREBASE_MESSAGING_SENDER_ID?: string;
+  readonly NG_APP_FIREBASE_PROJECT_ID?: string;
+  readonly NG_APP_FIREBASE_STORAGE_BUCKET?: string;
+}
