@@ -24,6 +24,7 @@
     [transitionName]="'cover-' + current.id"
     (next)="step(1)"
     (previous)="step(-1)"
+    (zoomedChange)="isZoomed.set($event)"
   />
 
   <div class="viewer__bar">

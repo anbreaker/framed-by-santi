@@ -7,7 +7,11 @@
 >
   <div class="set-stage__frame" [style.view-transition-name]="transitionName()">
     @for (shown of shownPhotos(); track shown.id) {
-      <app-post-photo class="set-stage__photo" [eager]="true" [photo]="shown" />
+      <app-zoomable-photo
+        class="set-stage__photo"
+        [photo]="shown"
+        (zoomedChange)="isZoomed.set($event)"
+      />
     }
   </div>
 

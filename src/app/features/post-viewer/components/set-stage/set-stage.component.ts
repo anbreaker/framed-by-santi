@@ -1,16 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { Photo } from '@features/photo-posts/models/photo.model';
 
 import { swipeDirection } from '../../utils/swipe-direction';
+import { ZoomablePhotoComponent } from '../zoomable-photo/zoomable-photo.component';
 
 /** The big photo of a set, with arrows and swipe. It only reports intent; the page owns the state. */
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PostPhotoComponent, TranslocoDirective],
+  imports: [TranslocoDirective, ZoomablePhotoComponent],
   selector: 'app-set-stage',
   styleUrl: './set-stage.component.css',
   templateUrl: './set-stage.component.html',
@@ -24,22 +32,40 @@ export class SetStageComponent {
 
   readonly next = output<void>();
   readonly previous = output<void>();
+  /** Whether the photo is zoomed in; while it is, dragging moves the photo instead of swiping. */
+  readonly zoomedChange = output<boolean>();
 
-  /** A list of one lets `@for` remount the photo, which replays its fade-in on every change. */
+  protected readonly isZoomed = signal(false);
+  /** A list of one lets `@for` remount the photo, which replays its fade-in and resets its zoom. */
   protected readonly shownPhotos = computed(() => [this.photo()]);
 
+  private activePointers = 0;
   private swipeStartX: number | null = null;
 
+  constructor() {
+    effect(() => this.zoomedChange.emit(this.isZoomed()));
+  }
+
   protected onPointerCancel(): void {
+    this.activePointers = Math.max(0, this.activePointers - 1);
     this.swipeStartX = null;
   }
 
   protected onPointerDown(event: PointerEvent): void {
-    this.swipeStartX = event.pointerType === 'mouse' ? null : event.clientX;
+    this.activePointers++;
+
+    // A second finger means pinch, never swipe.
+    const isSwipeCandidate = event.pointerType !== 'mouse' && this.activePointers === 1;
+    this.swipeStartX = isSwipeCandidate ? event.clientX : null;
   }
 
   protected onPointerUp(event: PointerEvent): void {
-    if (this.swipeStartX === null) return;
+    this.activePointers = Math.max(0, this.activePointers - 1);
+
+    if (this.swipeStartX === null || this.isZoomed()) {
+      this.swipeStartX = null;
+      return;
+    }
 
     const direction = swipeDirection(this.swipeStartX, event.clientX);
     this.swipeStartX = null;
