@@ -8,7 +8,7 @@
         [attr.aria-label]="t('viewer.counterLabel', { current: index + 1, total: photos().length })"
         (click)="picked.emit(index)"
       >
-        <app-post-photo alt="" [photo]="photo" />
+        <app-post-photo alt="" sizes="120px" [photo]="photo" />
       </button>
     </li>
   }

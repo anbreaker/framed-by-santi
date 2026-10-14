@@ -1,6 +1,10 @@
 <section class="about-teaser" *transloco="let t">
   <div class="about-teaser__photo" appScrollReveal="frame">
-    <app-post-photo [alt]="t('about.photoAlt')" [photo]="profilePhoto" />
+    <app-post-photo
+      sizes="(min-width: 768px) 480px, 320px"
+      [alt]="t('about.photoAlt')"
+      [photo]="profilePhoto"
+    />
   </div>
 
   <div class="about-teaser__text" appScrollReveal>

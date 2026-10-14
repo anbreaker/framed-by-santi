@@ -23,7 +23,7 @@
     >
       @for (photo of previewPhotos(); track photo.id; let index = $index) {
         <li class="latest-set__item" appScrollReveal [style.--reveal-delay.ms]="index * 80">
-          <app-post-photo [photo]="photo" />
+          <app-post-photo sizes="(min-width: 1024px) 40vw, 75vw" [photo]="photo" />
           <span class="meta latest-set__counter">
             {{ counter(index + 1, latest.photos.length) }}
           </span>

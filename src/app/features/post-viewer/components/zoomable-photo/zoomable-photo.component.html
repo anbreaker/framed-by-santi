@@ -11,7 +11,12 @@
   (wheel)="onWheel($event)"
 >
   <div class="zoomable__content" [style.transform]="transform()">
-    <app-post-photo class="zoomable__photo" [eager]="true" [photo]="photo()" />
+    <app-post-photo
+      class="zoomable__photo"
+      [eager]="true"
+      [photo]="photo()"
+      [sizes]="isZoomed() ? '250vw' : '100vw'"
+    />
   </div>
 
   <div

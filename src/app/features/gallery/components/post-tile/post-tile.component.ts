@@ -21,6 +21,9 @@ export class PostTileComponent {
 
   readonly post = input.required<PhotoPost>();
 
+  /** Approximate tile width per breakpoint, from the justified rows of the grid. */
+  protected readonly tileSizes = '(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 90vw';
+
   protected readonly cover = computed(() => this.post().photos[0]);
   protected readonly isSet = computed(() => this.post().photos.length > 1);
   protected readonly lang = this.languageStore.currentLang;
