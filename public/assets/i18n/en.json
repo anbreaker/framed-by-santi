@@ -5,6 +5,7 @@
     "eyebrow": "About",
     "instagramCta": "Follow on Instagram",
     "intro": "About seven years in New York, camera always on.",
+    "photoAlt": "Portrait of Santi García",
     "title": "Santi García"
   },
   "common": {
@@ -32,9 +33,9 @@
     "title": "Gallery"
   },
   "home": {
+    "aboutCta": "More about Santi",
     "ctaGallery": "See the gallery",
     "ctaInstagram": "@framedbysanti",
-    "eyebrow": "Street photography · New York",
     "latest": {
       "cta": "Open the set",
       "eyebrow": "Latest set",
@@ -42,10 +43,8 @@
     },
     "meta": "New York · Fujifilm X100VI",
     "scrollHint": "Scroll",
-    "status": "A new home for this work is coming soon.",
-    "subtitle": "Photographs from the streets of New York, shot on a Fujifilm X100VI.",
     "tagline": "I just press buttons.",
-    "title": "Framed by Santi"
+    "title": "Santi García"
   },
   "langSelector": {
     "label": "Language"

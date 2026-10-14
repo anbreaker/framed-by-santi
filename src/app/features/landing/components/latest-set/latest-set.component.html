@@ -1,0 +1,38 @@
+<section class="latest-set" *transloco="let t">
+  @if (post(); as latest) {
+    <header class="latest-set__header" appScrollReveal>
+      <p class="meta">
+        {{ t('home.latest.eyebrow') }} · {{ latest.takenAt | localizedDate: lang() : 'long' }}
+      </p>
+      <h2 class="latest-set__title">{{ t('home.latest.title') }}</h2>
+      <p class="latest-set__summary">
+        {{ latest.caption }} ·
+        {{
+          t(latest.photos.length | pluralKey: 'gallery.photoCount' : lang(), {
+            count: latest.photos.length,
+          })
+        }}
+      </p>
+    </header>
+
+    <ul
+      class="latest-set__strip"
+      role="list"
+      tabindex="0"
+      [attr.aria-label]="t('home.latest.title')"
+    >
+      @for (photo of previewPhotos(); track photo.id; let index = $index) {
+        <li class="latest-set__item" appScrollReveal [style.--reveal-delay.ms]="index * 80">
+          <app-post-photo [photo]="photo" />
+          <span class="meta latest-set__counter">
+            {{ counter(index + 1, latest.photos.length) }}
+          </span>
+        </li>
+      }
+    </ul>
+
+    <a class="btn btn--ghost latest-set__cta" [routerLink]="['/gallery', latest.id]">
+      {{ t('home.latest.cta') }}
+    </a>
+  }
+</section>
