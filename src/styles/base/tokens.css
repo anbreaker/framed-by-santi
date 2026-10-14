@@ -1,14 +1,18 @@
-/* Placeholder palette: replaced by Santi's own colours during the design phase. */
+/* Palette and type from the Design canvas; the accent is a candidate to validate with Santi's photos. */
 :root {
-  --color-bg: #0e0e0f;
-  --color-surface: #18181a;
-  --color-border: #2a2a2d;
-  --color-text: #f2f0ec;
-  --color-text-muted: #9b9890;
-  --color-accent: #c8a46a;
+  --color-bg: #0e0d0c;
+  --color-surface: #171513;
+  --color-surface-raised: #221f1b;
+  --color-hairline: #2c2824;
+  --color-border: #7a7166;
+  --color-text: #f2ede5;
+  --color-text-muted: #b0a79c;
+  --color-accent: #e5b53b;
+  --color-on-accent: #14110a;
+  --color-error: #f2907b;
 
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -16,11 +20,32 @@
   --space-4: 1.5rem;
   --space-5: 2.5rem;
   --space-6: 4rem;
+  --space-7: 6rem;
 
+  --gutter: 1.25rem;
+  --header-height: 4rem;
   --touch-target: 2.75rem;
 
-  --radius-sm: 0.25rem;
+  --radius-sm: 0.125rem;
   --radius-md: 0.75rem;
 
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 180ms;
+  --duration-base: 400ms;
+  --duration-slow: 800ms;
+
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2rem;
+    --header-height: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 3rem;
+  }
 }

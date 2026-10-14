@@ -1,1 +1,8 @@
+<ng-container *transloco="let t">
+  <a class="skip-link" href="#main-content" (click)="skipToContent($event)">
+    {{ t('common.skipToContent') }}
+  </a>
+</ng-container>
+<app-site-header />
 <router-outlet />
+<app-site-footer />

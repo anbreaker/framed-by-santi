@@ -1,3 +1,4 @@
 @import './base/tokens.css';
 @import './base/reset.css';
 @import './base/typography.css';
+@import '../app/features/scroll-reveal/scroll-reveal.css';
