@@ -71,7 +71,13 @@
     "notFound": "We could not find this set.",
     "previous": "Previous photo",
     "takenOn": "Taken on {{date}}",
-    "thumbnails": "Photos in this set"
+    "thumbnails": "Photos in this set",
+    "zoom": {
+      "in": "Zoom in",
+      "label": "Zoom",
+      "out": "Zoom out",
+      "reset": "Reset zoom"
+    }
   },
   "viewfinder": {
     "next": "Next",

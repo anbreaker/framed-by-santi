@@ -71,7 +71,13 @@
     "notFound": "No hemos encontrado esta serie.",
     "previous": "Foto anterior",
     "takenOn": "Tomada el {{date}}",
-    "thumbnails": "Fotos de esta serie"
+    "thumbnails": "Fotos de esta serie",
+    "zoom": {
+      "in": "Acercar",
+      "label": "Zoom",
+      "out": "Alejar",
+      "reset": "Restablecer zoom"
+    }
   },
   "viewfinder": {
     "next": "Sig.",
