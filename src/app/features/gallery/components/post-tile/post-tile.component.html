@@ -5,9 +5,9 @@
   [routerLink]="['/gallery', post().id]"
 >
   <div class="post-tile__media" [style.view-transition-name]="viewTransitionName()">
-    <app-post-photo class="post-tile__cover" alt="" [photo]="cover()" />
+    <app-post-photo class="post-tile__cover" alt="" [photo]="cover()" [sizes]="tileSizes" />
     @if (peek(); as second) {
-      <app-post-photo class="post-tile__peek" alt="" [photo]="second" />
+      <app-post-photo class="post-tile__peek" alt="" [photo]="second" [sizes]="tileSizes" />
     }
   </div>
 

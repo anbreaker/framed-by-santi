@@ -16,6 +16,24 @@ Landing page and private work dashboard for [@framedbysanti](https://www.instagr
 
 Photos are never committed. Local WebP files live in `public/local-photos/` (served as `/local-photos/...`) and the raw exports in `santiImages/`; both are git-ignored. Every image goes through `photoUrl()` in `features/photo-posts/utils/photo-url.ts`, the single place to switch to Cloudinary (`f_auto,q_auto`).
 
+## Photos from Cloudinary
+
+Every image goes through `photoUrl()` / `photoSrcset()` in `features/photo-posts/utils/photo-url.ts`.
+With a cloud name configured it builds Cloudinary delivery URLs (`c_limit,f_auto,q_auto` and a fixed
+set of widths: 480, 800, 1200, 1600, 2400) with `srcset` and `sizes`; without it, it falls back to the
+local files in `public/local-photos/`, which is also what the tests use.
+
+The app only needs **public** values. Create a git-ignored `.env.local` in the project root:
+
+```bash
+NG_APP_CLOUDINARY_CLOUD_NAME=<your cloud name>
+NG_APP_CLOUDINARY_ID_PREFIX=framed-by-santi/test/
+```
+
+Restart `npm start` after changing it. On Vercel add the same two variables to Production and Preview.
+API keys and secrets never go in this file nor in the app: they belong only to the signing function
+(Vercel environment variables) and to your own terminal when you run the local tools.
+
 ## Stack
 
 - Angular 22 — standalone components, OnPush, signals, zoneless
@@ -75,6 +93,25 @@ Landing page y panel de trabajo privado para [@framedbysanti](https://www.instag
 ## Fotos durante el desarrollo
 
 Las fotos nunca se commitean. Los WebP locales están en `public/local-photos/` (se sirven como `/local-photos/...`) y los originales exportados en `santiImages/`; ambas carpetas están ignoradas por git. Toda imagen pasa por `photoUrl()` en `features/photo-posts/utils/photo-url.ts`, el único sitio que hay que cambiar para usar Cloudinary (`f_auto,q_auto`).
+
+## Fotos desde Cloudinary
+
+Toda imagen pasa por `photoUrl()` / `photoSrcset()` en `features/photo-posts/utils/photo-url.ts`.
+Con un cloud name configurado arma URLs de entrega de Cloudinary (`c_limit,f_auto,q_auto` y un
+conjunto fijo de anchos: 480, 800, 1200, 1600, 2400) con `srcset` y `sizes`; sin él, vuelve a los
+archivos locales de `public/local-photos/`, que es también lo que usan los tests.
+
+La app solo necesita valores **públicos**. Creá un `.env.local` ignorado por git en la raíz:
+
+```bash
+NG_APP_CLOUDINARY_CLOUD_NAME=<tu cloud name>
+NG_APP_CLOUDINARY_ID_PREFIX=framed-by-santi/test/
+```
+
+Reiniciá `npm start` después de cambiarlo. En Vercel agregá las mismas dos variables en Production y
+Preview. Las claves y secretos nunca van en este archivo ni en la app: pertenecen solo a la función
+que firma las subidas (variables de entorno de Vercel) y a tu propia terminal cuando corrés las
+herramientas locales.
 
 ## Cómo arrancar
 

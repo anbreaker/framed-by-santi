@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { Photo } from '../../models/photo.model';
-import { photoUrl } from '../../utils/photo-url';
+import { photoSrcset, photoUrl } from '../../utils/photo-url';
 
 /** Renders one photo at its real ratio; the parent decides the size through CSS variables. */
 @Component({
@@ -17,7 +17,10 @@ export class PostPhotoComponent {
   /** Eager photos load with high priority; use it for the first screen only. */
   readonly eager = input(false);
   readonly photo = input.required<Photo>();
+  /** Rendered width of the image, so the browser downloads the smallest variant that looks sharp. */
+  readonly sizes = input('100vw');
 
   protected readonly altText = computed(() => this.alt() ?? this.photo().alt);
-  protected readonly src = computed(() => photoUrl(this.photo(), 1440));
+  protected readonly src = computed(() => photoUrl(this.photo()));
+  protected readonly srcset = computed(() => photoSrcset(this.photo()));
 }
