@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+.gallery-page:focus {
+  outline: none;
+}
+
+.gallery-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--gutter) var(--space-4);
+}
+
+.gallery-page__title {
+  font-size: clamp(3.5rem, 15vw, 7rem);
+  line-height: 0.9;
+}
+
+.gallery-page__empty {
+  color: var(--color-text-muted);
+  padding: var(--space-5) var(--gutter);
+}
