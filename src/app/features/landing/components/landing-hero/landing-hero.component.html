@@ -1,0 +1,35 @@
+<section class="landing-hero" *transloco="let t">
+  @if (heroPost(); as post) {
+    <div class="landing-hero__media" appScrollReveal="frame">
+      <app-post-photo class="landing-hero__photo" [eager]="true" [photo]="post.photos[0]" />
+    </div>
+    <div class="landing-hero__shade" aria-hidden="true"></div>
+
+    <span class="landing-hero__corner landing-hero__corner--top-left" aria-hidden="true"></span>
+    <span class="landing-hero__corner landing-hero__corner--top-right" aria-hidden="true"></span>
+    <span class="landing-hero__corner landing-hero__corner--bottom-left" aria-hidden="true"></span>
+    <span class="landing-hero__corner landing-hero__corner--bottom-right" aria-hidden="true"></span>
+
+    <div class="landing-hero__content">
+      <p class="meta">{{ t('home.meta') }}</p>
+      <h1 class="landing-hero__title">{{ t('home.title') }}</h1>
+      <p class="landing-hero__tagline">{{ t('home.tagline') }}</p>
+
+      <div class="landing-hero__actions">
+        <a class="btn btn--primary" routerLink="/gallery">{{ t('home.ctaGallery') }}</a>
+        <a class="btn btn--ghost" rel="noopener" target="_blank" [href]="instagramUrl">
+          {{ t('home.ctaInstagram') }}
+        </a>
+      </div>
+
+      <p class="meta landing-hero__hint" aria-hidden="true">
+        {{ t('home.scrollHint') }}
+        <span class="landing-hero__hint-line"></span>
+      </p>
+    </div>
+
+    <p class="meta landing-hero__caption">
+      {{ post.caption }} · {{ post.takenAt | localizedDate: lang() }}
+    </p>
+  }
+</section>

@@ -1,0 +1,10 @@
+<img
+  class="post-photo"
+  decoding="async"
+  [alt]="altText()"
+  [attr.fetchpriority]="eager() ? 'high' : null"
+  [attr.loading]="eager() ? 'eager' : 'lazy'"
+  [height]="photo().height"
+  [src]="src()"
+  [width]="photo().width"
+/>
