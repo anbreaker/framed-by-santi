@@ -1,0 +1,10 @@
+<footer class="site-footer" *transloco="let t">
+  <p class="meta">{{ t('footer.copyright', { year }) }}</p>
+
+  <nav class="site-footer__links" [attr.aria-label]="t('nav.ariaLabel')">
+    <a class="site-footer__link" rel="noopener" target="_blank" [href]="instagramUrl">
+      {{ t('footer.instagram') }} ↗
+    </a>
+    <a class="site-footer__link" routerLink="/about">{{ t('footer.about') }}</a>
+  </nav>
+</footer>
