@@ -12,12 +12,6 @@
   list-style: none;
   margin: 0;
   padding: 0 var(--gutter);
-
-  /* Keeps the last row from stretching across the whole width. */
-  &::after {
-    content: '';
-    flex-grow: 1000000;
-  }
 }
 
 .post-grid__item {
@@ -29,6 +23,12 @@
   .post-grid {
     --gap: 0.5rem;
     --row-height: 14rem;
+
+    /* On wide screens a lone tile in the last row would grow huge, so it keeps its natural size. */
+    &::after {
+      content: '';
+      flex-grow: 1000000;
+    }
   }
 }
 

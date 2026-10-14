@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.set-thumbnails {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  overflow-x: auto;
+  padding: var(--space-1) 0;
+  scrollbar-width: none;
+}
+
+.set-thumbnails__item {
+  flex: none;
+}
+
+.set-thumbnails__button {
+  --post-photo-height: 100%;
+  --post-photo-width: auto;
+
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  height: 4.5rem;
+  min-width: var(--touch-target);
+  opacity: 0.55;
+  padding: 0;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &[aria-current='true'] {
+    border-color: var(--color-accent);
+    opacity: 1;
+  }
+}

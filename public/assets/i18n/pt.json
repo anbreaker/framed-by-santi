@@ -68,6 +68,7 @@
     "backToGallery": "Voltar à galeria",
     "counterLabel": "Foto {{current}} de {{total}}",
     "next": "Foto seguinte",
+    "notFound": "Não encontrámos esta série.",
     "previous": "Foto anterior",
     "takenOn": "Tirada a {{date}}",
     "thumbnails": "Fotos desta série"

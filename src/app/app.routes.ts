@@ -9,5 +9,10 @@ export const routes: Routes = [
     path: 'gallery',
     loadComponent: async () => (await import('@pages/gallery/gallery.page')).GalleryPageComponent,
   },
+  {
+    path: 'gallery/:postId',
+    loadComponent: async () =>
+      (await import('@pages/post-viewer/post-viewer.page')).PostViewerPageComponent,
+  },
   { path: '**', redirectTo: '' },
 ];
