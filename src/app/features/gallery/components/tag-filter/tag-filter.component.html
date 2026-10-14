@@ -1,0 +1,21 @@
+<nav class="tag-filter" *transloco="let t" [attr.aria-label]="t('gallery.filtersLabel')">
+  <a
+    class="tag-filter__chip"
+    [attr.aria-current]="selected() === null ? 'true' : null"
+    [queryParams]="{ tag: null }"
+    [routerLink]="[]"
+  >
+    {{ t('gallery.allFilter') }}
+  </a>
+
+  @for (tag of tags(); track tag) {
+    <a
+      class="tag-filter__chip"
+      [attr.aria-current]="selected() === tag ? 'true' : null"
+      [queryParams]="{ tag }"
+      [routerLink]="[]"
+    >
+      {{ t('tags.' + tag) }}
+    </a>
+  }
+</nav>
