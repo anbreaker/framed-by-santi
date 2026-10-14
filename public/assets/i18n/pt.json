@@ -1,11 +1,82 @@
 {
+  "about": {
+    "camera": "Câmara",
+    "city": "Cidade",
+    "eyebrow": "Sobre",
+    "instagramCta": "Seguir no Instagram",
+    "intro": "Cerca de sete anos em Nova Iorque, sempre com a câmara ao ombro.",
+    "title": "Santi García"
+  },
+  "common": {
+    "instagram": "Instagram",
+    "skipToContent": "Saltar para o conteúdo"
+  },
+  "footer": {
+    "about": "Sobre",
+    "copyright": "© {{year}} Santi García · Nova Iorque",
+    "instagram": "Instagram"
+  },
+  "gallery": {
+    "allFilter": "Todas",
+    "emptyFilter": "Ainda não há séries com este filtro.",
+    "filtersLabel": "Filtrar por tema",
+    "openSet": "Abrir série: {{title}}",
+    "photoCount": {
+      "one": "{{count}} foto",
+      "other": "{{count}} fotos"
+    },
+    "postCount": {
+      "one": "{{count}} série",
+      "other": "{{count}} séries"
+    },
+    "title": "Galeria"
+  },
   "home": {
+    "ctaGallery": "Ver a galeria",
+    "ctaInstagram": "@framedbysanti",
     "eyebrow": "Fotografia de rua · Nova Iorque",
+    "latest": {
+      "cta": "Abrir a série",
+      "eyebrow": "Última série",
+      "title": "Fresquinha da rua"
+    },
+    "meta": "Nova Iorque · Fujifilm X100VI",
+    "scrollHint": "Deslize",
     "status": "Em breve, um novo espaço para este trabalho.",
     "subtitle": "Fotografias das ruas de Nova Iorque, captadas com uma Fujifilm X100VI.",
+    "tagline": "Eu só carrego nos botões.",
     "title": "Framed by Santi"
   },
   "langSelector": {
     "label": "Idioma"
+  },
+  "nav": {
+    "about": "Sobre",
+    "ariaLabel": "Principal",
+    "closeMenu": "Fechar menu",
+    "gallery": "Galeria",
+    "home": "Framed by Santi, início",
+    "menu": "Menu"
+  },
+  "tags": {
+    "architecture": "Arquitetura",
+    "bw": "Preto e branco",
+    "night": "Noite",
+    "sky": "Céu",
+    "street": "Rua"
+  },
+  "viewer": {
+    "backToGallery": "Voltar à galeria",
+    "counterLabel": "Foto {{current}} de {{total}}",
+    "next": "Foto seguinte",
+    "previous": "Foto anterior",
+    "takenOn": "Tirada a {{date}}",
+    "thumbnails": "Fotos desta série"
+  },
+  "viewfinder": {
+    "next": "Seg.",
+    "open": "Abrir",
+    "previous": "Ant.",
+    "view": "Ver"
   }
 }

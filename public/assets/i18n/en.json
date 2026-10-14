@@ -1,11 +1,82 @@
 {
+  "about": {
+    "camera": "Camera",
+    "city": "City",
+    "eyebrow": "About",
+    "instagramCta": "Follow on Instagram",
+    "intro": "About seven years in New York, camera always on.",
+    "title": "Santi García"
+  },
+  "common": {
+    "instagram": "Instagram",
+    "skipToContent": "Skip to content"
+  },
+  "footer": {
+    "about": "About",
+    "copyright": "© {{year}} Santi García · New York",
+    "instagram": "Instagram"
+  },
+  "gallery": {
+    "allFilter": "All",
+    "emptyFilter": "No sets match this filter yet.",
+    "filtersLabel": "Filter by theme",
+    "openSet": "Open set: {{title}}",
+    "photoCount": {
+      "one": "{{count}} photo",
+      "other": "{{count}} photos"
+    },
+    "postCount": {
+      "one": "{{count}} set",
+      "other": "{{count}} sets"
+    },
+    "title": "Gallery"
+  },
   "home": {
+    "ctaGallery": "See the gallery",
+    "ctaInstagram": "@framedbysanti",
     "eyebrow": "Street photography · New York",
+    "latest": {
+      "cta": "Open the set",
+      "eyebrow": "Latest set",
+      "title": "Fresh from the street"
+    },
+    "meta": "New York · Fujifilm X100VI",
+    "scrollHint": "Scroll",
     "status": "A new home for this work is coming soon.",
     "subtitle": "Photographs from the streets of New York, shot on a Fujifilm X100VI.",
+    "tagline": "I just press buttons.",
     "title": "Framed by Santi"
   },
   "langSelector": {
     "label": "Language"
+  },
+  "nav": {
+    "about": "About",
+    "ariaLabel": "Main",
+    "closeMenu": "Close menu",
+    "gallery": "Gallery",
+    "home": "Framed by Santi, home",
+    "menu": "Menu"
+  },
+  "tags": {
+    "architecture": "Architecture",
+    "bw": "Black & white",
+    "night": "Night",
+    "sky": "Sky",
+    "street": "Street"
+  },
+  "viewer": {
+    "backToGallery": "Back to gallery",
+    "counterLabel": "Photo {{current}} of {{total}}",
+    "next": "Next photo",
+    "previous": "Previous photo",
+    "takenOn": "Taken on {{date}}",
+    "thumbnails": "Photos in this set"
+  },
+  "viewfinder": {
+    "next": "Next",
+    "open": "Open",
+    "previous": "Prev",
+    "view": "View"
   }
 }
