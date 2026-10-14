@@ -1,0 +1,12 @@
+:host {
+  display: block;
+  height: var(--post-photo-height, auto);
+}
+
+.post-photo {
+  display: block;
+  height: 100%;
+  object-fit: var(--post-photo-fit, cover);
+  object-position: var(--post-photo-position, 50% 50%);
+  width: var(--post-photo-width, 100%);
+}
