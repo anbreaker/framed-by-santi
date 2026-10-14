@@ -1,7 +1,9 @@
 {
   "about": {
     "camera": "Camera",
+    "cameraValue": "Fujifilm X100VI",
     "city": "City",
+    "cityValue": "New York",
     "eyebrow": "About",
     "instagramCta": "Follow on Instagram",
     "intro": "About seven years in New York, camera always on.",

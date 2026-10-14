@@ -1,0 +1,12 @@
+<section class="about-profile" *transloco="let t">
+  <div class="about-profile__photo" appScrollReveal="frame">
+    <app-post-photo [alt]="t('about.photoAlt')" [eager]="true" [photo]="profilePhoto" />
+  </div>
+
+  <div class="about-profile__text" appScrollReveal>
+    <p class="meta">{{ t('about.eyebrow') }}</p>
+    <h1 class="about-profile__title">{{ t('about.title') }}</h1>
+    <p class="about-profile__tagline">{{ t('home.tagline') }}</p>
+    <p class="about-profile__intro">{{ t('about.intro') }}</p>
+  </div>
+</section>
