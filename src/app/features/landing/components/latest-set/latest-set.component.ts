@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -10,7 +10,10 @@ import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
 import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
 
-import { LATEST_SET_PREVIEW_COUNT } from '../../const/landing.const';
+/** Fraction of the visible width moved per arrow press. */
+const SCROLL_STEP = 0.8;
+/** Sub-pixel slack when deciding the strip reached an edge. */
+const EDGE_TOLERANCE = 2;
 
 @Component({
   standalone: true,
@@ -34,7 +37,16 @@ export class LatestSetComponent {
   protected readonly counter = formatSetCounter;
   protected readonly lang = this.languageStore.currentLang;
   protected readonly post = this.photoPostsStore.latestPost;
-  protected readonly previewPhotos = computed(() =>
-    this.post().photos.slice(0, LATEST_SET_PREVIEW_COUNT)
-  );
+
+  protected readonly atEnd = signal(false);
+  protected readonly atStart = signal(true);
+
+  protected scrollBy(strip: HTMLElement, direction: -1 | 1): void {
+    strip.scrollBy({ left: direction * strip.clientWidth * SCROLL_STEP });
+  }
+
+  protected updateEdges(strip: HTMLElement): void {
+    this.atStart.set(strip.scrollLeft <= EDGE_TOLERANCE);
+    this.atEnd.set(strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - EDGE_TOLERANCE);
+  }
 }
