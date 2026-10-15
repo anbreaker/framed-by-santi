@@ -1,0 +1,154 @@
+<section class="post-editor" *transloco="let t">
+  <h2 class="post-editor__title">{{ t('admin.editor.title') }}</h2>
+
+  <app-upload-panel (uploaded)="addPhoto($event)" />
+
+  <div class="post-editor__photos">
+    <h3 class="post-editor__subtitle">{{ t('admin.editor.photos.title') }}</h3>
+    <p class="post-editor__hint">{{ t('admin.editor.photos.hint') }}</p>
+
+    @if (photosMissing()) {
+      <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.missing') }}</p>
+    }
+
+    @if (photos().length > 0) {
+      <ol class="post-editor__list" role="list">
+        @for (photo of photos(); track photo.id; let index = $index; let last = $last) {
+          <li
+            class="post-editor__item"
+            draggable="true"
+            [class.post-editor__item--dragging]="dragFrom() === index"
+            (dragend)="dragFrom.set(null)"
+            (dragover)="$event.preventDefault()"
+            (dragstart)="dragFrom.set(index)"
+            (drop)="onDrop(index)"
+          >
+            <span class="post-editor__position">
+              {{ index + 1 }}
+              @if (index === 0) {
+                <span class="post-editor__badge">{{ t('admin.editor.photos.cover') }}</span>
+              }
+            </span>
+            <label class="post-editor__alt">
+              <span class="post-editor__label">{{ t('admin.editor.photos.alt') }}</span>
+              <input
+                class="post-editor__input"
+                type="text"
+                [value]="photo.alt"
+                (input)="setAlt(index, $event)"
+              />
+            </label>
+            <div class="post-editor__actions">
+              <button
+                class="post-editor__action"
+                type="button"
+                [attr.aria-label]="t('admin.editor.photos.moveUp', { n: index + 1 })"
+                [disabled]="index === 0"
+                (click)="move(index, index - 1)"
+              >
+                ↑
+              </button>
+              <button
+                class="post-editor__action"
+                type="button"
+                [attr.aria-label]="t('admin.editor.photos.moveDown', { n: index + 1 })"
+                [disabled]="last"
+                (click)="move(index, index + 1)"
+              >
+                ↓
+              </button>
+              <button
+                class="post-editor__action"
+                type="button"
+                [disabled]="index === 0"
+                (click)="cover(index)"
+              >
+                {{ t('admin.editor.photos.makeCover') }}
+              </button>
+              <button class="post-editor__action" type="button" (click)="remove(index)">
+                {{ t('admin.editor.photos.remove') }}
+              </button>
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  </div>
+
+  <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">
+    <label class="post-editor__field">
+      <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
+      <input class="post-editor__input" type="text" [formField]="postForm.caption" />
+      @if (postForm.caption().touched() && postForm.caption().invalid()) {
+        <span class="post-editor__error" role="alert">
+          {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
+        </span>
+      }
+    </label>
+
+    <label class="post-editor__field">
+      <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
+      <textarea class="post-editor__input" rows="4" [formField]="postForm.description"></textarea>
+      @if (postForm.description().invalid()) {
+        <span class="post-editor__error" role="alert">
+          {{ t('admin.editor.errors.description', { max: maxDescription }) }}
+        </span>
+      }
+    </label>
+
+    <label class="post-editor__field">
+      <span class="post-editor__label">{{ t('admin.editor.hashtags') }}</span>
+      <input
+        class="post-editor__input"
+        placeholder="#street #nyc"
+        type="text"
+        [formField]="postForm.hashtags"
+      />
+    </label>
+
+    <label class="post-editor__field">
+      <span class="post-editor__label">{{ t('admin.editor.date') }}</span>
+      <input class="post-editor__input" type="date" [formField]="postForm.takenAt" />
+      @if (postForm.takenAt().invalid()) {
+        <span class="post-editor__error" role="alert">{{ t('admin.editor.errors.date') }}</span>
+      }
+    </label>
+
+    <fieldset class="post-editor__tags">
+      <legend class="post-editor__label">{{ t('admin.editor.tags') }}</legend>
+      @for (tag of allTags; track tag) {
+        <label class="post-editor__tag">
+          <input
+            type="checkbox"
+            [checked]="selectedTags().includes(tag)"
+            (change)="toggleTag(tag, $event)"
+          />
+          {{ t('tags.' + tag) }}
+        </label>
+      }
+    </fieldset>
+
+    <div class="post-editor__submit">
+      <button class="btn btn--ghost" type="button" [disabled]="!canSave()" (click)="save(true)">
+        {{ t('admin.editor.saveDraft') }}
+      </button>
+      <button class="btn" type="button" [disabled]="!canSave()" (click)="save(false)">
+        {{ t('admin.editor.publish') }}
+      </button>
+    </div>
+
+    <p class="post-editor__status" aria-live="polite" role="status">
+      @switch (status()) {
+        @case ('saving') {
+          {{ t('admin.editor.status.saving') }}
+        }
+        @case ('saved') {
+          {{ t('admin.editor.status.saved') }}
+        }
+        @case ('failed') {
+          <span class="post-editor__error">{{ t('admin.editor.status.failed') }}</span>
+        }
+      }
+    </p>
+  </form>
+</section>

@@ -53,6 +53,37 @@
         "signFailed": "No se pudo obtener permiso para subir. Inténtalo en un momento.",
         "uploadFailed": "La subida falló. Inténtalo de nuevo."
       }
+    },
+    "editor": {
+      "title": "Nueva serie",
+      "photos": {
+        "title": "Fotos de esta serie",
+        "hint": "La primera foto es la portada. Arrastrá para reordenar, o usá los botones con flechas.",
+        "missing": "Agregá al menos una foto.",
+        "cover": "Portada",
+        "alt": "Descripción para lectores de pantalla (opcional, por defecto el pie de foto)",
+        "moveUp": "Subir la foto {{n}}",
+        "moveDown": "Bajar la foto {{n}}",
+        "makeCover": "Usar de portada",
+        "remove": "Quitar"
+      },
+      "caption": "Pie de foto",
+      "description": "Descripción (opcional)",
+      "hashtags": "Hashtags (opcional)",
+      "date": "Fecha",
+      "tags": "Temas",
+      "saveDraft": "Guardar como borrador",
+      "publish": "Publicar",
+      "status": {
+        "saving": "Guardando…",
+        "saved": "Guardado.",
+        "failed": "No se pudo guardar. Revisá la conexión e intentá de nuevo."
+      },
+      "errors": {
+        "caption": "Escribí un pie de foto de hasta {{max}} caracteres.",
+        "description": "La descripción es demasiado larga (máximo {{max}} caracteres).",
+        "date": "Elegí una fecha válida."
+      }
     }
   },
   "common": {

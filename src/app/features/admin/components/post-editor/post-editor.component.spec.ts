@@ -1,0 +1,146 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+
+import { realTranslations } from '@shared/testing/transloco-testing';
+
+import { PostsAdminError, PostsAdminService } from '../../services/posts-admin.service';
+import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
+import { PostEditorComponent } from './post-editor.component';
+
+describe('PostEditorComponent', () => {
+  let fixture: ComponentFixture<PostEditorComponent>;
+  let create: ReturnType<typeof vi.fn>;
+  let saved: string[];
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const button = (label: string): HTMLButtonElement =>
+    Array.from(root().querySelectorAll('button')).find((item) =>
+      item.textContent?.includes(label)
+    ) as HTMLButtonElement;
+
+  const type = async (selector: string, value: string): Promise<void> => {
+    const input = root().querySelector(selector) as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+  };
+
+  const upload = async (...ids: string[]): Promise<void> => {
+    const panel = fixture.debugElement.query(By.directive(UploadPanelComponent));
+    for (const id of ids) {
+      (panel.componentInstance as UploadPanelComponent).uploaded.emit({
+        height: 800,
+        publicId: id,
+        width: 1200,
+      });
+    }
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    create = vi.fn().mockResolvedValue('new-1');
+    saved = [];
+
+    await TestBed.configureTestingModule({
+      imports: [PostEditorComponent, realTranslations()],
+      providers: [{ provide: PostsAdminService, useValue: { create } }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(PostEditorComponent);
+    fixture.componentInstance.saved.subscribe((id) => saved.push(id));
+    await fixture.whenStable();
+  });
+
+  it('should not save without photos and say so', async () => {
+    await type('input[name$=".caption"]', 'Cyclist');
+    button('Publish').click();
+    await fixture.whenStable();
+
+    expect(create).not.toHaveBeenCalled();
+    expect(root().textContent).toContain('Add at least one photo.');
+  });
+
+  it('should not save without a caption and show the caption error', async () => {
+    await upload('a');
+    button('Publish').click();
+    await fixture.whenStable();
+
+    expect(create).not.toHaveBeenCalled();
+    expect(root().textContent).toContain('Write a caption');
+  });
+
+  it('should publish a visible post with its texts, hashtags, tags and photos', async () => {
+    await upload('a');
+    await type('input[name$=".caption"]', 'Cyclist');
+    await type('textarea[name$=".description"]', 'Set text');
+    await type('input[name$=".hashtags"]', '#street nyc');
+    await type('input[name$=".takenAt"]', '2026-10-02');
+    (root().querySelector('.post-editor__tag input') as HTMLInputElement).click();
+    await fixture.whenStable();
+
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    const [post, visibility] = create.mock.calls[0];
+    expect(visibility).toEqual({ hidden: false });
+    expect(post).toMatchObject({
+      caption: 'Cyclist',
+      description: 'Set text',
+      hashtags: ['street', 'nyc'],
+      tags: ['architecture'],
+      takenAt: '2026-10-02',
+    });
+    expect(post.photos).toEqual([
+      { alt: 'Cyclist', height: 800, id: 'a', publicId: 'a', width: 1200 },
+    ]);
+    await vi.waitFor(() => expect(saved).toEqual(['new-1']));
+  });
+
+  it('should keep the post hidden when saved as a draft', async () => {
+    await upload('a');
+    await type('input[name$=".caption"]', 'Cyclist');
+
+    button('Save as draft').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][1]).toEqual({ hidden: true });
+  });
+
+  it('should reorder with the arrow buttons, set a cover and remove photos', async () => {
+    await upload('a', 'b', 'c');
+    const ids = (): string[] =>
+      Array.from(root().querySelectorAll('.post-editor__item')).map((item) =>
+        (item.querySelector('.post-editor__position')?.textContent ?? '').trim()
+      );
+    expect(ids()[0]).toContain('Cover');
+
+    (root().querySelector('[aria-label="Move photo 1 down"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    root().querySelectorAll('.post-editor__item')[2].querySelectorAll('button')[2].click();
+    await fixture.whenStable();
+    root().querySelectorAll('.post-editor__item')[1].querySelectorAll('button')[3].click();
+    await fixture.whenStable();
+
+    await type('input[name$=".caption"]', 'C');
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    // a,b,c -> b,a,c -> c,b,a (c made cover) -> c,a (b removed)
+    expect(create.mock.calls[0][0].photos.map((photo: { id: string }) => photo.id)).toEqual([
+      'c',
+      'a',
+    ]);
+  });
+
+  it('should tell the author when saving fails and allow trying again', async () => {
+    create.mockRejectedValue(new PostsAdminError('request-failed'));
+    await upload('a');
+    await type('input[name$=".caption"]', 'Cyclist');
+
+    button('Publish').click();
+    await vi.waitFor(() => expect(root().textContent).toContain('Could not save'));
+
+    expect(button('Publish').disabled).toBe(false);
+    expect(saved).toEqual([]);
+  });
+});

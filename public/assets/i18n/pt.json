@@ -53,6 +53,37 @@
         "signFailed": "Não foi possível obter permissão para carregar. Tente novamente daqui a pouco.",
         "uploadFailed": "O carregamento falhou. Tente novamente."
       }
+    },
+    "editor": {
+      "title": "Nova série",
+      "photos": {
+        "title": "Fotos desta série",
+        "hint": "A primeira foto é a capa. Arraste para reordenar, ou use os botões de seta.",
+        "missing": "Adicione pelo menos uma foto.",
+        "cover": "Capa",
+        "alt": "Descrição para leitores de ecrã (opcional, por defeito a legenda)",
+        "moveUp": "Subir a foto {{n}}",
+        "moveDown": "Descer a foto {{n}}",
+        "makeCover": "Usar como capa",
+        "remove": "Remover"
+      },
+      "caption": "Legenda",
+      "description": "Descrição (opcional)",
+      "hashtags": "Hashtags (opcional)",
+      "date": "Data",
+      "tags": "Temas",
+      "saveDraft": "Guardar como rascunho",
+      "publish": "Publicar",
+      "status": {
+        "saving": "A guardar…",
+        "saved": "Guardado.",
+        "failed": "Não foi possível guardar. Verifique a ligação e tente novamente."
+      },
+      "errors": {
+        "caption": "Escreva uma legenda com até {{max}} caracteres.",
+        "description": "A descrição é demasiado longa (máximo {{max}} caracteres).",
+        "date": "Escolha uma data válida."
+      }
     }
   },
   "common": {

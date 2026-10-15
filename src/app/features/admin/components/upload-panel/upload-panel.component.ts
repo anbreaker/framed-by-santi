@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, InjectionToken, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  InjectionToken,
+  output,
+  signal,
+} from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -53,6 +60,9 @@ export class UploadPanelComponent {
 
   private nextId = 0;
 
+  /** Emits each photo as soon as it is on Cloudinary, so a post can collect them. */
+  readonly uploaded = output<UploadedPhoto>();
+
   protected readonly items = signal<readonly UploadItem[]>([]);
   protected readonly maxLongEdge = MAX_LONG_EDGE;
 
@@ -85,6 +95,7 @@ export class UploadPanelComponent {
 
       const result = await this.uploads.upload(prepared.blob);
       this.patch(id, { result, status: 'done' });
+      this.uploaded.emit(result);
     } catch (error) {
       const reason =
         error instanceof PhotoRejectedError || error instanceof PhotoUploadError

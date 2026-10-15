@@ -51,6 +51,16 @@ describe('UploadPanelComponent', () => {
     expect(input.multiple).toBe(true);
   });
 
+  it('should emit each photo once it is uploaded', async () => {
+    const emitted: unknown[] = [];
+    fixture.componentInstance.uploaded.subscribe((photo) => emitted.push(photo));
+
+    await pick(fileOf('a.jpg'));
+    await vi.waitFor(() =>
+      expect(emitted).toEqual([{ height: 10, publicId: 'folder/a', width: 20 }])
+    );
+  });
+
   it('should upload each chosen photo and mark it as done', async () => {
     await pick(fileOf('a.jpg'), fileOf('b.jpg'));
     await vi.waitFor(() => expect(upload).toHaveBeenCalledTimes(2));

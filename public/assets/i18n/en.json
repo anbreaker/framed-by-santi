@@ -53,6 +53,37 @@
         "signFailed": "Could not get permission to upload. Try again in a moment.",
         "uploadFailed": "The upload failed. Try again."
       }
+    },
+    "editor": {
+      "title": "New set",
+      "photos": {
+        "title": "Photos in this set",
+        "hint": "The first photo is the cover. Drag to reorder, or use the arrow buttons.",
+        "missing": "Add at least one photo.",
+        "cover": "Cover",
+        "alt": "Description for screen readers (optional, defaults to the caption)",
+        "moveUp": "Move photo {{n}} up",
+        "moveDown": "Move photo {{n}} down",
+        "makeCover": "Make cover",
+        "remove": "Remove"
+      },
+      "caption": "Caption",
+      "description": "Description (optional)",
+      "hashtags": "Hashtags (optional)",
+      "date": "Date",
+      "tags": "Themes",
+      "saveDraft": "Save as draft",
+      "publish": "Publish",
+      "status": {
+        "saving": "Saving…",
+        "saved": "Saved.",
+        "failed": "Could not save. Check your connection and try again."
+      },
+      "errors": {
+        "caption": "Write a caption of up to {{max}} characters.",
+        "description": "The description is too long (max {{max}} characters).",
+        "date": "Choose a valid date."
+      }
     }
   },
   "common": {
