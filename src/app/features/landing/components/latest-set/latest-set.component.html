@@ -21,6 +21,12 @@
       role="list"
       tabindex="0"
       [attr.aria-label]="t('home.latest.title')"
+      [class.latest-set__strip--dragging]="dragging()"
+      (dragstart)="$event.preventDefault()"
+      (pointercancel)="dragEnd()"
+      (pointerdown)="dragStart($event, strip)"
+      (pointermove)="dragMove($event, strip)"
+      (pointerup)="dragEnd()"
       (scroll)="updateEdges(strip)"
     >
       @for (photo of latest.photos; track photo.id; let index = $index) {

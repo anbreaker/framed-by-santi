@@ -42,9 +42,34 @@ export class LatestSetComponent {
 
   protected readonly atEnd = signal(false);
   protected readonly atStart = signal(true);
+  protected readonly dragging = signal(false);
+
+  private dragOrigin = { left: 0, x: 0 };
+
+  /** Lets a mouse drag the strip like a finger does; touch already scrolls natively. */
+  protected dragStart(event: PointerEvent, strip: HTMLElement): void {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+    this.dragOrigin = { left: strip.scrollLeft, x: event.clientX };
+    this.dragging.set(true);
+    strip.setPointerCapture?.(event.pointerId);
+  }
+
+  protected dragMove(event: PointerEvent, strip: HTMLElement): void {
+    if (!this.dragging()) return;
+
+    strip.scrollLeft = this.dragOrigin.left - (event.clientX - this.dragOrigin.x);
+  }
+
+  protected dragEnd(): void {
+    this.dragging.set(false);
+  }
 
   protected scrollBy(strip: HTMLElement, direction: -1 | 1): void {
-    strip.scrollBy({ left: direction * strip.clientWidth * SCROLL_STEP });
+    strip.scrollBy({
+      behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      left: direction * strip.clientWidth * SCROLL_STEP,
+    });
   }
 
   protected updateEdges(strip: HTMLElement): void {
