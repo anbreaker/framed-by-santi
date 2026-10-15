@@ -45,6 +45,21 @@ describe('PhotoPostsStore with Firestore', () => {
     mocks.getDb.mockReturnValue({});
   });
 
+  it('should put the set created last first when two share a day', async () => {
+    mocks.getDocs.mockResolvedValue({
+      docs: [
+        docOf('morning', { ...post('2026-10-15'), createdAt: '2026-10-15T08:00:00.000Z' }),
+        docOf('evening', { ...post('2026-10-15'), createdAt: '2026-10-15T20:00:00.000Z' }),
+        docOf('legacy', post('2026-10-15')),
+      ],
+    });
+
+    const store = await create();
+
+    expect(store.posts().map((item) => item.id)).toEqual(['evening', 'morning', 'legacy']);
+    expect(store.latestPost()?.id).toBe('evening');
+  });
+
   it('should ask only for visible posts, as the security rules require', async () => {
     mocks.getDocs.mockResolvedValue({ docs: [] });
 

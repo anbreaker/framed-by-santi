@@ -341,11 +341,19 @@ export class PostEditorComponent implements OnInit {
       });
 
       try {
-        const existingId = this.initial()?.post.id;
+        const existing = this.initial()?.post;
+        const existingId = existing?.id;
         const id = existingId ?? (await this.posts.create(post, { hidden }));
 
         if (existingId !== undefined)
-          await this.posts.save({ ...post, id: existingId }, { hidden });
+          await this.posts.save(
+            {
+              ...post,
+              ...(existing?.createdAt !== undefined && { createdAt: existing.createdAt }),
+              id: existingId,
+            },
+            { hidden }
+          );
 
         this.status.set(translated ? 'saved' : 'partial');
         this.saved.emit(id);

@@ -50,6 +50,13 @@ describe('toPostDocument', () => {
     expect('description' in document).toBe(false);
   });
 
+  it('should keep the creation time and leave it out when there is none', () => {
+    expect(
+      toPostDocument({ ...post, createdAt: '2026-10-15T20:00:00.000Z' }, { hidden: false })
+    ).toHaveProperty('createdAt', '2026-10-15T20:00:00.000Z');
+    expect('createdAt' in toPostDocument(post, { hidden: false })).toBe(false);
+  });
+
   it('should round-trip through the reader the public site uses', () => {
     expect(toPhotoPost(post.id, toPostDocument(post, { hidden: false }))).toEqual(post);
   });
