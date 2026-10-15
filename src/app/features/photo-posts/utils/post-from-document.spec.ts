@@ -44,6 +44,15 @@ describe('toPhotoPost', () => {
     expect(post).not.toHaveProperty('hashtags');
   });
 
+  it('should keep the Cloudinary public id of uploaded photos', () => {
+    const post = toPhotoPost('p', {
+      ...valid,
+      photos: [{ ...photo, publicId: 'framed-by-santi/posts/x' }],
+    });
+
+    expect(post?.photos[0].publicId).toBe('framed-by-santi/posts/x');
+  });
+
   it('should reject documents that cannot be shown', () => {
     expect(toPhotoPost('p', null)).toBeNull();
     expect(toPhotoPost('p', 'text')).toBeNull();

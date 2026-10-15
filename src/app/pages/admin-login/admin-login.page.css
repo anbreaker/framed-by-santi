@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.admin-login:focus {
+  outline: none;
+}

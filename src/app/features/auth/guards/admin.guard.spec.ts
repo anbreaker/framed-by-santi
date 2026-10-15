@@ -32,10 +32,12 @@ describe('adminGuard', () => {
     expect(await runGuard(true)).toBe(true);
   });
 
-  it('should send everybody else to the home page', async () => {
+  it('should send everybody else to the sign-in page', async () => {
     const result = await runGuard(false);
 
     expect(result).not.toBe(true);
-    expect(TestBed.inject(Router).serializeUrl(result as ReturnType<Router['parseUrl']>)).toBe('/');
+    expect(TestBed.inject(Router).serializeUrl(result as ReturnType<Router['parseUrl']>)).toBe(
+      '/admin'
+    );
   });
 });

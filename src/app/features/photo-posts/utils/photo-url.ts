@@ -31,6 +31,13 @@ export function cloudinaryUrl(
   return `https://res.cloudinary.com/${config.cloudName}/image/upload/c_limit,f_auto,q_auto,w_${width}/${config.publicIdPrefix}${photoId}`;
 }
 
+/** Photos uploaded from the dashboard carry their full public id; the rest live under the configured prefix. */
+function photoCloudinaryUrl(config: CloudinaryEnvironment, photo: Photo, width: number): string {
+  return photo.publicId === undefined
+    ? cloudinaryUrl(config, photo.id, width)
+    : cloudinaryUrl({ ...config, publicIdPrefix: '' }, photo.publicId, width);
+}
+
 /**
  * Single place that turns a photo into an image URL: a Cloudinary delivery URL when the cloud
  * is configured, the local WebP file otherwise (tests, offline work, forks).
@@ -42,7 +49,7 @@ export function photoUrl(
 ): string {
   if (!config.cloudName) return `/local-photos/${photo.id}.webp`;
 
-  return cloudinaryUrl(config, photo.id, snapWidth(width));
+  return photoCloudinaryUrl(config, photo, snapWidth(width));
 }
 
 /**
@@ -62,5 +69,5 @@ export function photoSrcset(
 
   if (photo.width < largest && !widths.includes(photo.width)) widths.push(photo.width);
 
-  return widths.map((width) => `${cloudinaryUrl(config, photo.id, width)} ${width}w`).join(', ');
+  return widths.map((width) => `${photoCloudinaryUrl(config, photo, width)} ${width}w`).join(', ');
 }

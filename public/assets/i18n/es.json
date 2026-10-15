@@ -10,6 +10,51 @@
     "photoAlt": "Retrato de Santi García",
     "title": "Santi García"
   },
+  "admin": {
+    "login": {
+      "eyebrow": "Zona privada",
+      "title": "Iniciar sesión",
+      "email": "Correo",
+      "password": "Contraseña",
+      "submit": "Entrar",
+      "submitting": "Entrando…",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "missing": "Escribe tu correo y tu contraseña.",
+      "failed": "No pudimos iniciar tu sesión. Revisa los datos e inténtalo de nuevo.",
+      "emailFirst": "Escribe primero tu correo.",
+      "resetSent": "Si esa dirección puede entrar, te hemos enviado un enlace para restablecer la contraseña.",
+      "unavailable": "El acceso no está disponible ahora mismo."
+    },
+    "dashboard": {
+      "eyebrow": "Zona privada",
+      "title": "Panel",
+      "soon": "Pronto gestionarás tus series de fotos desde aquí.",
+      "signOut": "Cerrar sesión"
+    },
+    "upload": {
+      "title": "Subir fotos",
+      "hint": "JPEG, PNG o WebP. Las fotos se reducen a {{max}} px en el lado largo y 10 MB como máximo.",
+      "pick": "Elegir fotos para subir",
+      "status": {
+        "preparing": "Preparando…",
+        "uploading": "Subiendo…",
+        "done": "Subida",
+        "failed": "Falló"
+      },
+      "warnings": {
+        "resized": "Reducida a {{max}} px en el lado largo.",
+        "recompressed": "Comprimida para caber en {{max}} MB."
+      },
+      "errors": {
+        "unsupportedType": "Este archivo no es una imagen compatible (usa JPEG, PNG o WebP).",
+        "unreadable": "No pudimos leer esta imagen.",
+        "tooLarge": "Sigue por encima de 10 MB tras comprimir, prueba con un archivo más pequeño.",
+        "notAllowed": "Esta cuenta no tiene permiso para subir. Vuelve a iniciar sesión.",
+        "signFailed": "No se pudo obtener permiso para subir. Inténtalo en un momento.",
+        "uploadFailed": "La subida falló. Inténtalo de nuevo."
+      }
+    }
+  },
   "common": {
     "instagram": "Instagram",
     "skipToContent": "Saltar al contenido"
