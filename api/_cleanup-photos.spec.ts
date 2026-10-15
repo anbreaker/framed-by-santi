@@ -52,6 +52,8 @@ interface World {
   firestoreStatus?: number;
   cloudinaryListStatus?: number;
   cloudinaryDeleteStatus?: number;
+  /** What Cloudinary says per id in a successful delete; defaults to 'deleted' for every id. */
+  deleteResult?: (id: string) => string;
 }
 
 /** A fake network for the admin check, Firestore, and the Cloudinary Admin API. */
@@ -85,7 +87,9 @@ const network = (world: World = {}) => {
 
       const ids = new URL(url).searchParams.getAll('public_ids[]');
       deleted.push(...ids);
-      return Response.json({ deleted: Object.fromEntries(ids.map((id) => [id, 'deleted'])) });
+      return Response.json({
+        deleted: Object.fromEntries(ids.map((id) => [id, world.deleteResult?.(id) ?? 'deleted'])),
+      });
     }
 
     if (url.startsWith('https://api.cloudinary.com/')) {
@@ -157,7 +161,10 @@ describe('cleanup-photos', () => {
   });
 
   it('should read the sets with the caller token and ask Cloudinary with basic auth, for the upload folder only', async () => {
-    const { net, response } = run({ resourcePages: [[]] });
+    const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[]],
+    });
     await response;
 
     const posts = net.calls.find((call) => call.url.includes('/documents/posts'));
@@ -174,7 +181,7 @@ describe('cleanup-photos', () => {
 
   it('should only report what it would delete in a dry run', async () => {
     const { net, response } = run(
-      { resourcePages: [[photo('orphan', 40)]] },
+      { postPages: [[post(`${FOLDER}/used`)]], resourcePages: [[photo('orphan', 40)]] },
       { body: { dryRun: true } }
     );
 
@@ -187,6 +194,7 @@ describe('cleanup-photos', () => {
 
   it('should never delete a photo outside the upload folder', async () => {
     const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
       resourcePages: [
         [{ created_at: daysAgo(40), public_id: 'somewhere-else/photo' }, photo('orphan', 40)],
       ],
@@ -210,11 +218,15 @@ describe('cleanup-photos', () => {
   });
 
   it('should delete nothing when Cloudinary cannot be listed or the delete is refused', async () => {
-    const listFails = run({ cloudinaryListStatus: 401 });
+    const listFails = run({
+      cloudinaryListStatus: 401,
+      postPages: [[post(`${FOLDER}/used`)]],
+    });
     expect((await listFails.response).status).toBe(502);
 
     const deleteFails = run({
       cloudinaryDeleteStatus: 500,
+      postPages: [[post(`${FOLDER}/used`)]],
       resourcePages: [[photo('orphan', 40)]],
     });
     expect((await deleteFails.response).status).toBe(502);
@@ -222,13 +234,56 @@ describe('cleanup-photos', () => {
 
   it('should delete at most 100 photos per run, oldest first, and say there is more to do', async () => {
     const many = Array.from({ length: 130 }, (_, index) => photo(`orphan-${index}`, 40 + index));
-    const { net, response } = run({ resourcePages: [many] });
+    const { net, response } = run({ postPages: [[post(`${FOLDER}/used`)]], resourcePages: [many] });
 
     const body = await (await response).json();
 
     expect(net.deleted).toHaveLength(100);
     expect(net.deleted[0]).toBe(`${FOLDER}/orphan-129`);
     expect(body).toMatchObject({ remaining: 30 });
+  });
+
+  it('should delete nothing when it finds no set at all: it cannot tell what is used', async () => {
+    const { net, response } = run({
+      postPages: [[]],
+      resourcePages: [[photo('a', 40), photo('b', 40)]],
+    });
+
+    const body = await (await response).json();
+
+    expect(net.deleted).toEqual([]);
+    expect(body).toMatchObject({ deleted: [], skipped: 'no-sets-found' });
+  });
+
+  it('should only report as deleted what Cloudinary confirmed, and say what failed', async () => {
+    const { response } = run({
+      deleteResult: (id) =>
+        id.endsWith('bad') ? 'error' : id.endsWith('gone') ? 'not_found' : 'deleted',
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[photo('used', 40), photo('ok', 40), photo('bad', 41), photo('gone', 42)]],
+    });
+
+    const body = await (await response).json();
+
+    expect(body.deleted.sort()).toEqual([`${FOLDER}/gone`, `${FOLDER}/ok`]);
+    expect(body.failed).toEqual([`${FOLDER}/bad`]);
+    expect(body.remaining).toBe(1);
+  });
+
+  it('should send the deletes in small batches so the address never gets too long', async () => {
+    const many = Array.from({ length: 60 }, (_, index) => photo(`orphan-${index}`, 40 + index));
+    const { net, response } = run({ postPages: [[post(`${FOLDER}/used`)]], resourcePages: [many] });
+    await response;
+
+    const deleteCalls = net.calls.filter((call) => call.init?.method === 'DELETE');
+
+    expect(net.deleted).toHaveLength(60);
+    expect(deleteCalls.length).toBeGreaterThanOrEqual(3);
+    expect(
+      deleteCalls.every(
+        (call) => new URL(call.url).searchParams.getAll('public_ids[]').length <= 25
+      )
+    ).toBe(true);
   });
 
   it('should have nothing to do when nothing is orphaned', async () => {

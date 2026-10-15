@@ -5,7 +5,8 @@ import { UPLOAD_FOLDER } from './_sign-upload.js';
 const GRACE_DAYS = 7;
 /** One run never deletes more than this, so a mistake cannot wipe the folder. */
 const MAX_DELETES_PER_RUN = 100;
-const DELETE_BATCH = 100;
+/** Public ids go in the address of a DELETE call, so the batches stay small and the address short. */
+const DELETE_BATCH = 25;
 const REQUEST_TIMEOUT_MS = 10_000;
 
 export interface CleanupEnv {
@@ -127,15 +128,26 @@ const listUploads = async (
   return resources;
 };
 
+interface DeleteOutcome {
+  /** Gone from Cloudinary: deleted now, or already missing. */
+  confirmed: string[];
+  /** Cloudinary answered but did not delete them. */
+  failed: string[];
+}
+
+/** Deletes in small batches and trusts only what Cloudinary confirms for each id. */
 const deleteUploads = async (
   fetchFn: FetchFn,
   cloudName: string,
   authorization: string,
   ids: string[]
-): Promise<void> => {
+): Promise<DeleteOutcome> => {
+  const outcome: DeleteOutcome = { confirmed: [], failed: [] };
+
   for (let start = 0; start < ids.length; start += DELETE_BATCH) {
+    const batch = ids.slice(start, start + DELETE_BATCH);
     const params = new URLSearchParams();
-    ids.slice(start, start + DELETE_BATCH).forEach((id) => params.append('public_ids[]', id));
+    batch.forEach((id) => params.append('public_ids[]', id));
 
     try {
       const response = await fetchFn(`${adminUrl(cloudName)}?${params}`, {
@@ -147,10 +159,21 @@ const deleteUploads = async (
       if (!response.ok) {
         throw new CleanupError('delete-failed');
       }
+
+      const { deleted } = (await response.json()) as { deleted?: Record<string, string> };
+
+      for (const id of batch) {
+        const state = deleted?.[id];
+        (state === 'deleted' || state === 'not_found' ? outcome.confirmed : outcome.failed).push(
+          id
+        );
+      }
     } catch (error) {
       throw error instanceof CleanupError ? error : new CleanupError('delete-failed');
     }
   }
+
+  return outcome;
 };
 
 /**
@@ -193,6 +216,19 @@ export const handleCleanup = async (
 
   try {
     const used = await readUsedPhotos(fetchFn, firebaseProjectId, idToken);
+
+    // With no set found it cannot tell what is used (a wrong project, a mistaken empty read): keep everything.
+    if (used.size === 0) {
+      return json(200, {
+        deleted: [],
+        dryRun,
+        failed: [],
+        remaining: 0,
+        scanned: 0,
+        skipped: 'no-sets-found',
+      });
+    }
+
     const uploads = await listUploads(fetchFn, cloudName, authorization);
     const cutoff = now() - GRACE_DAYS * 24 * 60 * 60 * 1000;
 
@@ -206,14 +242,16 @@ export const handleCleanup = async (
       .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
     const batch = orphans.slice(0, MAX_DELETES_PER_RUN).map((item) => item.public_id);
 
-    if (!dryRun && batch.length > 0) {
-      await deleteUploads(fetchFn, cloudName, authorization, batch);
-    }
+    const outcome: DeleteOutcome =
+      dryRun || batch.length === 0
+        ? { confirmed: dryRun ? batch : [], failed: [] }
+        : await deleteUploads(fetchFn, cloudName, authorization, batch);
 
     return json(200, {
-      deleted: batch,
+      deleted: outcome.confirmed,
       dryRun,
-      remaining: orphans.length - batch.length,
+      failed: outcome.failed,
+      remaining: orphans.length - outcome.confirmed.length,
       scanned: uploads.length,
     });
   } catch (error) {
