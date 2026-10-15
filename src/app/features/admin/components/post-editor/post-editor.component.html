@@ -156,15 +156,70 @@
           <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.details') }}</h2>
         </header>
 
-        <label class="post-editor__field">
-          <span class="post-editor__label">{{ t('admin.editor.hashtags') }}</span>
-          <input
-            class="post-editor__input"
-            placeholder="#street #nyc"
-            type="text"
-            [formField]="postForm.hashtags"
-          />
-        </label>
+        <div class="post-editor__field">
+          <span class="post-editor__label" id="hashtags-label">
+            {{ t('admin.editor.hashtags') }}
+          </span>
+
+          @if (hashtags().length > 0) {
+            <div class="post-editor__hashtags" aria-labelledby="hashtags-label" role="group">
+              @for (tag of hashtags(); track tag) {
+                <span class="post-editor__hashtag">
+                  #{{ tag }}
+                  <button
+                    type="button"
+                    [attr.aria-label]="t('admin.editor.hashtagRemove', { tag: '#' + tag })"
+                    (click)="removeHashtag(tag)"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                    >
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="post-editor__hashtag-add">
+            <input
+              class="post-editor__input post-editor__hashtag-input"
+              aria-labelledby="hashtags-label"
+              placeholder="#street #nyc"
+              type="text"
+              [value]="hashtagDraft()"
+              (input)="hashtagDraft.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); addHashtags()"
+            />
+            <button
+              class="btn btn--ghost"
+              type="button"
+              [attr.aria-label]="t('admin.editor.hashtagAdd')"
+              (click)="addHashtags()"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         <label class="post-editor__field">
           <span class="post-editor__label">{{ t('admin.editor.date') }}</span>

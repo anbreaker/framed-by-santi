@@ -47,6 +47,15 @@ describe('PostEditorComponent', () => {
     });
     await fixture.whenStable();
   };
+  const addHashtags = async (text: string): Promise<void> => {
+    await type('.post-editor__hashtag-input', text);
+    (root().querySelector('[aria-label="Add hashtag"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+  };
+  const chips = (): string[] =>
+    Array.from(root().querySelectorAll('.post-editor__hashtag')).map(
+      (chip) => chip.firstChild?.textContent?.trim() ?? ''
+    );
   const upload = async (...ids: string[]): Promise<void> => {
     for (const id of ids) await finish(queue(), id);
   };
@@ -95,7 +104,7 @@ describe('PostEditorComponent', () => {
     await upload('a');
     await type('input[name$=".caption.en"]', 'Cyclist');
     await type('textarea[name$=".description.en"]', 'Set text');
-    await type('input[name$=".hashtags"]', '#street nyc');
+    await addHashtags('#street nyc');
     await type('input[name$=".takenAt"]', '2026-10-02');
     (root().querySelector('.post-editor__chip') as HTMLButtonElement).click();
     await fixture.whenStable();
@@ -263,6 +272,58 @@ describe('PostEditorComponent', () => {
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
 
     expect(create.mock.calls[0][0].photos.map((p: { id: string }) => p.id)).toEqual(['good']);
+  });
+
+  describe('hashtags', () => {
+    it('should add each hashtag as a chip, without the # typed and without repeats', async () => {
+      await addHashtags('#Street nyc, #street #bw');
+
+      expect(chips()).toEqual(['#Street', '#nyc', '#bw']);
+      expect((root().querySelector('.post-editor__hashtag-input') as HTMLInputElement).value).toBe(
+        ''
+      );
+    });
+
+    it('should add them with the Enter key too, without submitting the form', async () => {
+      await type('.post-editor__hashtag-input', 'street');
+      const enter = new KeyboardEvent('keydown', { cancelable: true, key: 'Enter' });
+
+      (root().querySelector('.post-editor__hashtag-input') as HTMLInputElement).dispatchEvent(
+        enter
+      );
+      await fixture.whenStable();
+
+      expect(chips()).toEqual(['#street']);
+      expect(enter.defaultPrevented).toBe(true);
+    });
+
+    it('should remove one with its own button and keep the rest', async () => {
+      await addHashtags('street nyc bw');
+
+      (root().querySelector('[aria-label="Remove #nyc"]') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(chips()).toEqual(['#street', '#bw']);
+    });
+
+    it('should do nothing for an empty or hash-only entry', async () => {
+      await addHashtags('  # , ');
+
+      expect(chips()).toEqual([]);
+    });
+
+    it('should publish exactly the chips shown', async () => {
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+      await addHashtags('street nyc bw');
+      (root().querySelector('[aria-label="Remove #nyc"]') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(create.mock.calls[0][0].hashtags).toEqual(['street', 'bw']);
+    });
   });
 
   it('should write the texts of each language apart and flag the languages still missing', async () => {
@@ -483,7 +544,7 @@ describe('PostEditorComponent', () => {
       expect(root().querySelector('h1')?.textContent).toContain('Edit set');
       expect(value('input[name$=".caption.en"]')).toBe('Flatiron');
       expect(value('textarea[name$=".description.en"]')).toBe('Four frames');
-      expect(value('input[name$=".hashtags"]')).toBe('#street #nyc');
+      expect(chips()).toEqual(['#street', '#nyc']);
       expect(value('input[name$=".takenAt"]')).toBe('2025-10-02');
       expect(root().querySelectorAll('.photo-stage__thumb').length).toBe(2);
       expect((root().querySelector('.photo-stage__alt') as HTMLInputElement).value).toBe('First');

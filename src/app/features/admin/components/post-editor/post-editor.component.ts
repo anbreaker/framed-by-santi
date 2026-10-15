@@ -23,7 +23,7 @@ import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
-import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
+import { buildPost, LanguageTexts, parseHashtags, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
 import {
   AltChange,
@@ -101,6 +101,8 @@ export class PostEditorComponent implements OnInit {
   /** The language being written; it is also the source when translating. */
   protected readonly activeLang = signal<SupportedLang>('en');
 
+  protected readonly hashtagDraft = signal('');
+
   private readonly model = signal({
     caption: emptyTexts(),
     description: emptyTexts(),
@@ -132,6 +134,8 @@ export class PostEditorComponent implements OnInit {
   protected readonly translateErrorKey = signal<string | null>(null);
   protected readonly translateStatus = signal<TranslateStatus>('idle');
 
+  /** The hashtags as chips; the text kept in the model is what gets saved. */
+  protected readonly hashtags = computed(() => parseHashtags(this.model().hashtags));
   protected readonly canSave = computed(() => this.status() !== 'saving');
   protected readonly editing = computed(() => this.initial() !== null);
   protected readonly savedAsPublished = computed(() => this.initial()?.hidden === false);
@@ -277,6 +281,21 @@ export class PostEditorComponent implements OnInit {
     }
   }
 
+  /** Adds what was typed, one chip per word, ignoring the # and repeats (the first spelling stays). */
+  protected addHashtags(): void {
+    const added = parseHashtags(this.hashtagDraft());
+
+    if (added.length > 0) {
+      this.setHashtags(parseHashtags([...this.hashtags(), ...added].join(' ')));
+    }
+
+    this.hashtagDraft.set('');
+  }
+
+  protected removeHashtag(tag: string): void {
+    this.setHashtags(this.hashtags().filter((item) => item !== tag));
+  }
+
   protected onThemeRemoved(id: string): void {
     this.selectedTags.update((current) => current.filter((item) => item !== id));
   }
@@ -297,6 +316,13 @@ export class PostEditorComponent implements OnInit {
    * Translates what the author left empty, so a published set has its texts in every language. It fills
    * only blank languages and never replaces what was written; returns false when the translation failed.
    */
+  private setHashtags(tags: readonly string[]): void {
+    this.model.update((current) => ({
+      ...current,
+      hashtags: tags.map((tag) => `#${tag}`).join(' '),
+    }));
+  }
+
   private async fillMissingLanguages(): Promise<boolean> {
     const model = this.model();
     const items = (['caption', 'description'] as const).flatMap((field) => {
