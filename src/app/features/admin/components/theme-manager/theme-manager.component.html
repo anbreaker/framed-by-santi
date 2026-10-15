@@ -5,7 +5,9 @@
     [attr.aria-expanded]="open()"
     (click)="toggle()"
   >
-    {{ open() ? t('admin.editor.themes.manager.hide') : t('admin.editor.themes.manager.manage') }}
+    <span class="link-grow">
+      {{ open() ? t('admin.editor.themes.manager.hide') : t('admin.editor.themes.manager.manage') }}
+    </span>
   </button>
 
   @if (open()) {

@@ -19,13 +19,8 @@
   font-weight: 500;
   min-height: var(--touch-target);
   padding-inline: 0;
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
 
-  &:hover {
-    color: var(--color-text);
-  }
-
+  /* The label carries the site's grow-on-hover underline (.link-grow), so the button draws none of its own. */
   &:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 3px;

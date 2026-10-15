@@ -11,91 +11,17 @@
     "title": "Santi García"
   },
   "admin": {
-    "login": {
-      "eyebrow": "Zona privada",
-      "title": "Iniciar sesión",
-      "email": "Correo",
-      "password": "Contraseña",
-      "submit": "Entrar",
-      "submitting": "Entrando…",
-      "forgot": "¿Olvidaste tu contraseña?",
-      "missing": "Escribe tu correo y tu contraseña.",
-      "failed": "No pudimos iniciar tu sesión. Revisa los datos e inténtalo de nuevo.",
-      "emailFirst": "Escribe primero tu correo.",
-      "resetSent": "Si esa dirección puede entrar, te hemos enviado un enlace para restablecer la contraseña.",
-      "unavailable": "El acceso no está disponible ahora mismo."
-    },
     "dashboard": {},
-    "upload": {
-      "title": "Subir fotos",
-      "hint": "JPEG, PNG o WebP. Las fotos se reducen a {{max}} px en el lado largo y 10 MB como máximo.",
-      "pick": "Elegir fotos para subir",
-      "status": {
-        "preparing": "Preparando…",
-        "uploading": "Subiendo…",
-        "done": "Subida",
-        "failed": "Falló"
-      },
-      "warnings": {
-        "resized": "Reducida a {{max}} px en el lado largo.",
-        "recompressed": "Comprimida para caber en {{max}} MB."
-      },
-      "errors": {
-        "unsupportedType": "Este archivo no es una imagen compatible (usa JPEG, PNG o WebP).",
-        "unreadable": "No pudimos leer esta imagen.",
-        "tooLarge": "Sigue por encima de 10 MB tras comprimir, prueba con un archivo más pequeño.",
-        "notAllowed": "Esta cuenta no tiene permiso para subir. Vuelve a iniciar sesión.",
-        "signFailed": "No se pudo obtener permiso para subir. Inténtalo en un momento.",
-        "uploadFailed": "La subida falló. Inténtalo de nuevo."
-      }
-    },
     "editor": {
-      "title": "Nueva serie",
-      "photos": {
-        "title": "Fotos de esta serie",
-        "hint": "La primera foto es la portada. Arrastra para reordenar, o usa los botones con flechas.",
-        "missing": "Agrega al menos una foto.",
-        "cover": "Portada",
-        "alt": "Descripción para lectores de pantalla (opcional, por defecto el pie de foto)",
-        "moveUp": "Mover la foto {{n}} antes",
-        "moveDown": "Mover la foto {{n}} después",
-        "makeCover": "Usar de portada",
-        "remove": "Quitar",
-        "previous": "Foto anterior",
-        "next": "Foto siguiente",
-        "earlier": "Mover antes",
-        "later": "Mover después",
-        "show": "Ver la foto {{n}}",
-        "badge": "Foto {{n}}",
-        "add": "Añadir fotos",
-        "addShort": "Añadir",
-        "choose": "Elegir fotos",
-        "emptyTitle": "Suelta aquí las fotos de esta serie o elígelas desde tu dispositivo.",
-        "all": "Todas las fotos, arrastra para reordenar",
-        "altFor": "Descripción de la foto {{n}} para lectores de pantalla",
-        "optional": "opcional",
-        "summary": "{{count}} fotos · la primera es la portada",
-        "pending": "Espera a que terminen las subidas, o quita las fotos que fallaron."
-      },
       "caption": "Pie de foto",
-      "description": "Descripción (opcional)",
-      "hashtags": "Hashtags (opcional)",
       "date": "Fecha",
-      "tags": "Temas",
-      "saveDraft": "Guardar como borrador",
-      "publish": "Publicar",
-      "status": {
-        "saving": "Guardando…",
-        "saved": "Guardado.",
-        "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
-        "draft": "Borrador · sin guardar",
-        "partial": "Publicada, pero algunos idiomas no se pudieron traducir. Se muestran en el primer idioma disponible."
-      },
+      "description": "Descripción (opcional)",
       "errors": {
         "caption": "Escribe un pie de foto de hasta {{max}} caracteres en al menos un idioma.",
-        "description": "La descripción es demasiado larga (máximo {{max}} caracteres).",
-        "date": "Elige una fecha válida."
+        "date": "Elige una fecha válida.",
+        "description": "La descripción es demasiado larga (máximo {{max}} caracteres)."
       },
+      "hashtags": "Hashtags (opcional)",
       "langs": {
         "label": "Idioma de los textos",
         "missing": "falta el texto",
@@ -105,50 +31,124 @@
           "pt": "Portugués"
         }
       },
-      "translate": {
-        "button": "Traducir",
-        "hint": "Traduce lo que escribiste en esta pestaña a los demás idiomas. El idioma se detecta solo. Los textos que ya haya en los otros idiomas se reemplazan.",
-        "working": "Traduciendo…",
-        "done": "Traducido. Revisa los textos antes de guardar.",
-        "errors": {
-          "notAllowed": "Esta cuenta no tiene permiso para traducir. Inicia sesión de nuevo.",
-          "limit": "Se alcanzó el límite de traducciones. Inténtalo más tarde.",
-          "failed": "No se pudo traducir. Inténtalo de nuevo en un momento."
-        }
+      "photos": {
+        "add": "Añadir fotos",
+        "addShort": "Añadir",
+        "all": "Todas las fotos, arrastra para reordenar",
+        "alt": "Descripción para lectores de pantalla (opcional, por defecto el pie de foto)",
+        "altFor": "Descripción de la foto {{n}} para lectores de pantalla",
+        "badge": "Foto {{n}}",
+        "choose": "Elegir fotos",
+        "cover": "Portada",
+        "earlier": "Mover antes",
+        "emptyTitle": "Suelta aquí las fotos de esta serie o elígelas desde tu dispositivo.",
+        "hint": "La primera foto es la portada. Arrastra para reordenar, o usa los botones con flechas.",
+        "later": "Mover después",
+        "makeCover": "Usar de portada",
+        "missing": "Agrega al menos una foto.",
+        "moveDown": "Mover la foto {{n}} después",
+        "moveUp": "Mover la foto {{n}} antes",
+        "next": "Foto siguiente",
+        "optional": "opcional",
+        "pending": "Espera a que terminen las subidas, o quita las fotos que fallaron.",
+        "previous": "Foto anterior",
+        "remove": "Quitar",
+        "show": "Ver la foto {{n}}",
+        "summary": "{{count}} fotos · la primera es la portada",
+        "title": "Fotos de esta serie"
       },
+      "publish": "Publicar",
+      "saveDraft": "Guardar como borrador",
+      "sections": {
+        "details": "Detalles",
+        "texts": "Textos",
+        "themes": "Temas"
+      },
+      "status": {
+        "draft": "Borrador · sin guardar",
+        "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
+        "partial": "Publicada, pero algunos idiomas no se pudieron traducir. Se muestran en el primer idioma disponible.",
+        "saved": "Guardado.",
+        "saving": "Guardando…"
+      },
+      "tags": "Temas",
       "themes": {
-        "title": "Nuevo tema",
-        "name": "Nombre del tema",
-        "hint": "Escríbelo en cualquier idioma; se traduce solo a los demás.",
         "add": "Crear tema",
-        "working": "Creando…",
         "errors": {
+          "deleteFailed": "No se pudo eliminar el tema. Inténtalo de nuevo.",
           "exists": "Ya existe un tema con este nombre.",
-          "invalidName": "Usa un nombre con letras o números.",
           "failed": "No se pudo crear el tema. Inténtalo de nuevo.",
+          "invalidName": "Usa un nombre con letras o números.",
           "notConfigured": "La base de datos no está disponible ahora.",
-          "protected": "Es uno de los temas por defecto y no se puede eliminar.",
-          "deleteFailed": "No se pudo eliminar el tema. Inténtalo de nuevo."
+          "protected": "Es uno de los temas por defecto y no se puede eliminar."
         },
+        "hint": "Escríbelo en cualquier idioma; se traduce solo a los demás.",
         "manager": {
-          "manage": "Gestionar temas",
-          "hide": "Ocultar",
-          "default": "Por defecto",
-          "usedByOne": "Usado en 1 serie",
-          "usedBy": "Usado en {{count}} series",
-          "unused": "No se usa en ninguna serie",
-          "delete": "Eliminar",
+          "cancel": "Cancelar",
           "confirm": "¿Eliminar “{{name}}”? Las series que lo usan lo conservan guardado, pero dejará de mostrarse.",
           "confirmYes": "Sí, eliminar",
-          "cancel": "Cancelar",
-          "working": "Eliminando…",
-          "none": "Todavía no has creado ningún tema propio."
-        }
+          "default": "Por defecto",
+          "delete": "Eliminar",
+          "hide": "Ocultar",
+          "manage": "Gestionar temas",
+          "none": "Todavía no has creado ningún tema propio.",
+          "unused": "No se usa en ninguna serie",
+          "usedBy": "Usado en {{count}} series",
+          "usedByOne": "Usado en 1 serie",
+          "working": "Eliminando…"
+        },
+        "name": "Nombre del tema",
+        "title": "Nuevo tema",
+        "working": "Creando…"
       },
-      "sections": {
-        "texts": "Textos",
-        "details": "Detalles",
-        "themes": "Temas"
+      "title": "Nueva serie",
+      "translate": {
+        "button": "Traducir",
+        "done": "Traducido. Revisa los textos antes de guardar.",
+        "errors": {
+          "failed": "No se pudo traducir. Inténtalo de nuevo en un momento.",
+          "limit": "Se alcanzó el límite de traducciones. Inténtalo más tarde.",
+          "notAllowed": "Esta cuenta no tiene permiso para traducir. Inicia sesión de nuevo."
+        },
+        "hint": "Traduce lo que escribiste en esta pestaña a los demás idiomas. El idioma se detecta solo. Los textos que ya haya en los otros idiomas se reemplazan.",
+        "working": "Traduciendo…"
+      }
+    },
+    "login": {
+      "email": "Correo",
+      "emailFirst": "Escribe primero tu correo.",
+      "eyebrow": "Zona privada",
+      "failed": "No pudimos iniciar tu sesión. Revisa los datos e inténtalo de nuevo.",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "missing": "Escribe tu correo y tu contraseña.",
+      "password": "Contraseña",
+      "resetSent": "Si esa dirección puede entrar, te hemos enviado un enlace para restablecer la contraseña.",
+      "submit": "Entrar",
+      "submitting": "Entrando…",
+      "title": "Iniciar sesión",
+      "unavailable": "El acceso no está disponible ahora mismo."
+    },
+    "upload": {
+      "errors": {
+        "notAllowed": "Esta cuenta no tiene permiso para subir. Vuelve a iniciar sesión.",
+        "signFailed": "No se pudo obtener permiso para subir. Inténtalo en un momento.",
+        "tooLarge": "Sigue por encima de 10 MB tras comprimir, prueba con un archivo más pequeño.",
+        "unreadable": "No pudimos leer esta imagen.",
+        "unsupportedType": "Este archivo no es una imagen compatible (usa JPEG, PNG o WebP).",
+        "uploadFailed": "La subida falló. Inténtalo de nuevo."
+      },
+      "hint": "JPEG, PNG o WebP. Las fotos se reducen a {{max}} px en el lado largo y 10 MB como máximo.",
+      "pick": "Elegir fotos para subir",
+      "status": {
+        "done": "Subida",
+        "failed": "Falló",
+        "preparing": "Preparando…",
+        "uploading": "Subiendo…"
+      },
+      "title": "Subir fotos",
+      "warnings": {
+        "recompressed": "Comprimida para caber en {{max}} MB.",
+        "resized": "Reducida a {{max}} px en el lado largo."
       }
     }
   },

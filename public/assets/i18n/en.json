@@ -11,91 +11,17 @@
     "title": "Santi García"
   },
   "admin": {
-    "login": {
-      "eyebrow": "Private area",
-      "title": "Sign in",
-      "email": "Email",
-      "password": "Password",
-      "submit": "Sign in",
-      "submitting": "Signing in…",
-      "forgot": "Forgot your password?",
-      "missing": "Enter your email and password.",
-      "failed": "We could not sign you in. Check your details and try again.",
-      "emailFirst": "Type your email first.",
-      "resetSent": "If that address can sign in, we sent a link to reset the password.",
-      "unavailable": "Sign-in is not available right now."
-    },
     "dashboard": {},
-    "upload": {
-      "title": "Upload photos",
-      "hint": "JPEG, PNG or WebP. Photos are resized to {{max}} px on the long edge and 10 MB at most.",
-      "pick": "Choose photos to upload",
-      "status": {
-        "preparing": "Preparing…",
-        "uploading": "Uploading…",
-        "done": "Uploaded",
-        "failed": "Failed"
-      },
-      "warnings": {
-        "resized": "Resized to {{max}} px on the long edge.",
-        "recompressed": "Compressed to fit {{max}} MB."
-      },
-      "errors": {
-        "unsupportedType": "This file is not a supported image (use JPEG, PNG or WebP).",
-        "unreadable": "We could not read this image.",
-        "tooLarge": "Still above 10 MB after compressing, try a smaller file.",
-        "notAllowed": "This account is not allowed to upload. Sign in again.",
-        "signFailed": "Could not get permission to upload. Try again in a moment.",
-        "uploadFailed": "The upload failed. Try again."
-      }
-    },
     "editor": {
-      "title": "New set",
-      "photos": {
-        "title": "Photos in this set",
-        "hint": "The first photo is the cover. Drag to reorder, or use the arrow buttons.",
-        "missing": "Add at least one photo.",
-        "cover": "Cover",
-        "alt": "Description for screen readers (optional, defaults to the caption)",
-        "moveUp": "Move photo {{n}} earlier",
-        "moveDown": "Move photo {{n}} later",
-        "makeCover": "Make cover",
-        "remove": "Remove",
-        "previous": "Previous photo",
-        "next": "Next photo",
-        "earlier": "Move earlier",
-        "later": "Move later",
-        "show": "Show photo {{n}}",
-        "badge": "Photo {{n}}",
-        "add": "Add photos",
-        "addShort": "Add",
-        "choose": "Choose photos",
-        "emptyTitle": "Drop the photos of this set here, or choose them from your device.",
-        "all": "All photos, drag to reorder",
-        "altFor": "Description of photo {{n}} for screen readers",
-        "optional": "optional",
-        "summary": "{{count}} photos · the first is the cover",
-        "pending": "Wait for the uploads to finish, or remove the photos that failed."
-      },
       "caption": "Caption",
-      "description": "Description (optional)",
-      "hashtags": "Hashtags (optional)",
       "date": "Date",
-      "tags": "Themes",
-      "saveDraft": "Save as draft",
-      "publish": "Publish",
-      "status": {
-        "saving": "Saving…",
-        "saved": "Saved.",
-        "failed": "Could not save. Check your connection and try again.",
-        "draft": "Draft · not saved yet",
-        "partial": "Published, but some languages could not be translated. They show the first language available."
-      },
+      "description": "Description (optional)",
       "errors": {
         "caption": "Write a caption of up to {{max}} characters in at least one language.",
-        "description": "The description is too long (max {{max}} characters).",
-        "date": "Choose a valid date."
+        "date": "Choose a valid date.",
+        "description": "The description is too long (max {{max}} characters)."
       },
+      "hashtags": "Hashtags (optional)",
       "langs": {
         "label": "Language of the texts",
         "missing": "text missing",
@@ -105,50 +31,124 @@
           "pt": "Portuguese"
         }
       },
-      "translate": {
-        "button": "Translate",
-        "hint": "Translates what you wrote in this tab into the other languages. The language is detected automatically. Texts already in the other languages are replaced.",
-        "working": "Translating…",
-        "done": "Translated. Review the texts before saving.",
-        "errors": {
-          "notAllowed": "This account is not allowed to translate. Sign in again.",
-          "limit": "The translation limit was reached. Try again later.",
-          "failed": "Could not translate. Try again in a moment."
-        }
+      "photos": {
+        "add": "Add photos",
+        "addShort": "Add",
+        "all": "All photos, drag to reorder",
+        "alt": "Description for screen readers (optional, defaults to the caption)",
+        "altFor": "Description of photo {{n}} for screen readers",
+        "badge": "Photo {{n}}",
+        "choose": "Choose photos",
+        "cover": "Cover",
+        "earlier": "Move earlier",
+        "emptyTitle": "Drop the photos of this set here, or choose them from your device.",
+        "hint": "The first photo is the cover. Drag to reorder, or use the arrow buttons.",
+        "later": "Move later",
+        "makeCover": "Make cover",
+        "missing": "Add at least one photo.",
+        "moveDown": "Move photo {{n}} later",
+        "moveUp": "Move photo {{n}} earlier",
+        "next": "Next photo",
+        "optional": "optional",
+        "pending": "Wait for the uploads to finish, or remove the photos that failed.",
+        "previous": "Previous photo",
+        "remove": "Remove",
+        "show": "Show photo {{n}}",
+        "summary": "{{count}} photos · the first is the cover",
+        "title": "Photos in this set"
       },
+      "publish": "Publish",
+      "saveDraft": "Save as draft",
+      "sections": {
+        "details": "Details",
+        "texts": "Texts",
+        "themes": "Themes"
+      },
+      "status": {
+        "draft": "Draft · not saved yet",
+        "failed": "Could not save. Check your connection and try again.",
+        "partial": "Published, but some languages could not be translated. They show the first language available.",
+        "saved": "Saved.",
+        "saving": "Saving…"
+      },
+      "tags": "Themes",
       "themes": {
-        "title": "New theme",
-        "name": "Theme name",
-        "hint": "Write it in any language; it is translated to the others automatically.",
         "add": "Create theme",
-        "working": "Creating…",
         "errors": {
+          "deleteFailed": "Could not delete the theme. Try again.",
           "exists": "A theme with this name already exists.",
-          "invalidName": "Use a name with letters or numbers.",
           "failed": "Could not create the theme. Try again.",
+          "invalidName": "Use a name with letters or numbers.",
           "notConfigured": "The database is not available right now.",
-          "protected": "This is one of the default themes and cannot be deleted.",
-          "deleteFailed": "Could not delete the theme. Try again."
+          "protected": "This is one of the default themes and cannot be deleted."
         },
+        "hint": "Write it in any language; it is translated to the others automatically.",
         "manager": {
-          "manage": "Manage themes",
-          "hide": "Hide",
-          "default": "Default",
-          "usedByOne": "Used in 1 set",
-          "usedBy": "Used in {{count}} sets",
-          "unused": "Not used in any set",
-          "delete": "Delete",
+          "cancel": "Cancel",
           "confirm": "Delete “{{name}}”? Sets that use it keep it saved, but it will no longer show up.",
           "confirmYes": "Yes, delete",
-          "cancel": "Cancel",
-          "working": "Deleting…",
-          "none": "You have not created any themes of your own yet."
-        }
+          "default": "Default",
+          "delete": "Delete",
+          "hide": "Hide",
+          "manage": "Manage themes",
+          "none": "You have not created any themes of your own yet.",
+          "unused": "Not used in any set",
+          "usedBy": "Used in {{count}} sets",
+          "usedByOne": "Used in 1 set",
+          "working": "Deleting…"
+        },
+        "name": "Theme name",
+        "title": "New theme",
+        "working": "Creating…"
       },
-      "sections": {
-        "texts": "Texts",
-        "details": "Details",
-        "themes": "Themes"
+      "title": "New set",
+      "translate": {
+        "button": "Translate",
+        "done": "Translated. Review the texts before saving.",
+        "errors": {
+          "failed": "Could not translate. Try again in a moment.",
+          "limit": "The translation limit was reached. Try again later.",
+          "notAllowed": "This account is not allowed to translate. Sign in again."
+        },
+        "hint": "Translates what you wrote in this tab into the other languages. The language is detected automatically. Texts already in the other languages are replaced.",
+        "working": "Translating…"
+      }
+    },
+    "login": {
+      "email": "Email",
+      "emailFirst": "Type your email first.",
+      "eyebrow": "Private area",
+      "failed": "We could not sign you in. Check your details and try again.",
+      "forgot": "Forgot your password?",
+      "missing": "Enter your email and password.",
+      "password": "Password",
+      "resetSent": "If that address can sign in, we sent a link to reset the password.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "title": "Sign in",
+      "unavailable": "Sign-in is not available right now."
+    },
+    "upload": {
+      "errors": {
+        "notAllowed": "This account is not allowed to upload. Sign in again.",
+        "signFailed": "Could not get permission to upload. Try again in a moment.",
+        "tooLarge": "Still above 10 MB after compressing, try a smaller file.",
+        "unreadable": "We could not read this image.",
+        "unsupportedType": "This file is not a supported image (use JPEG, PNG or WebP).",
+        "uploadFailed": "The upload failed. Try again."
+      },
+      "hint": "JPEG, PNG or WebP. Photos are resized to {{max}} px on the long edge and 10 MB at most.",
+      "pick": "Choose photos to upload",
+      "status": {
+        "done": "Uploaded",
+        "failed": "Failed",
+        "preparing": "Preparing…",
+        "uploading": "Uploading…"
+      },
+      "title": "Upload photos",
+      "warnings": {
+        "recompressed": "Compressed to fit {{max}} MB.",
+        "resized": "Resized to {{max}} px on the long edge."
       }
     }
   },
