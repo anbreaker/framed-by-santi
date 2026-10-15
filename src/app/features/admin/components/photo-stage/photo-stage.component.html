@@ -144,7 +144,15 @@
       <input class="photo-stage__alt" type="text" [value]="photo.alt" (input)="setAlt($event)" />
     </label>
   } @else {
-    <div class="photo-stage__empty">
+    <button
+      class="btn btn--ghost photo-stage__empty"
+      type="button"
+      [class.photo-stage__empty--over]="receiving()"
+      (click)="addRequested.emit()"
+      (dragleave)="receiving.set(false)"
+      (dragover)="acceptFiles($event)"
+      (drop)="dropFiles($event)"
+    >
       <svg
         aria-hidden="true"
         fill="none"
@@ -159,9 +167,7 @@
         <path d="M12 15V4M8 8l4-4 4 4M5 14v5h14v-5" />
       </svg>
       <p class="photo-stage__empty-text">{{ t('admin.editor.photos.emptyTitle') }}</p>
-      <button class="btn" type="button" (click)="addRequested.emit()">
-        {{ t('admin.editor.photos.choose') }}
-      </button>
-    </div>
+      <span class="photo-stage__empty-action">{{ t('admin.editor.photos.choose') }}</span>
+    </button>
   }
 </div>

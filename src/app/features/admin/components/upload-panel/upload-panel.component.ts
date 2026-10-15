@@ -80,6 +80,11 @@ export class UploadPanelComponent {
 
     input.value = '';
 
+    await this.addFiles(files);
+  }
+
+  /** Prepares and uploads files, whether they were chosen in the file chooser or dropped on the viewer. */
+  async addFiles(files: readonly File[]): Promise<void> {
     const added = files.map<UploadItem>((file) => ({
       errorKey: null,
       id: this.nextId++,

@@ -60,6 +60,15 @@ describe('UploadPanelComponent', () => {
     expect(open).toHaveBeenCalledTimes(1);
   });
 
+  it('should upload files handed over directly, like the ones dropped on the viewer', async () => {
+    await fixture.componentInstance.addFiles([fileOf('a.jpg'), fileOf('b.jpg')]);
+
+    await fixture.whenStable();
+
+    expect(upload).toHaveBeenCalledTimes(2);
+    expect(root().querySelectorAll('.upload-panel__item').length).toBe(2);
+  });
+
   it('should emit each photo once it is uploaded', async () => {
     const emitted: unknown[] = [];
     fixture.componentInstance.uploaded.subscribe((photo) => emitted.push(photo));

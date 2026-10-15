@@ -20,6 +20,7 @@ describe('PhotoStageComponent', () => {
   let removed: number[];
   let alts: { alt: string; index: number }[];
   let added: number;
+  let dropped: File[][];
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const byLabel = (label: string): HTMLButtonElement =>
@@ -39,6 +40,7 @@ describe('PhotoStageComponent', () => {
     removed = [];
     alts = [];
     added = 0;
+    dropped = [];
 
     await TestBed.configureTestingModule({
       imports: [PhotoStageComponent, realTranslations()],
@@ -51,6 +53,7 @@ describe('PhotoStageComponent', () => {
     component.removed.subscribe((index) => removed.push(index));
     component.altChanged.subscribe((change) => alts.push(change));
     component.addRequested.subscribe(() => added++);
+    component.filesDropped.subscribe((files) => dropped.push(files));
     await show([photo('a'), photo('b'), photo('c')]);
   });
 
@@ -173,10 +176,52 @@ describe('PhotoStageComponent', () => {
     await show([]);
 
     expect(root().querySelector('.photo-stage__count')).toBeNull();
-    const choose = root().querySelector('.photo-stage__empty button') as HTMLButtonElement;
-    expect(choose.textContent).toContain('Choose photos');
+    const zone = root().querySelector('button.photo-stage__empty') as HTMLButtonElement;
+    expect(zone.textContent).toContain('Choose photos');
 
-    choose.click();
+    zone.click();
     expect(added).toBe(1);
+  });
+
+  it('should be one big button: clicking the text or the icon asks for photos too', async () => {
+    await show([]);
+
+    (root().querySelector('.photo-stage__empty-text') as HTMLElement).click();
+    (root().querySelector('.photo-stage__empty svg') as unknown as HTMLElement).dispatchEvent(
+      new MouseEvent('click', { bubbles: true })
+    );
+
+    expect(added).toBe(2);
+  });
+
+  it('should accept files dropped on the empty zone and show it is ready to receive them', async () => {
+    await show([]);
+    const zone = root().querySelector('.photo-stage__empty') as HTMLElement;
+    const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
+    const dragOver = new Event('dragover', { cancelable: true });
+    const drop = new Event('drop', { cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file] } });
+
+    zone.dispatchEvent(dragOver);
+    await fixture.whenStable();
+    expect(dragOver.defaultPrevented).toBe(true);
+    expect(zone.classList).toContain('photo-stage__empty--over');
+
+    zone.dispatchEvent(drop);
+    await fixture.whenStable();
+
+    expect(dropped).toEqual([[file]]);
+    expect(drop.defaultPrevented).toBe(true);
+    expect(zone.classList).not.toContain('photo-stage__empty--over');
+  });
+
+  it('should ignore a drop that carries no files', async () => {
+    await show([]);
+    const drop = new Event('drop', { cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [] } });
+
+    (root().querySelector('.photo-stage__empty') as HTMLElement).dispatchEvent(drop);
+
+    expect(dropped).toEqual([]);
   });
 });

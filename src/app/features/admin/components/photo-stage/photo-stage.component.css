@@ -250,24 +250,59 @@
   }
 }
 
-.photo-stage__empty {
+.photo-stage .photo-stage__empty {
   align-items: center;
   background: var(--color-surface);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-  display: flex;
+  cursor: pointer;
   flex-direction: column;
+  font-weight: 400;
   gap: var(--space-3);
   justify-content: center;
   min-height: 22rem;
-  padding: var(--space-4);
+  padding: var(--space-5) var(--space-4);
   text-align: center;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+  width: 100%;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-surface-raised);
+      border-color: var(--color-accent);
+    }
+  }
+
+  &.photo-stage__empty--over {
+    background: var(--color-surface-raised);
+    border-color: var(--color-accent);
+    border-style: solid;
+  }
+
+  &.photo-stage__empty--over::after {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .photo-stage__empty-text {
   color: var(--color-text);
   font-size: 1.125rem;
-  margin: 0;
   max-width: 28rem;
+}
+
+/* A label that looks like a button: the whole zone is the real one. */
+.photo-stage__empty-action {
+  align-items: center;
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-on-accent);
+  display: inline-flex;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  min-height: 3rem;
+  padding-inline: var(--space-4);
 }

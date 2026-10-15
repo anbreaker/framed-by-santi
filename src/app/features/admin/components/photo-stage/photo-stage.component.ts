@@ -32,10 +32,13 @@ export class PhotoStageComponent {
   readonly addRequested = output<void>();
   readonly altChanged = output<AltChange>();
   readonly coverChosen = output<number>();
+  /** Files dropped on the empty viewer, so the editor can upload them. */
+  readonly filesDropped = output<File[]>();
   readonly moved = output<PhotoMove>();
   readonly removed = output<number>();
 
   private readonly dragFrom = signal<number | null>(null);
+  protected readonly receiving = signal(false);
   private readonly requested = signal(0);
 
   protected readonly count = computed(() => this.photos().length);
@@ -69,6 +72,19 @@ export class PhotoStageComponent {
 
   protected setAlt(event: Event): void {
     this.altChanged.emit({ alt: (event.target as HTMLInputElement).value, index: this.index() });
+  }
+
+  protected acceptFiles(event: DragEvent): void {
+    event.preventDefault();
+    this.receiving.set(true);
+  }
+
+  protected dropFiles(event: DragEvent): void {
+    event.preventDefault();
+    this.receiving.set(false);
+
+    const files = Array.from(event.dataTransfer?.files ?? []);
+    if (files.length > 0) this.filesDropped.emit(files);
   }
 
   protected startDrag(position: number): void {

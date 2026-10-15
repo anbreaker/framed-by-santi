@@ -50,6 +50,7 @@
         (addRequested)="openPicker()"
         (altChanged)="onAltChanged($event)"
         (coverChosen)="onCoverChosen($event)"
+        (filesDropped)="uploads().addFiles($event)"
         (moved)="onMoved($event)"
         (removed)="onRemoved($event)"
       />

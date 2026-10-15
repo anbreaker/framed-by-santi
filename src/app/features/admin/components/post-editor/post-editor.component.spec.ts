@@ -143,6 +143,23 @@ describe('PostEditorComponent', () => {
     ]);
   });
 
+  it('should upload the files dropped on the empty viewer and open the chooser from it', async () => {
+    const panel = fixture.debugElement.query(By.directive(UploadPanelComponent))
+      .componentInstance as UploadPanelComponent;
+    const addFiles = vi.spyOn(panel, 'addFiles').mockResolvedValue(undefined);
+    const openPicker = vi.spyOn(panel, 'openPicker').mockImplementation(() => undefined);
+    const zone = root().querySelector('.photo-stage__empty') as HTMLElement;
+    const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
+    const drop = new Event('drop', { cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file] } });
+
+    zone.dispatchEvent(drop);
+    zone.click();
+
+    expect(addFiles).toHaveBeenCalledWith([file]);
+    expect(openPicker).toHaveBeenCalledTimes(1);
+  });
+
   it('should publish the alt text written for a photo in the viewer', async () => {
     await upload('a');
     await type('input[name$=".caption.en"]', 'Cyclist');
