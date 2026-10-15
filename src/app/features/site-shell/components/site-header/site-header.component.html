@@ -39,6 +39,11 @@
       >
         <span class="link-grow">{{ t('nav.about') }}</span>
       </a>
+      @if (isAdmin()) {
+        <button class="site-header__link site-header__signout" type="button" (click)="signOut()">
+          <span class="link-grow">{{ t('nav.signOut') }}</span>
+        </button>
+      }
     </nav>
 
     <app-lang-selector />

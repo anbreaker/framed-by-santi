@@ -25,10 +25,7 @@
       "resetSent": "Se esse endereço puder entrar, enviámos uma ligação para repor a palavra-passe.",
       "unavailable": "O acesso não está disponível neste momento."
     },
-    "dashboard": {
-      "signOut": "Terminar sessão",
-      "viewSite": "Ver o site"
-    },
+    "dashboard": {},
     "upload": {
       "title": "Carregar fotos",
       "hint": "JPEG, PNG ou WebP. As fotos são reduzidas a {{max}} px no lado maior e 10 MB no máximo.",
@@ -185,7 +182,8 @@
     "closeMenu": "Fechar menu",
     "gallery": "Galeria",
     "home": "Framed by Santi, início",
-    "menu": "Menu"
+    "menu": "Menu",
+    "signOut": "Terminar sessão"
   },
   "viewer": {
     "backToGallery": "Voltar à galeria",

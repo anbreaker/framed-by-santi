@@ -109,6 +109,15 @@
   text-decoration: none;
 }
 
+/* Looks like the other links, but it is a button: it acts, it does not navigate. */
+.site-header__signout {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  text-align: start;
+}
+
 /* The active page keeps the underline drawn. */
 .site-header__link--active > .link-grow {
   color: var(--color-accent);

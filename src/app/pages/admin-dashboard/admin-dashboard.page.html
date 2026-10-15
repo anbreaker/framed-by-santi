@@ -1,14 +1,3 @@
-<div class="admin-dashboard" *transloco="let t">
-  <header class="admin-dashboard__bar">
-    <a class="admin-dashboard__brand" routerLink="/">Framed by Santi</a>
-    <span class="admin-dashboard__spacer"></span>
-    <a class="admin-dashboard__link" routerLink="/">{{ t('admin.dashboard.viewSite') }} ↗</a>
-    <button class="btn btn--ghost admin-dashboard__signout" type="button" (click)="signOut()">
-      {{ t('admin.dashboard.signOut') }}
-    </button>
-  </header>
-
-  <main class="admin-dashboard__main" id="main-content" tabindex="-1">
-    <app-post-editor />
-  </main>
-</div>
+<main class="admin-dashboard" id="main-content" tabindex="-1">
+  <app-post-editor />
+</main>

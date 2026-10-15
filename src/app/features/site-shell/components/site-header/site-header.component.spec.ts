@@ -1,6 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+
+import { AuthStore } from '@features/auth/store/auth.store';
 
 import { SiteHeaderComponent } from './site-header.component';
 
@@ -112,5 +115,74 @@ describe('SiteHeaderComponent', () => {
     );
 
     expect(labels).toEqual(['Framed by Santi', 'Gallery', 'About']);
+  });
+});
+
+describe('SiteHeaderComponent sign out', () => {
+  let fixture: ComponentFixture<SiteHeaderComponent>;
+  let signOut: ReturnType<typeof vi.fn>;
+  const isAdmin = signal(false);
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const signOutButton = (): HTMLButtonElement | null =>
+    root().querySelector('.site-header__signout');
+
+  beforeEach(async () => {
+    signOut = vi.fn().mockResolvedValue(undefined);
+    isAdmin.set(false);
+
+    await TestBed.configureTestingModule({
+      imports: [
+        SiteHeaderComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {
+            en: {
+              langSelector: { label: 'Language' },
+              nav: {
+                about: 'About',
+                ariaLabel: 'Main',
+                closeMenu: 'Close menu',
+                gallery: 'Gallery',
+                home: 'Framed by Santi, home',
+                menu: 'Menu',
+                signOut: 'Sign out',
+              },
+            },
+          },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+        }),
+      ],
+      providers: [provideRouter([]), { provide: AuthStore, useValue: { isAdmin, signOut } }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SiteHeaderComponent);
+    await fixture.whenStable();
+  });
+
+  it('should not show a sign out button to visitors', () => {
+    expect(signOutButton()).toBeNull();
+  });
+
+  it('should show it only while an admin is signed in', async () => {
+    isAdmin.set(true);
+    await fixture.whenStable();
+
+    expect(signOutButton()?.textContent).toContain('Sign out');
+
+    isAdmin.set(false);
+    await fixture.whenStable();
+
+    expect(signOutButton()).toBeNull();
+  });
+
+  it('should sign out and go back to the public site', async () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    isAdmin.set(true);
+    await fixture.whenStable();
+
+    signOutButton()?.click();
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith('/'));
+
+    expect(signOut).toHaveBeenCalledTimes(1);
   });
 });

@@ -25,10 +25,7 @@
       "resetSent": "If that address can sign in, we sent a link to reset the password.",
       "unavailable": "Sign-in is not available right now."
     },
-    "dashboard": {
-      "signOut": "Sign out",
-      "viewSite": "View site"
-    },
+    "dashboard": {},
     "upload": {
       "title": "Upload photos",
       "hint": "JPEG, PNG or WebP. Photos are resized to {{max}} px on the long edge and 10 MB at most.",
@@ -185,7 +182,8 @@
     "closeMenu": "Close menu",
     "gallery": "Gallery",
     "home": "Framed by Santi, home",
-    "menu": "Menu"
+    "menu": "Menu",
+    "signOut": "Sign out"
   },
   "viewer": {
     "backToGallery": "Back to gallery",

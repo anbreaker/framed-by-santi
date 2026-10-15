@@ -25,10 +25,7 @@
       "resetSent": "Si esa dirección puede entrar, te hemos enviado un enlace para restablecer la contraseña.",
       "unavailable": "El acceso no está disponible ahora mismo."
     },
-    "dashboard": {
-      "signOut": "Cerrar sesión",
-      "viewSite": "Ver el sitio"
-    },
+    "dashboard": {},
     "upload": {
       "title": "Subir fotos",
       "hint": "JPEG, PNG o WebP. Las fotos se reducen a {{max}} px en el lado largo y 10 MB como máximo.",
@@ -185,7 +182,8 @@
     "closeMenu": "Cerrar menú",
     "gallery": "Galería",
     "home": "Framed by Santi, inicio",
-    "menu": "Menú"
+    "menu": "Menú",
+    "signOut": "Cerrar sesión"
   },
   "viewer": {
     "backToGallery": "Volver a la galería",
