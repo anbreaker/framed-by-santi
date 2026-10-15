@@ -13,6 +13,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { PostEditorComponent } from '@features/admin/components/post-editor/post-editor.component';
 import { PostEntry, PostsAdminService } from '@features/admin/services/posts-admin.service';
+import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { useNoIndex } from '@shared/utils/use-noindex';
 
 type SetState = 'failed' | 'loading' | 'missing' | 'ready';
@@ -28,6 +29,7 @@ type SetState = 'failed' | 'loading' | 'missing' | 'ready';
 })
 export class AdminSetPageComponent {
   private readonly posts = inject(PostsAdminService);
+  private readonly publicPosts = inject(PhotoPostsStore);
   private readonly router = inject(Router);
 
   /** Bound from the route; without it this is a new set. */
@@ -68,6 +70,8 @@ export class AdminSetPageComponent {
   }
 
   protected async onSaved(): Promise<void> {
+    // The public list was read when the site started; read it again so the new or changed set shows up.
+    void this.publicPosts.refresh();
     await this.router.navigateByUrl('/admin/dashboard');
   }
 }

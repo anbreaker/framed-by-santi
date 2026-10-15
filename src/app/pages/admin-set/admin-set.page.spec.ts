@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { PostEntry, PostsAdminService } from '@features/admin/services/posts-admin.service';
 import { ThemesAdminService } from '@features/admin/services/themes-admin.service';
 import { TranslationService } from '@features/admin/services/translation.service';
+import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { AdminSetPageComponent } from './admin-set.page';
@@ -84,6 +85,18 @@ describe('AdminSetPageComponent', () => {
     ).click();
 
     await vi.waitFor(() => expect(root().querySelector('app-post-editor')).not.toBeNull());
+  });
+
+  it('should refresh the public list as soon as a set is saved, so the site shows it without a reload', async () => {
+    const refresh = vi.spyOn(TestBed.inject(PhotoPostsStore), 'refresh').mockResolvedValue();
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    await open();
+
+    fixture.debugElement
+      .query((node) => node.name === 'app-post-editor')
+      .componentInstance.saved.emit('new-1');
+
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it('should link back to the library and go there once a set is saved', async () => {

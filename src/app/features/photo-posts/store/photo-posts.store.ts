@@ -12,6 +12,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 @Injectable({ providedIn: 'root' })
 export class PhotoPostsStore {
   private readonly _posts = signal<readonly PhotoPost[]>(LOCAL_PHOTO_POSTS);
+  private latestRequest = 0;
 
   readonly posts = this._posts.asReadonly();
 
@@ -64,24 +65,46 @@ export class PhotoPostsStore {
   }
 
   /**
+   * Reads the published posts again, so a set that was just published, changed or hidden in the dashboard
+   * shows on the site without reloading it. If none is visible any more the local data is used, like at start.
+   */
+  async refresh(): Promise<void> {
+    const posts = await this.fetchPublished();
+
+    if (posts !== null) this._posts.set(posts.length > 0 ? posts : LOCAL_PHOTO_POSTS);
+  }
+
+  /**
    * Replaces the local posts with the published ones from Firestore. The local data stays when
    * Firebase is not configured, the request fails or nothing valid comes back, so the site is never empty.
-   * The `hidden == false` filter is required: the security rules only allow queries that cannot return hidden posts.
    */
   private async loadFromFirestore(): Promise<void> {
+    const posts = await this.fetchPublished();
+
+    if (posts !== null && posts.length > 0) this._posts.set(posts);
+  }
+
+  /**
+   * The published posts, newest first, or null when they cannot be read or a newer request has been made
+   * meanwhile (its answer is the one to use). The `hidden == false` filter is required: the security rules
+   * only allow queries that cannot return hidden posts.
+   */
+  private async fetchPublished(): Promise<PhotoPost[] | null> {
     const db = getFirebaseDb();
-    if (db === null) return;
+    if (db === null) return null;
+
+    const request = ++this.latestRequest;
 
     try {
       const snapshot = await getDocs(query(collection(db, 'posts'), where('hidden', '==', false)));
-      const posts = snapshot.docs
+      if (request !== this.latestRequest) return null;
+
+      return snapshot.docs
         .map((item) => toPhotoPost(item.id, item.data()))
         .filter((post): post is PhotoPost => post !== null)
         .sort((a, b) => b.takenAt.localeCompare(a.takenAt));
-
-      if (posts.length > 0) this._posts.set(posts);
     } catch {
-      // Keep the local posts.
+      return null;
     }
   }
 

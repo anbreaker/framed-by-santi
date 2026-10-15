@@ -121,4 +121,66 @@ describe('PhotoPostsStore with Firestore', () => {
     expect(mocks.getDocs).not.toHaveBeenCalled();
     expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
   });
+
+  describe('refresh', () => {
+    it('should pick up a set published after the site loaded, newest first', async () => {
+      mocks.getDocs.mockResolvedValue({ docs: [docOf('old', post('2026-01-01'))] });
+      const store = await create();
+      expect(store.posts().map((item) => item.id)).toEqual(['old']);
+
+      mocks.getDocs.mockResolvedValue({
+        docs: [docOf('old', post('2026-01-01')), docOf('new', post('2026-10-01'))],
+      });
+      await store.refresh();
+
+      expect(store.posts().map((item) => item.id)).toEqual(['new', 'old']);
+      expect(store.latestPost().id).toBe('new');
+    });
+
+    it('should drop a set that was hidden, and use the local data when none is visible any more', async () => {
+      mocks.getDocs.mockResolvedValue({ docs: [docOf('only', post('2026-01-01'))] });
+      const store = await create();
+
+      mocks.getDocs.mockResolvedValue({ docs: [] });
+      await store.refresh();
+
+      expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+    });
+
+    it('should keep what is shown when the request fails', async () => {
+      mocks.getDocs.mockResolvedValue({ docs: [docOf('old', post('2026-01-01'))] });
+      const store = await create();
+
+      mocks.getDocs.mockRejectedValue(new Error('offline'));
+      await store.refresh();
+
+      expect(store.posts().map((item) => item.id)).toEqual(['old']);
+    });
+
+    it('should do nothing when Firebase is not configured', async () => {
+      mocks.getDb.mockReturnValue(null);
+      const store = TestBed.inject(PhotoPostsStore);
+
+      await store.refresh();
+
+      expect(mocks.getDocs).not.toHaveBeenCalled();
+      expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+    });
+
+    it('should let the latest answer win when two refreshes overlap', async () => {
+      mocks.getDocs.mockResolvedValue({ docs: [docOf('start', post('2026-01-01'))] });
+      const store = await create();
+
+      let releaseSlow: (value: unknown) => void = () => undefined;
+      mocks.getDocs.mockImplementationOnce(() => new Promise((resolve) => (releaseSlow = resolve)));
+      mocks.getDocs.mockResolvedValueOnce({ docs: [docOf('fresh', post('2026-10-01'))] });
+
+      const slow = store.refresh();
+      await store.refresh();
+      releaseSlow({ docs: [docOf('stale', post('2026-05-05'))] });
+      await slow;
+
+      expect(store.posts().map((item) => item.id)).toEqual(['fresh']);
+    });
+  });
 });

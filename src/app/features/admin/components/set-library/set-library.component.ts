@@ -97,6 +97,8 @@ export class SetLibraryComponent {
 
     try {
       await this.posts.setHidden(postId, !published);
+      // Keeps the public site in step with the switch, without a reload.
+      void this.store.refresh();
     } catch {
       this.setHidden(postId, published);
       input.checked = !published;

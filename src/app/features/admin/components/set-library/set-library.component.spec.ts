@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
+import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PhotoCleanupService } from '../../services/photo-cleanup.service';
@@ -136,6 +137,23 @@ describe('SetLibraryComponent', () => {
 
     toggle(0).click(); // Flatiron: published -> hidden
     await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('a', true));
+  });
+
+  it('should refresh the public list after publishing or hiding a set, and not when that fails', async () => {
+    const refresh = vi.spyOn(TestBed.inject(PhotoPostsStore), 'refresh').mockResolvedValue();
+    await create();
+
+    toggle(1).click();
+    await vi.waitFor(() => expect(setHidden).toHaveBeenCalled());
+    await fixture.whenStable();
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    setHidden.mockRejectedValue(new Error('denied'));
+    toggle(0).click();
+    await vi.waitFor(() => expect(setHidden).toHaveBeenCalledTimes(2));
+    await fixture.whenStable();
+
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it('should put the switch back and say so when the change fails', async () => {
