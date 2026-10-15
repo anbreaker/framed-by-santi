@@ -14,4 +14,12 @@ describe('the hero photo preload in index.html', () => {
   it('should only preload it on the home page, so other pages do not download it for nothing', () => {
     expect(html).toMatch(/location\.pathname === '\/'/);
   });
+
+  it('should run before the Google Fonts stylesheet, which holds back every script that follows it', () => {
+    const script = html.indexOf("hero.rel = 'preload'");
+    const fonts = html.indexOf('fonts.googleapis.com/css2');
+
+    expect(script).toBeGreaterThan(-1);
+    expect(script).toBeLessThan(fonts);
+  });
 });

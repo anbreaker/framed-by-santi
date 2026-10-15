@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 
 import { AppComponent } from './app';
@@ -24,14 +24,29 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render the header, the router outlet and the footer', async () => {
+  it('should render the header, the router outlet and, once a page is in, the footer', async () => {
     const fixture = TestBed.createComponent(AppComponent);
+    await fixture.whenStable();
+    await TestBed.inject(Router).navigateByUrl('/');
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('app-site-header')).not.toBeNull();
     expect(compiled.querySelector('router-outlet')).not.toBeNull();
+    expect(compiled.querySelector('app-site-footer')).not.toBeNull();
+  });
+
+  it('should keep the footer out until the first page is rendered, so it does not jump down when it arrives', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const compiled = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+
+    expect(compiled.querySelector('app-site-footer')).toBeNull();
+
+    await TestBed.inject(Router).navigateByUrl('/');
+    await fixture.whenStable();
+
     expect(compiled.querySelector('app-site-footer')).not.toBeNull();
   });
 
