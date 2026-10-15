@@ -29,7 +29,13 @@ export const routes: Routes = [
     path: 'admin/dashboard',
     canActivate: [adminGuard],
     loadComponent: async () =>
-      (await import('@pages/admin-dashboard/admin-dashboard.page')).AdminDashboardPageComponent,
+      (await import('@pages/admin-library/admin-library.page')).AdminLibraryPageComponent,
+  },
+  {
+    path: 'admin/sets/new',
+    canActivate: [adminGuard],
+    loadComponent: async () =>
+      (await import('@pages/admin-set/admin-set.page')).AdminSetPageComponent,
   },
   { path: '**', redirectTo: '' },
 ];

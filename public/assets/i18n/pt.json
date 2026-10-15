@@ -114,6 +114,33 @@
         "working": "A traduzir…"
       }
     },
+    "library": {
+      "countMany": "{{count}} séries",
+      "countOne": "1 série",
+      "draft": "Rascunho",
+      "edit": "Editar",
+      "editSet": "Editar a série: {{title}}",
+      "empty": {
+        "all": "Ainda não há nada. Crie a primeira série.",
+        "drafts": "Não há rascunhos. Tudo está publicado.",
+        "published": "Ainda não há nada publicado."
+      },
+      "filters": {
+        "all": "Todas",
+        "drafts": "Rascunhos",
+        "published": "Publicadas"
+      },
+      "filtersLabel": "Filtrar por estado",
+      "loadFailed": "Não foi possível carregar as séries. Verifique a ligação.",
+      "loading": "A carregar…",
+      "newSet": "Nova série",
+      "noTitle": "Série sem título",
+      "photosCount": "{{count}} fotos",
+      "published": "Publicada",
+      "retry": "Tentar novamente",
+      "title": "Biblioteca",
+      "toggleFailed": "Não foi possível alterar o estado. Tente novamente."
+    },
     "login": {
       "email": "E-mail",
       "emailFirst": "Escreva primeiro o seu e-mail.",

@@ -5,7 +5,16 @@ import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
 import { toPhotoPost } from '@features/photo-posts/utils/post-from-document';
 import { PostVisibility, toPostDocument } from '@features/photo-posts/utils/post-to-document';
 
-import { addDoc, collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 
 export type PostsAdminFailure = 'not-configured' | 'request-failed';
 
@@ -34,6 +43,17 @@ export class PostsAdminService {
         return post === null ? [] : [{ hidden: data['hidden'] === true, post }];
       })
       .sort((a, b) => b.post.takenAt.localeCompare(a.post.takenAt));
+  }
+
+  /** One post with its visibility, or null when it does not exist or cannot be shown. */
+  async get(postId: string): Promise<PostEntry | null> {
+    const snapshot = await this.run((db) => getDoc(doc(db, 'posts', postId)));
+    if (!snapshot.exists()) return null;
+
+    const data = snapshot.data();
+    const post = toPhotoPost(snapshot.id, data);
+
+    return post === null ? null : { hidden: data?.['hidden'] === true, post };
   }
 
   /** Creates a post and returns the id Firestore gave it; the post's own `id` is ignored. */

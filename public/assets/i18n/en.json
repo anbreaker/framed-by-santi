@@ -114,6 +114,33 @@
         "working": "Translating…"
       }
     },
+    "library": {
+      "countMany": "{{count}} sets",
+      "countOne": "1 set",
+      "draft": "Draft",
+      "edit": "Edit",
+      "editSet": "Edit set: {{title}}",
+      "empty": {
+        "all": "Nothing here yet. Create the first set.",
+        "drafts": "No drafts. Everything is published.",
+        "published": "Nothing is published yet."
+      },
+      "filters": {
+        "all": "All",
+        "drafts": "Drafts",
+        "published": "Published"
+      },
+      "filtersLabel": "Filter by status",
+      "loadFailed": "Could not load the sets. Check your connection.",
+      "loading": "Loading…",
+      "newSet": "New set",
+      "noTitle": "Untitled set",
+      "photosCount": "{{count}} photos",
+      "published": "Published",
+      "retry": "Try again",
+      "title": "Library",
+      "toggleFailed": "Could not change the status. Try again."
+    },
     "login": {
       "email": "Email",
       "emailFirst": "Type your email first.",

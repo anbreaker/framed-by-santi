@@ -1,0 +1,127 @@
+<section class="set-library" *transloco="let t">
+  <header class="set-library__head">
+    <div>
+      <p class="set-library__meta">
+        {{
+          counts().all === 1
+            ? t('admin.library.countOne')
+            : t('admin.library.countMany', { count: counts().all })
+        }}
+      </p>
+      <h1 class="set-library__title-page">{{ t('admin.library.title') }}</h1>
+    </div>
+    <a class="btn btn--primary" routerLink="/admin/sets/new">
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="18"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="18"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      {{ t('admin.library.newSet') }}
+    </a>
+  </header>
+
+  <div
+    class="set-library__filters"
+    role="group"
+    [attr.aria-label]="t('admin.library.filtersLabel')"
+  >
+    @for (item of filters; track item) {
+      <button
+        class="set-library__chip"
+        type="button"
+        [attr.aria-pressed]="filter() === item"
+        (click)="filter.set(item)"
+      >
+        {{ t('admin.library.filters.' + item) }}
+        <span class="set-library__chip-count">{{ counts()[item] }}</span>
+      </button>
+    }
+  </div>
+
+  @if (errorKey(); as key) {
+    <p class="set-library__error" role="alert">{{ t(key) }}</p>
+  }
+
+  @if (loadFailed()) {
+    <div class="set-library__empty" role="alert">
+      <p class="set-library__empty-text">{{ t('admin.library.loadFailed') }}</p>
+      <button class="btn btn--ghost" type="button" (click)="load()">
+        {{ t('admin.library.retry') }}
+      </button>
+    </div>
+  } @else if (entries() === null) {
+    <p class="set-library__loading" role="status">{{ t('admin.library.loading') }}</p>
+  } @else if (shown().length === 0) {
+    <div class="set-library__empty">
+      <p class="set-library__empty-text">{{ t('admin.library.empty.' + filter()) }}</p>
+      @if (filter() === 'all') {
+        <a class="btn btn--primary" routerLink="/admin/sets/new">{{ t('admin.library.newSet') }}</a>
+      }
+    </div>
+  } @else {
+    <ul class="set-library__grid" role="list">
+      @for (entry of shown(); track entry.post.id) {
+        <li class="set-library__card" [class.set-library__card--draft]="entry.hidden">
+          <a
+            class="set-library__cover"
+            [attr.aria-label]="
+              t('admin.library.editSet', {
+                title: (entry.post.caption | localizedText: lang()) || t('admin.library.noTitle'),
+              })
+            "
+            [routerLink]="['/admin/sets', entry.post.id]"
+          >
+            <app-post-photo
+              class="set-library__photo"
+              sizes="(min-width: 700px) 280px, 104px"
+              [alt]="''"
+              [photo]="entry.post.photos[0]"
+            />
+            <span
+              class="set-library__count"
+              [attr.aria-label]="
+                t('admin.library.photosCount', { count: entry.post.photos.length })
+              "
+            >
+              {{ entry.post.photos.length }}
+            </span>
+            <span class="set-library__badge" [class.set-library__badge--draft]="entry.hidden">
+              {{ entry.hidden ? t('admin.library.draft') : t('admin.library.published') }}
+            </span>
+          </a>
+
+          <div class="set-library__body">
+            <h2 class="set-library__title">
+              {{ (entry.post.caption | localizedText: lang()) || t('admin.library.noTitle') }}
+            </h2>
+            <p class="set-library__meta">{{ meta(entry.post) }}</p>
+
+            <div class="set-library__foot">
+              <a class="btn btn--ghost" [routerLink]="['/admin/sets', entry.post.id]">
+                {{ t('admin.library.edit') }}
+              </a>
+              <label class="set-library__switch">
+                <input
+                  class="set-library__input"
+                  #published
+                  role="switch"
+                  type="checkbox"
+                  [checked]="!entry.hidden"
+                  (change)="setPublished(entry.post.id, published)"
+                />
+                {{ t('admin.library.published') }}
+              </label>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
