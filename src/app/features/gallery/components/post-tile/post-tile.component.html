@@ -1,7 +1,7 @@
 <a
   class="post-tile"
   *transloco="let t"
-  [attr.aria-label]="t('gallery.openSet', { title: post().caption })"
+  [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
   [routerLink]="['/gallery', post().id]"
 >
   <div class="post-tile__media" [style.view-transition-name]="viewTransitionName()">
@@ -11,7 +11,9 @@
     }
   </div>
 
-  <span class="meta post-tile__label" aria-hidden="true">{{ post().caption }}</span>
+  <span class="meta post-tile__label" aria-hidden="true">
+    {{ post().caption | localizedText: lang() }}
+  </span>
 
   @if (isSet()) {
     <span class="meta post-tile__stack" aria-hidden="true">

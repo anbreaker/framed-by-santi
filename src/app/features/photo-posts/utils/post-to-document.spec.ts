@@ -57,4 +57,14 @@ describe('toPostDocument', () => {
   it('should round-trip through the reader the public site uses', () => {
     expect(toPhotoPost(post.id, toPostDocument(post, { hidden: false }))).toEqual(post);
   });
+
+  it('should round-trip translated texts', () => {
+    const translated: PhotoPost = {
+      ...post,
+      caption: { en: 'Cyclist', es: 'Ciclista', pt: 'Ciclista PT' },
+      description: { en: 'Set', es: 'Serie', pt: 'Série' },
+    };
+
+    expect(toPhotoPost(post.id, toPostDocument(translated, { hidden: false }))).toEqual(translated);
+  });
 });

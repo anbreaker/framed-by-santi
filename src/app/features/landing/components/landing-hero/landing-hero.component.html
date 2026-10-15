@@ -29,7 +29,7 @@
     </div>
 
     <p class="meta landing-hero__caption">
-      {{ post.caption }} · {{ post.takenAt | localizedDate: lang() }}
+      {{ post.caption | localizedText: lang() }} · {{ post.takenAt | localizedDate: lang() }}
     </p>
   }
 </section>

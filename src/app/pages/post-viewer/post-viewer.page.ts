@@ -9,12 +9,14 @@ import { SetStageComponent } from '@features/post-viewer/components/set-stage/se
 import { SetThumbnailsComponent } from '@features/post-viewer/components/set-thumbnails/set-thumbnails.component';
 import { stepIndex } from '@features/post-viewer/utils/step-index';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
+import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LocalizedDatePipe,
+    LocalizedTextPipe,
     RouterLink,
     SetStageComponent,
     SetThumbnailsComponent,

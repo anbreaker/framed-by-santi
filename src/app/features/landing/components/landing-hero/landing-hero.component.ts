@@ -8,6 +8,7 @@ import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
+import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { LANDING_HERO_POST_ID } from '../../const/landing.const';
 
@@ -16,6 +17,7 @@ import { LANDING_HERO_POST_ID } from '../../const/landing.const';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LocalizedDatePipe,
+    LocalizedTextPipe,
     PostPhotoComponent,
     RouterLink,
     ScrollRevealDirective,

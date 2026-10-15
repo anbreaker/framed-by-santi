@@ -25,6 +25,25 @@ describe('toPhotoPost', () => {
     });
   });
 
+  it('should read translated caption and description, and keep plain texts from older posts', () => {
+    const caption = { en: 'Cyclist', es: 'Ciclista', pt: 'Ciclista PT' };
+    const description = { en: 'Set', es: 'Serie', pt: 'Série' };
+
+    expect(toPhotoPost('p', { ...valid, caption, description })).toMatchObject({
+      caption,
+      description,
+    });
+    expect(toPhotoPost('p', { ...valid, caption: 'Plain' })?.caption).toBe('Plain');
+  });
+
+  it('should reject a caption that is not a text or misses a language, and drop a broken description', () => {
+    expect(toPhotoPost('p', { ...valid, caption: { en: 'Only English' } })).toBeNull();
+    expect(toPhotoPost('p', { ...valid, caption: 42 })).toBeNull();
+    expect(toPhotoPost('p', { ...valid, description: { en: 'x' } })).not.toHaveProperty(
+      'description'
+    );
+  });
+
   it('should drop unknown tags and non-string hashtags instead of failing', () => {
     const post = toPhotoPost('p', { ...valid, hashtags: ['ok', 3], tags: ['street', 'made-up'] });
 

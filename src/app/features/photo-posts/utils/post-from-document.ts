@@ -1,3 +1,4 @@
+import { parseText } from '../models/localized-text.model';
 import { Photo } from '../models/photo.model';
 import { PhotoPost } from '../models/photo-post.model';
 import { isPostTag, PostTag } from '../models/post-tag.model';
@@ -42,7 +43,10 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
 
   const { caption, description, hashtags, photos, tags, takenAt } = data;
 
-  if (typeof caption !== 'string' || typeof takenAt !== 'string' || !ISO_DATE.test(takenAt)) {
+  const parsedCaption = parseText(caption);
+  const parsedDescription = parseText(description);
+
+  if (parsedCaption === null || typeof takenAt !== 'string' || !ISO_DATE.test(takenAt)) {
     return null;
   }
 
@@ -59,8 +63,8 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
     : null;
 
   return {
-    caption,
-    ...(typeof description === 'string' && { description }),
+    caption: parsedCaption,
+    ...(parsedDescription !== null && { description: parsedDescription }),
     ...(texts !== null && { hashtags: texts }),
     id,
     photos: mapped as Photo[],

@@ -37,6 +37,24 @@ describe('PostTileComponent', () => {
     expect(link().getAttribute('aria-label')).toBe('Open set: Cyclist in motion');
   });
 
+  it('should show a translated caption in the language chosen on the site', async () => {
+    const post = TestBed.inject(PhotoPostsStore).findById('post-1') as PhotoPost;
+
+    await setPost({ ...post, caption: { en: 'Cyclist', es: 'Ciclista', pt: 'Ciclista PT' } });
+    expect(link().getAttribute('aria-label')).toBe('Open set: Cyclist');
+
+    localStorage.setItem('framed-lang', 'es');
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [PostTileComponent, realTranslations()],
+      providers: [provideRouter([])],
+    }).compileComponents();
+    fixture = TestBed.createComponent(PostTileComponent);
+    await setPost({ ...post, caption: { en: 'Cyclist', es: 'Ciclista', pt: 'Ciclista PT' } });
+
+    expect(root().querySelector('.post-tile__label')?.textContent?.trim()).toBe('Ciclista');
+  });
+
   it('should mark sets with a stack badge showing how many photos they hold', async () => {
     await setPost(TestBed.inject(PhotoPostsStore).findById('post-1') as PhotoPost);
 

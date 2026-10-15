@@ -8,6 +8,7 @@ import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { formatSetCounter } from '@features/photo-posts/utils/set-counter';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
+import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
 
 /** Fraction of the visible width moved per arrow press. */
@@ -20,6 +21,7 @@ const EDGE_TOLERANCE = 2;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LocalizedDatePipe,
+    LocalizedTextPipe,
     PluralKeyPipe,
     PostPhotoComponent,
     RouterLink,

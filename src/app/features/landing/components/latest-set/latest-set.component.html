@@ -6,7 +6,7 @@
       </p>
       <h2 class="latest-set__title">{{ t('home.latest.title') }}</h2>
       <p class="latest-set__summary">
-        {{ latest.caption }} ·
+        {{ latest.caption | localizedText: lang() }} ·
         {{
           t(latest.photos.length | pluralKey: 'gallery.photoCount' : lang(), {
             count: latest.photos.length,

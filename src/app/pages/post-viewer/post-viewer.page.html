@@ -41,7 +41,7 @@
   </div>
 
   <header class="viewer__info">
-    <h1 class="viewer__title">{{ current.caption }}</h1>
+    <h1 class="viewer__title">{{ current.caption | localizedText: lang() }}</h1>
     <p class="meta">
       {{ t('viewer.takenOn', { date: (current.takenAt | localizedDate: lang() : 'long') }) }}
     </p>
