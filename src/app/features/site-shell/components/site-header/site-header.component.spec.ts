@@ -145,6 +145,7 @@ describe('SiteHeaderComponent sign out', () => {
                 gallery: 'Gallery',
                 home: 'Framed by Santi, home',
                 menu: 'Menu',
+                panel: 'Dashboard',
                 signOut: 'Sign out',
               },
             },
@@ -152,7 +153,10 @@ describe('SiteHeaderComponent sign out', () => {
           translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
         }),
       ],
-      providers: [provideRouter([]), { provide: AuthStore, useValue: { isAdmin, signOut } }],
+      providers: [
+        provideRouter([{ children: [], path: 'admin/dashboard' }]),
+        { provide: AuthStore, useValue: { isAdmin, signOut } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SiteHeaderComponent);
@@ -161,6 +165,36 @@ describe('SiteHeaderComponent sign out', () => {
 
   it('should not show a sign out button to visitors', () => {
     expect(signOutButton()).toBeNull();
+  });
+
+  it('should link the admin to the dashboard, before the sign out button, and nobody else', async () => {
+    const panel = (): HTMLAnchorElement | null =>
+      root().querySelector('a[href="/admin/dashboard"]');
+    expect(panel()).toBeNull();
+
+    isAdmin.set(true);
+    await fixture.whenStable();
+
+    expect(panel()?.textContent).toContain('Dashboard');
+    const nav = Array.from(root().querySelectorAll('.site-header__nav > *'));
+    expect(nav.indexOf(panel() as Element)).toBeLessThan(nav.indexOf(signOutButton() as Element));
+
+    isAdmin.set(false);
+    await fixture.whenStable();
+    expect(panel()).toBeNull();
+  });
+
+  it('should close the menu when the dashboard link is used, like the other links', async () => {
+    isAdmin.set(true);
+    await fixture.whenStable();
+    (root().querySelector('.site-header__menu-button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(root().querySelector('#site-menu')?.classList).toContain('site-header__panel--open');
+
+    (root().querySelector('a[href="/admin/dashboard"]') as HTMLAnchorElement).click();
+    await fixture.whenStable();
+
+    expect(root().querySelector('#site-menu')?.classList).not.toContain('site-header__panel--open');
   });
 
   it('should show it only while an admin is signed in', async () => {

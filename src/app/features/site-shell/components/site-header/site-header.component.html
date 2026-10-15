@@ -40,6 +40,14 @@
         <span class="link-grow">{{ t('nav.about') }}</span>
       </a>
       @if (isAdmin()) {
+        <a
+          class="site-header__link"
+          routerLink="/admin/dashboard"
+          routerLinkActive="site-header__link--active"
+          (click)="closeMenu()"
+        >
+          <span class="link-grow">{{ t('nav.panel') }}</span>
+        </a>
         <button class="site-header__link site-header__signout" type="button" (click)="signOut()">
           <span class="link-grow">{{ t('nav.signOut') }}</span>
         </button>
