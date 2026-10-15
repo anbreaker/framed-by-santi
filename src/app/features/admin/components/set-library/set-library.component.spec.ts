@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
+import { PhotoCleanupService } from '../../services/photo-cleanup.service';
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 import { SetLibraryComponent } from './set-library.component';
 
@@ -40,6 +41,7 @@ describe('SetLibraryComponent', () => {
   let fixture: ComponentFixture<SetLibraryComponent>;
   let list: ReturnType<typeof vi.fn>;
   let setHidden: ReturnType<typeof vi.fn>;
+  let runIfDue: ReturnType<typeof vi.fn>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const cards = (): HTMLElement[] => Array.from(root().querySelectorAll('.set-library__card'));
@@ -62,10 +64,15 @@ describe('SetLibraryComponent', () => {
     localStorage.clear();
     list = vi.fn().mockResolvedValue(ENTRIES);
     setHidden = vi.fn().mockResolvedValue(undefined);
+    runIfDue = vi.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [SetLibraryComponent, realTranslations()],
-      providers: [provideRouter([]), { provide: PostsAdminService, useValue: { list, setHidden } }],
+      providers: [
+        provideRouter([]),
+        { provide: PostsAdminService, useValue: { list, setHidden } },
+        { provide: PhotoCleanupService, useValue: { runIfDue } },
+      ],
     }).compileComponents();
   });
 
@@ -77,6 +84,18 @@ describe('SetLibraryComponent', () => {
     expect(cards()[0].querySelector('.set-library__badge')?.textContent).toContain('Published');
     expect(cards()[1].querySelector('.set-library__badge')?.textContent).toContain('Draft');
     expect(root().textContent).toContain('3 sets');
+  });
+
+  it('should clear unused photos in the background once the sets have loaded, and not when they could not', async () => {
+    await create();
+    expect(runIfDue).toHaveBeenCalledTimes(1);
+
+    runIfDue.mockClear();
+    list.mockRejectedValue(new Error('offline'));
+    fixture = TestBed.createComponent(SetLibraryComponent);
+    await vi.waitFor(() => expect(root().textContent).toContain('Could not load'));
+
+    expect(runIfDue).not.toHaveBeenCalled();
   });
 
   it('should link each set to its editor and offer a button to create a new one', async () => {

@@ -10,6 +10,7 @@ import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
 import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
+import { PhotoCleanupService } from '../../services/photo-cleanup.service';
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 
 type StatusFilter = 'all' | 'drafts' | 'published';
@@ -28,6 +29,7 @@ export class SetLibraryComponent {
   private readonly store = inject(PhotoPostsStore);
   protected readonly lang = inject(LanguageStore).currentLang;
 
+  private readonly cleanup = inject(PhotoCleanupService);
   private readonly datePipe = new LocalizedDatePipe();
   protected readonly entries = signal<readonly PostEntry[] | null>(null);
   protected readonly errorKey = signal<string | null>(null);
@@ -63,6 +65,8 @@ export class SetLibraryComponent {
 
     try {
       this.entries.set(await this.posts.list());
+      // Opening the library is the moment to clear photos no set uses; it runs quietly and at most daily.
+      void this.cleanup.runIfDue();
     } catch {
       this.loadFailed.set(true);
     }
