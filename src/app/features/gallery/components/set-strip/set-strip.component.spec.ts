@@ -49,13 +49,26 @@ describe('SetStripComponent', () => {
     expect(text('.set-strip__more-tile')).toBe('+5');
   });
 
-  it('should open the whole set from the title, the button and the preview', async () => {
+  it('should open the whole set from the title, the button and the counter tile', async () => {
     await setPost(cyclist());
 
-    const hrefs = Array.from(root().querySelectorAll('a')).map((link) => link.getAttribute('href'));
+    const hrefs = (selector: string): (string | null)[] =>
+      Array.from(root().querySelectorAll(selector)).map((link) => link.getAttribute('href'));
 
-    expect(new Set(hrefs)).toEqual(new Set(['/gallery/post-1']));
+    expect(hrefs('h2 a')).toEqual(['/gallery/post-1']);
+    expect(hrefs('.set-strip__open')).toEqual(['/gallery/post-1']);
+    expect(hrefs('.set-strip__more-tile')).toEqual(['/gallery/post-1']);
     expect(text('.set-strip__open')).toBe('View full set');
+  });
+
+  it('should open the set on the very photo that was clicked', async () => {
+    await setPost(cyclist());
+
+    const hrefs = Array.from(root().querySelectorAll('.set-strip__link')).map((link) =>
+      link.getAttribute('href'),
+    );
+
+    expect(hrefs).toEqual([1, 2, 3, 4, 5].map((n) => `/gallery/post-1?photo=${n}`));
   });
 
   it('should show every photo and no counter tile when the set is short', async () => {

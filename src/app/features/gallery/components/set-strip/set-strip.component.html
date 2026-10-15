@@ -24,6 +24,7 @@
         <a
           class="set-strip__link"
           [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
+          [queryParams]="{ photo: index + 1 }"
           [routerLink]="['/gallery', post().id]"
         >
           <app-post-photo

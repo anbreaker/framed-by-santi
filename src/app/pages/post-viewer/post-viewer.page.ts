@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -34,15 +42,24 @@ export class PostViewerPageComponent {
   private readonly languageStore = inject(LanguageStore);
   private readonly photoPostsStore = inject(PhotoPostsStore);
 
+  /** Bound from the `?photo=` query parameter (1-based): the photo the visitor clicked in the gallery. */
+  readonly photo = input<string | undefined>();
+
   /** Bound from the `:postId` route parameter by the router. */
   readonly postId = input.required<string>();
 
-  protected readonly activeIndex = signal(0);
   /** While the photo is zoomed in, the arrow keys move the photo instead of changing it. */
   protected readonly isZoomed = signal(false);
   protected readonly lang = this.languageStore.currentLang;
   protected readonly post = computed(() => this.photoPostsStore.findById(this.postId()));
   protected readonly photos = computed(() => this.post()?.photos ?? []);
+  /** Starts on the requested photo, or on the first one when the request is missing or out of range. */
+  protected readonly activeIndex = linkedSignal(() => {
+    const requested = Number(this.photo());
+    const valid = Number.isInteger(requested) && requested >= 1 && requested <= this.photos().length;
+
+    return valid ? requested - 1 : 0;
+  });
   protected readonly activePhoto = computed(() => this.photos()[this.activeIndex()]);
   protected readonly counter = computed(() =>
     formatSetCounter(this.activeIndex() + 1, this.photos().length)

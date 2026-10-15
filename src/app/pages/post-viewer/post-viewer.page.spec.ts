@@ -43,6 +43,32 @@ describe('PostViewerPageComponent', () => {
     expect(root().querySelector('h1')?.textContent).toBe('Flatiron, warm light');
   });
 
+  it('should open on the photo asked for in the address and keep walking from there', async () => {
+    fixture.componentRef.setInput('photo', '3');
+    await open('post-2');
+
+    expect(mainImage()).toBe('/local-photos/post-2/03.webp');
+    expect(counter()).toBe('03 / 10');
+
+    arrow('next').click();
+    await fixture.whenStable();
+
+    expect(counter()).toBe('04 / 10');
+  });
+
+  it('should start on the first photo when the requested one does not exist', async () => {
+    await open('post-2');
+
+    for (const requested of ['0', '99', 'abc', '2.5', '']) {
+      fixture.componentRef.setInput('photo', '4');
+      await fixture.whenStable();
+      fixture.componentRef.setInput('photo', requested);
+      await fixture.whenStable();
+
+      expect(counter()).toBe('01 / 10');
+    }
+  });
+
   it('should walk the set with the arrows and stop at both ends', async () => {
     await open('post-2');
     expect(arrow('previous').disabled).toBe(true);
