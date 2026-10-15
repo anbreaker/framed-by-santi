@@ -76,64 +76,33 @@
   }
 }
 
-/* Change of photo: the old one fades out (FADE_OUT_MS) and the new one fades in, each with a small slide
-   in the direction the set is walked. */
+/* The first photo fades in when the page opens. A later one dissolves in over the old one (REVEAL_MS). */
 @media (prefers-reduced-motion: no-preference) {
-  .set-stage__photo {
-    animation: set-stage-in 260ms var(--ease-out) both;
-
-    &[data-direction='previous'] {
-      animation-name: set-stage-in-previous;
-    }
+  .set-stage__photo--enter {
+    animation: set-stage-enter 400ms var(--ease-out) both;
   }
 
-  .set-stage__photo--incoming {
-    animation: none;
-  }
-
-  .set-stage__photo--out {
-    animation: set-stage-out 160ms var(--ease-out) both;
-
-    &[data-direction='previous'] {
-      animation-name: set-stage-out-previous;
-    }
+  .set-stage__photo--revealing {
+    animation: set-stage-reveal 550ms ease-in-out both;
   }
 }
 
-@keyframes set-stage-in {
+@keyframes set-stage-enter {
   from {
     opacity: 0;
-    transform: translateX(1.5%);
   }
 
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
-@keyframes set-stage-in-previous {
+@keyframes set-stage-reveal {
   from {
     opacity: 0;
-    transform: translateX(-1.5%);
   }
 
   to {
     opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes set-stage-out {
-  to {
-    opacity: 0;
-    transform: translateX(-1.5%);
-  }
-}
-
-@keyframes set-stage-out-previous {
-  to {
-    opacity: 0;
-    transform: translateX(1.5%);
   }
 }

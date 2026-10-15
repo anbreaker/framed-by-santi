@@ -50,8 +50,6 @@ export class PostViewerPageComponent {
   /** Bound from the `:postId` route parameter by the router. */
   readonly postId = input.required<string>();
 
-  /** Which way the set is being walked, so the stage can slide the photos the same way. */
-  protected readonly direction = signal<'next' | 'previous'>('next');
   /** While the photo is zoomed in, the arrow keys move the photo instead of changing it. */
   protected readonly isZoomed = signal(false);
   protected readonly lang = this.languageStore.currentLang;
@@ -90,12 +88,10 @@ export class PostViewerPageComponent {
   }
 
   protected pick(index: number): void {
-    this.direction.set(index > this.activeIndex() ? 'next' : 'previous');
     this.activeIndex.set(index);
   }
 
   protected step(direction: -1 | 1): void {
-    this.direction.set(direction === 1 ? 'next' : 'previous');
     this.activeIndex.update((current) => stepIndex(current, this.photos().length, direction));
   }
 }

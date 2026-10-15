@@ -12,13 +12,7 @@ describe('PostViewerPageComponent motion', () => {
   let fixture: ComponentFixture<PostViewerPageComponent>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const direction = (): string | null =>
-    root().querySelector('.set-stage__frame > app-zoomable-photo')?.getAttribute('data-direction') ?? null;
   const next = (): void => (root().querySelector('.set-stage__arrow--next') as HTMLButtonElement).click();
-  const previous = (): void =>
-    (root().querySelector('.set-stage__arrow--previous') as HTMLButtonElement).click();
-  const thumbnail = (index: number): HTMLButtonElement =>
-    root().querySelectorAll('app-set-thumbnails button')[index] as HTMLButtonElement;
 
   beforeEach(async () => {
     localStorage.clear();
@@ -51,25 +45,5 @@ describe('PostViewerPageComponent motion', () => {
     expect(preload.mock.calls.map(([photo]) => photo?.id)).toEqual(
       expect.arrayContaining(['post-2/03', 'post-2/05'])
     );
-  });
-
-  it('should tell the stage which way the set is being walked', async () => {
-    next();
-    await fixture.whenStable();
-    expect(direction()).toBe('next');
-
-    previous();
-    await fixture.whenStable();
-    expect(direction()).toBe('previous');
-  });
-
-  it('should compare positions when a thumbnail is picked', async () => {
-    thumbnail(7).click();
-    await fixture.whenStable();
-    expect(direction()).toBe('next');
-
-    thumbnail(1).click();
-    await fixture.whenStable();
-    expect(direction()).toBe('previous');
   });
 });

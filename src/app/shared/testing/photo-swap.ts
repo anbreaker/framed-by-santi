@@ -1,7 +1,7 @@
 import { ComponentFixture } from '@angular/core/testing';
 
-/** Time the viewer needs after a new photo has arrived to fade the old one out and show it. */
-const SWAP_MS = 220;
+/** Time the viewer needs after a new photo has arrived to dissolve the new one in over the old one. */
+const SWAP_MS = 650;
 
 /**
  * The photo viewer keeps the old photo until the new one has loaded, then fades through the background.
