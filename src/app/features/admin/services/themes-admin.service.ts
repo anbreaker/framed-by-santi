@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { getFirebaseDb } from '@features/auth/services/firebase-client';
 import { LocalizedText } from '@features/photo-posts/models/localized-text.model';
-import { Theme, themeIdFromName } from '@features/photo-posts/models/theme.model';
+import { DEFAULT_THEMES, Theme, themeIdFor } from '@features/photo-posts/models/theme.model';
 
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -18,10 +18,11 @@ export class ThemesAdminError extends Error {
 /** Creates themes as an admin; the security rules reject anyone else. */
 @Injectable({ providedIn: 'root' })
 export class ThemesAdminService {
-  /** Saves a new theme. Its id comes from the first language that has a name, English first. */
+  /** Saves a new theme. Its id comes from the first language that has a name, English first; the default themes are never replaced. */
   async create(label: LocalizedText): Promise<Theme> {
-    const id = themeIdFromName(label.en || label.es || label.pt);
+    const id = themeIdFor(label);
     if (id === '') throw new ThemesAdminError('invalid-name');
+    if (DEFAULT_THEMES.some((theme) => theme.id === id)) throw new ThemesAdminError('exists');
 
     const db = getFirebaseDb();
     if (db === null) throw new ThemesAdminError('not-configured');

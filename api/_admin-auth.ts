@@ -3,6 +3,11 @@ export type FetchFn = (input: string, init?: RequestInit) => Promise<Response>;
 const json = (status: number, body: Record<string, number | string>): Response =>
   Response.json(body, { headers: { 'Cache-Control': 'no-store' }, status });
 
+const ADMIN_CHECK_TIMEOUT_MS = 8000;
+
+/** Firebase user ids are up to 128 characters; anything else must never be placed in a URL path (`..`, `/`, `%`). */
+const VALID_UID = /^[A-Za-z0-9_-]{1,128}$/;
+
 /** Reads the Firebase uid from the ID token payload. Not a verification: Firestore verifies the token. */
 export const readUid = (idToken: string): string | null => {
   const payload = idToken.split('.')[1];
@@ -16,7 +21,7 @@ export const readUid = (idToken: string): string | null => {
       sub?: unknown;
     };
 
-    return typeof claims.sub === 'string' && claims.sub.length > 0 ? claims.sub : null;
+    return typeof claims.sub === 'string' && VALID_UID.test(claims.sub) ? claims.sub : null;
   } catch {
     return null;
   }
@@ -35,7 +40,10 @@ export const checkAdmin = async (
   const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/admins/${encodeURIComponent(uid)}`;
 
   try {
-    const response = await fetchFn(url, { headers: { Authorization: `Bearer ${idToken}` } });
+    const response = await fetchFn(url, {
+      headers: { Authorization: `Bearer ${idToken}` },
+      signal: AbortSignal.timeout(ADMIN_CHECK_TIMEOUT_MS),
+    });
 
     if (response.ok) {
       return 'admin';

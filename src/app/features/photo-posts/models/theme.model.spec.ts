@@ -1,4 +1,4 @@
-import { DEFAULT_THEMES, themeIdFromName, toTheme } from './theme.model';
+import { DEFAULT_THEMES, themeIdFor, themeIdFromName, toTheme } from './theme.model';
 
 describe('DEFAULT_THEMES', () => {
   it('should keep the five original themes, each named in every language', () => {
@@ -24,6 +24,10 @@ describe('toTheme', () => {
     expect(toTheme('sunset', { label })).toEqual({ id: 'sunset', label });
   });
 
+  it('should reject a label that has no text in any language', () => {
+    expect(toTheme('x', { label: { en: ' ', es: '', pt: '  ' } })).toBeNull();
+  });
+
   it('should reject a document without a full translated label', () => {
     expect(toTheme('x', { label: { en: 'Only English' } })).toBeNull();
     expect(toTheme('x', { label: 'Sunset' })).toBeNull();
@@ -40,5 +44,25 @@ describe('themeIdFromName', () => {
 
   it('should return an empty id when nothing usable is left', () => {
     expect(themeIdFromName(' ?! ')).toBe('');
+  });
+});
+
+describe('themeIdFor', () => {
+  it('should use the first language that gives a usable id, English first', () => {
+    expect(themeIdFor({ en: 'Sunset', es: 'Atardecer', pt: 'Pôr do sol' })).toBe('sunset');
+    expect(themeIdFor({ en: '夜', es: 'Noche', pt: 'Noite' })).toBe('noche');
+  });
+
+  it('should give a stable id of its own when no language has Latin letters', () => {
+    const label = { en: '夜', es: '夜', pt: '夜' };
+
+    expect(themeIdFor(label)).toMatch(/^theme-[0-9a-f]{8}$/);
+    expect(themeIdFor(label)).toBe(themeIdFor({ ...label }));
+    expect(themeIdFor({ en: '昼', es: '昼', pt: '昼' })).not.toBe(themeIdFor(label));
+  });
+
+  it('should give no id when there is no letter or digit at all', () => {
+    expect(themeIdFor({ en: '🔥', es: '?!', pt: ' ' })).toBe('');
+    expect(themeIdFor({ en: '', es: '', pt: '' })).toBe('');
   });
 });

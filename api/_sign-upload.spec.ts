@@ -61,7 +61,7 @@ describe('sign-upload', () => {
     });
     expect(fetchFn).toHaveBeenCalledWith(
       'https://firestore.googleapis.com/v1/projects/demo-project/databases/(default)/documents/admins/uid-1',
-      { headers: { Authorization: `Bearer ${token}` } }
+      expect.objectContaining({ headers: { Authorization: `Bearer ${token}` } })
     );
   });
 

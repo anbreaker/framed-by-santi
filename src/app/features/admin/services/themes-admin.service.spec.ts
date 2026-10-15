@@ -38,6 +38,24 @@ describe('ThemesAdminService', () => {
     expect(theme.id).toBe('atardecer');
   });
 
+  it('should not let a new theme take the id of one of the default themes', async () => {
+    const failure = TestBed.inject(ThemesAdminService).create({
+      en: 'Night',
+      es: 'Noche',
+      pt: 'Noite',
+    });
+
+    await expect(failure).rejects.toMatchObject({ reason: 'exists' });
+    expect(mocks.setDoc).not.toHaveBeenCalled();
+  });
+
+  it('should still create a theme named without Latin letters, with an id of its own', async () => {
+    const theme = await TestBed.inject(ThemesAdminService).create({ en: '夜', es: '夜', pt: '夜' });
+
+    expect(theme.id).toMatch(/^theme-[0-9a-f]{8}$/);
+    expect(mocks.setDoc).toHaveBeenCalledTimes(1);
+  });
+
   it('should refuse a name that gives no usable id', async () => {
     const failure = TestBed.inject(ThemesAdminService).create({ en: '?', es: '!', pt: '' });
 
