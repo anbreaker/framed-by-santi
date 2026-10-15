@@ -6,6 +6,7 @@ import { LOCAL_PHOTO_POSTS } from '../data/local-photo-posts.data';
 import { PhotoPost } from '../models/photo-post.model';
 import { DEFAULT_THEMES, Theme, toTheme } from '../models/theme.model';
 import { toPhotoPost } from '../utils/post-from-document';
+import { byNewest } from '../utils/post-order';
 
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
@@ -121,7 +122,7 @@ export class PhotoPostsStore {
       return snapshot.docs
         .map((item) => toPhotoPost(item.id, item.data()))
         .filter((post): post is PhotoPost => post !== null)
-        .sort((a, b) => b.takenAt.localeCompare(a.takenAt));
+        .sort(byNewest);
     } catch {
       return request === this.latestRequest ? null : undefined;
     }

@@ -50,6 +50,34 @@ describe('PostsAdminService', () => {
     );
   });
 
+  it('should stamp the creation time when a post is created, so same-day sets can be ordered', async () => {
+    mocks.addDoc.mockResolvedValue({ id: 'new-1' });
+
+    await TestBed.inject(PostsAdminService).create(post, { hidden: true });
+
+    const [, document] = mocks.addDoc.mock.calls[0];
+    expect(Number.isNaN(Date.parse(document.createdAt))).toBe(false);
+  });
+
+  it('should keep the creation time a post already has when it is saved again', async () => {
+    mocks.setDoc.mockResolvedValue(undefined);
+
+    await TestBed.inject(PostsAdminService).save(
+      { ...post, createdAt: '2026-10-01T10:00:00.000Z', id: 'abc' },
+      { hidden: false }
+    );
+
+    expect(mocks.setDoc.mock.calls[0][1].createdAt).toBe('2026-10-01T10:00:00.000Z');
+  });
+
+  it('should stamp the creation time on saving a post that never had one', async () => {
+    mocks.setDoc.mockResolvedValue(undefined);
+
+    await TestBed.inject(PostsAdminService).save({ ...post, id: 'abc' }, { hidden: false });
+
+    expect(Number.isNaN(Date.parse(mocks.setDoc.mock.calls[0][1].createdAt))).toBe(false);
+  });
+
   it('should replace an existing post document on save', async () => {
     mocks.setDoc.mockResolvedValue(undefined);
 

@@ -15,6 +15,7 @@ export function toPostDocument(
 ): Record<string, unknown> {
   return {
     caption: post.caption,
+    ...(post.createdAt !== undefined && { createdAt: post.createdAt }),
     ...(post.description !== undefined && { description: post.description }),
     hidden,
     photos: post.photos.map((photo) => ({ ...photo })),

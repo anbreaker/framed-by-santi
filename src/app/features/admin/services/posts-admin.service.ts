@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { getFirebaseDb } from '@features/auth/services/firebase-client';
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
 import { toPhotoPost } from '@features/photo-posts/utils/post-from-document';
+import { byNewest } from '@features/photo-posts/utils/post-order';
 import { PostVisibility, toPostDocument } from '@features/photo-posts/utils/post-to-document';
 
 import {
@@ -29,6 +30,12 @@ export interface PostEntry extends PostVisibility {
   post: PhotoPost;
 }
 
+/** Gives a post the time it is first written, so sets of the same day can be told apart by recency. */
+const stamped = (post: PhotoPost): PhotoPost => ({
+  ...post,
+  createdAt: post.createdAt ?? new Date().toISOString(),
+});
+
 /** Reads and writes posts as an admin; the security rules reject anyone else. */
 @Injectable({ providedIn: 'root' })
 export class PostsAdminService {
@@ -42,7 +49,7 @@ export class PostsAdminService {
         const post = toPhotoPost(item.id, data);
         return post === null ? [] : [{ hidden: data['hidden'] === true, post }];
       })
-      .sort((a, b) => b.post.takenAt.localeCompare(a.post.takenAt));
+      .sort((a, b) => byNewest(a.post, b.post));
   }
 
   /** One post with its visibility, or null when it does not exist or cannot be shown. */
@@ -59,14 +66,14 @@ export class PostsAdminService {
   /** Creates a post and returns the id Firestore gave it; the post's own `id` is ignored. */
   async create(post: PhotoPost, visibility: PostVisibility): Promise<string> {
     const created = await this.run((db) =>
-      addDoc(collection(db, 'posts'), toPostDocument(post, visibility))
+      addDoc(collection(db, 'posts'), toPostDocument(stamped(post), visibility))
     );
     return created.id;
   }
 
   /** Replaces the whole document of an existing post. */
   async save(post: PhotoPost, visibility: PostVisibility): Promise<void> {
-    await this.run((db) => setDoc(doc(db, 'posts', post.id), toPostDocument(post, visibility)));
+    await this.run((db) => setDoc(doc(db, 'posts', post.id), toPostDocument(stamped(post), visibility)));
   }
 
   /** Hides or publishes a post without touching anything else in it. */

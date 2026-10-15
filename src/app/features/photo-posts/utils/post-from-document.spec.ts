@@ -49,6 +49,14 @@ describe('toPhotoPost', () => {
     expect(post?.tags).toEqual(['street', 'sunset']);
   });
 
+  it('should read the creation time when it is text and skip it otherwise', () => {
+    expect(toPhotoPost('p', { ...valid, createdAt: '2026-10-15T20:00:00.000Z' })?.createdAt).toBe(
+      '2026-10-15T20:00:00.000Z'
+    );
+    expect(toPhotoPost('p', { ...valid, createdAt: 5 })).not.toHaveProperty('createdAt');
+    expect(toPhotoPost('p', valid)).not.toHaveProperty('createdAt');
+  });
+
   it('should ignore the hashtags that older sets still carry', () => {
     expect(toPhotoPost('p', valid)).not.toHaveProperty('hashtags');
   });

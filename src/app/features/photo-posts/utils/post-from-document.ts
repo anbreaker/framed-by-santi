@@ -40,7 +40,7 @@ function toPhoto(value: unknown): Photo | null {
 export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
   if (!isFields(data)) return null;
 
-  const { caption, description, photos, tags, takenAt } = data;
+  const { caption, createdAt, description, photos, tags, takenAt } = data;
 
   const parsedCaption = parseText(caption);
   const parsedDescription = parseText(description);
@@ -60,6 +60,7 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
 
   return {
     caption: parsedCaption,
+    ...(typeof createdAt === 'string' && { createdAt }),
     ...(parsedDescription !== null && { description: parsedDescription }),
     id,
     photos: mapped as Photo[],

@@ -537,6 +537,15 @@ describe('PostEditorComponent', () => {
       await vi.waitFor(() => expect(saved).toEqual(['set-9']));
     });
 
+    it('should keep the time the set was created, so editing never reorders same-day sets', async () => {
+      await open({ ...existing, post: { ...existing.post, createdAt: '2025-10-02T09:00:00.000Z' } });
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(save).toHaveBeenCalled());
+
+      expect(save.mock.calls[0][0].createdAt).toBe('2025-10-02T09:00:00.000Z');
+    });
+
     it('should keep it hidden when saved as a draft, and not translate it', async () => {
       await open();
 
