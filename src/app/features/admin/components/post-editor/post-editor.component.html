@@ -116,14 +116,14 @@
 
     <fieldset class="post-editor__tags">
       <legend class="post-editor__label">{{ t('admin.editor.tags') }}</legend>
-      @for (tag of allTags; track tag) {
+      @for (theme of allThemes(); track theme.id) {
         <label class="post-editor__tag">
           <input
             type="checkbox"
-            [checked]="selectedTags().includes(tag)"
-            (change)="toggleTag(tag, $event)"
+            [checked]="selectedTags().includes(theme.id)"
+            (change)="toggleTheme(theme.id, $event)"
           />
-          {{ t('tags.' + tag) }}
+          {{ theme.label | localizedText: lang() }}
         </label>
       }
     </fieldset>

@@ -1,7 +1,6 @@
 import { parseText } from '../models/localized-text.model';
 import { Photo } from '../models/photo.model';
 import { PhotoPost } from '../models/photo-post.model';
-import { isPostTag, PostTag } from '../models/post-tag.model';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -55,8 +54,8 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
   const mapped = photos.map(toPhoto);
   if (mapped.some((photo) => photo === null)) return null;
 
-  const knownTags: PostTag[] = Array.isArray(tags)
-    ? tags.filter((tag): tag is PostTag => typeof tag === 'string' && isPostTag(tag))
+  const themeIds = Array.isArray(tags)
+    ? tags.filter((tag): tag is string => typeof tag === 'string')
     : [];
   const texts = Array.isArray(hashtags)
     ? hashtags.filter((tag): tag is string => typeof tag === 'string')
@@ -68,7 +67,7 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
     ...(texts !== null && { hashtags: texts }),
     id,
     photos: mapped as Photo[],
-    tags: knownTags,
+    tags: themeIds,
     takenAt,
   };
 }

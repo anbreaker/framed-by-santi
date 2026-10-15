@@ -21,6 +21,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Themes are public labels for the gallery filter; only admins create or change them.
+    match /themes/{themeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

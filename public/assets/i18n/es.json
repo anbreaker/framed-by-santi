@@ -136,13 +136,6 @@
     "home": "Framed by Santi, inicio",
     "menu": "Menú"
   },
-  "tags": {
-    "architecture": "Arquitectura",
-    "bw": "Blanco y negro",
-    "night": "Noche",
-    "sky": "Cielo",
-    "street": "Calle"
-  },
   "viewer": {
     "backToGallery": "Volver a la galería",
     "counterLabel": "Foto {{current}} de {{total}}",

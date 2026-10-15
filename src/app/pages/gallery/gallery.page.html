@@ -6,7 +6,7 @@
     <h1 class="gallery-page__title">{{ t('gallery.title') }}</h1>
   </header>
 
-  <app-tag-filter [selected]="selectedTag()" [tags]="availableTags()" />
+  <app-tag-filter [selected]="selectedTag()" [themes]="availableThemes()" />
 
   @if (postCount() > 0) {
   <app-post-grid [posts]="visiblePosts()" />

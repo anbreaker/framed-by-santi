@@ -1,6 +1,5 @@
 import { PostText } from './localized-text.model';
 import { Photo } from './photo.model';
-import { PostTag } from './post-tag.model';
 
 /** A post is a set of photos published together, like an Instagram carousel. */
 export interface PhotoPost {
@@ -12,7 +11,8 @@ export interface PhotoPost {
   id: string;
   /** Ordered set; the first photo is the cover. */
   photos: readonly Photo[];
-  tags: readonly PostTag[];
+  /** Ids of the themes this post belongs to, see `Theme`. */
+  tags: readonly string[];
   /** ISO date (YYYY-MM-DD). */
   takenAt: string;
 }

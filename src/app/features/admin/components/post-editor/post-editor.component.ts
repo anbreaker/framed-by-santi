@@ -9,9 +9,11 @@ import {
 import { form, FormField, maxLength, required, submit, validate } from '@angular/forms/signals';
 import { TranslocoDirective } from '@jsverse/transloco';
 
+import { LanguageStore } from '@core/store/language.store';
 import { Photo } from '@features/photo-posts/models/photo.model';
-import { POST_TAGS, PostTag } from '@features/photo-posts/models/post-tag.model';
+import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { makeCover, movePhoto } from '@features/photo-posts/utils/reorder-photos';
+import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { UploadedPhoto } from '../../services/photo-upload.service';
 import { PostsAdminService } from '../../services/posts-admin.service';
@@ -29,7 +31,7 @@ type SaveStatus = 'idle' | 'saved' | 'saving' | 'failed';
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, TranslocoDirective, UploadPanelComponent],
+  imports: [FormField, LocalizedTextPipe, TranslocoDirective, UploadPanelComponent],
   selector: 'app-post-editor',
   styleUrl: './post-editor.component.css',
   templateUrl: './post-editor.component.html',
@@ -38,6 +40,10 @@ export class PostEditorComponent {
   private readonly posts = inject(PostsAdminService);
 
   /** Emits the id of a post once it is saved. */
+  protected readonly allThemes = inject(PhotoPostsStore).themes;
+
+  protected readonly lang = inject(LanguageStore).currentLang;
+
   readonly saved = output<string>();
 
   protected readonly dragFrom = signal<number | null>(null);
@@ -48,7 +54,6 @@ export class PostEditorComponent {
     hashtags: '',
     takenAt: todayIso(),
   });
-
   protected readonly postForm = form(this.model, (path) => {
     required(path.caption);
     maxLength(path.caption, MAX_CAPTION);
@@ -57,14 +62,12 @@ export class PostEditorComponent {
       ISO_DATE.test(value()) ? undefined : { kind: 'date', message: 'date' }
     );
   });
-
-  protected readonly allTags = POST_TAGS;
   protected readonly maxCaption = MAX_CAPTION;
   protected readonly maxDescription = MAX_DESCRIPTION;
 
   protected readonly photos = signal<readonly Photo[]>([]);
   protected readonly photosMissing = signal(false);
-  protected readonly selectedTags = signal<readonly PostTag[]>([]);
+  protected readonly selectedTags = signal<readonly string[]>([]);
   protected readonly status = signal<SaveStatus>('idle');
 
   protected readonly canSave = computed(() => this.status() !== 'saving');
@@ -102,10 +105,10 @@ export class PostEditorComponent {
     );
   }
 
-  protected toggleTag(tag: PostTag, event: Event): void {
+  protected toggleTheme(id: string, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.selectedTags.update((current) =>
-      checked ? [...current, tag] : current.filter((item) => item !== tag)
+      checked ? [...current, id] : current.filter((item) => item !== id)
     );
   }
 

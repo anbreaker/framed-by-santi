@@ -1,6 +1,5 @@
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
-import { PostTag } from '@features/photo-posts/models/post-tag.model';
 
 export interface PostDraft {
   caption: string;
@@ -8,7 +7,7 @@ export interface PostDraft {
   /** Free text as typed, for example `#street nyc`. */
   hashtags: string;
   photos: readonly Photo[];
-  tags: readonly PostTag[];
+  tags: readonly string[];
   takenAt: string;
 }
 

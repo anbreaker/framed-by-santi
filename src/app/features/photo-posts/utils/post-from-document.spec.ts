@@ -44,10 +44,10 @@ describe('toPhotoPost', () => {
     );
   });
 
-  it('should drop unknown tags and non-string hashtags instead of failing', () => {
-    const post = toPhotoPost('p', { ...valid, hashtags: ['ok', 3], tags: ['street', 'made-up'] });
+  it('should keep every theme id as text and drop other values and non-string hashtags', () => {
+    const post = toPhotoPost('p', { ...valid, hashtags: ['ok', 3], tags: ['street', 'sunset', 4] });
 
-    expect(post?.tags).toEqual(['street']);
+    expect(post?.tags).toEqual(['street', 'sunset']);
     expect(post?.hashtags).toEqual(['ok']);
   });
 

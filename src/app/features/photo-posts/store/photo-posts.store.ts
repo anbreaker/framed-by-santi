@@ -4,7 +4,7 @@ import { getFirebaseDb } from '@features/auth/services/firebase-client';
 
 import { LOCAL_PHOTO_POSTS } from '../data/local-photo-posts.data';
 import { PhotoPost } from '../models/photo-post.model';
-import { PostTag } from '../models/post-tag.model';
+import { DEFAULT_THEMES, Theme, toTheme } from '../models/theme.model';
 import { toPhotoPost } from '../utils/post-from-document';
 
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -17,13 +17,43 @@ export class PhotoPostsStore {
 
   readonly latestPost = computed(() => this._posts()[0]);
 
-  readonly availableTags = computed<readonly PostTag[]>(() => {
-    const tags = new Set(this._posts().flatMap((post) => post.tags));
-    return [...tags].sort();
+  private readonly _themes = signal<readonly Theme[]>(DEFAULT_THEMES);
+
+  /** Every theme that exists, the default ones plus those created in the dashboard. */
+  readonly themes = this._themes.asReadonly();
+
+  /** Themes that at least one post uses, sorted by id; these are the gallery filters. */
+  readonly availableThemes = computed<readonly Theme[]>(() => {
+    const used = new Set(this._posts().flatMap((post) => post.tags));
+    return this._themes()
+      .filter((theme) => used.has(theme.id))
+      .sort((a, b) => a.id.localeCompare(b.id));
   });
 
   constructor() {
     void this.loadFromFirestore();
+    void this.loadThemes();
+  }
+
+  /** Makes a theme that was just created available without reloading. */
+  addTheme(theme: Theme): void {
+    this._themes.update((themes) => [...themes.filter((item) => item.id !== theme.id), theme]);
+  }
+
+  /** Adds the themes created in Firestore to the default ones; a failure leaves the defaults. */
+  private async loadThemes(): Promise<void> {
+    const db = getFirebaseDb();
+    if (db === null) return;
+
+    try {
+      const snapshot = await getDocs(collection(db, 'themes'));
+      snapshot.docs
+        .map((item) => toTheme(item.id, item.data()))
+        .filter((theme): theme is Theme => theme !== null)
+        .forEach((theme) => this.addTheme(theme));
+    } catch {
+      // Keep the default themes.
+    }
   }
 
   /**
@@ -52,7 +82,7 @@ export class PhotoPostsStore {
     return this._posts().find((post) => post.id === postId);
   }
 
-  filterByTag(tag: PostTag | null): readonly PhotoPost[] {
+  filterByTag(tag: string | null): readonly PhotoPost[] {
     if (tag === null) return this._posts();
     return this._posts().filter((post) => post.tags.includes(tag));
   }

@@ -64,6 +64,29 @@ describe('PhotoPostsStore with Firestore', () => {
     expect(store.latestPost().id).toBe('new');
   });
 
+  it('should add the themes created in Firestore to the default ones', async () => {
+    const label = { en: 'Sunset', es: 'Atardecer', pt: 'Pôr do sol' };
+    mocks.getDocs.mockImplementation((source: { name?: string }) =>
+      Promise.resolve({
+        docs:
+          source.name === 'themes'
+            ? [docOf('sunset', { label }), docOf('broken', { label: 'x' })]
+            : [docOf('p1', { ...post('2026-05-05'), tags: ['sunset', 'street'] })],
+      })
+    );
+
+    const store = await create();
+    await vi.waitFor(() =>
+      expect(store.themes().some((theme) => theme.id === 'sunset')).toBe(true)
+    );
+
+    expect(store.themes().map((theme) => theme.id)).toEqual(
+      expect.arrayContaining(['architecture', 'bw', 'night', 'sky', 'street', 'sunset'])
+    );
+    expect(store.themes().some((theme) => theme.id === 'broken')).toBe(false);
+    expect(store.availableThemes().map((theme) => theme.id)).toEqual(['street', 'sunset']);
+  });
+
   it('should skip malformed documents', async () => {
     mocks.getDocs.mockResolvedValue({
       docs: [docOf('bad', { caption: 1 }), docOf('good', post('2026-05-05'))],

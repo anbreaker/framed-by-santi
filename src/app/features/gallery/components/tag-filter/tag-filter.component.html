@@ -8,14 +8,14 @@
     {{ t('gallery.allFilter') }}
   </a>
 
-  @for (tag of tags(); track tag) {
+  @for (theme of themes(); track theme.id) {
     <a
       class="tag-filter__chip"
-      [attr.aria-current]="selected() === tag ? 'true' : null"
-      [queryParams]="{ tag }"
+      [attr.aria-current]="selected() === theme.id ? 'true' : null"
+      [queryParams]="{ tag: theme.id }"
       [routerLink]="[]"
     >
-      {{ t('tags.' + tag) }}
+      {{ theme.label | localizedText: lang() }}
     </a>
   }
 </nav>
