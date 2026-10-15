@@ -12,6 +12,8 @@
 
 .set-stage__frame {
   height: 100%;
+  /* The photos slide a little while changing; whatever leaves the frame must not widen the page. */
+  overflow: hidden;
   position: relative;
 }
 
