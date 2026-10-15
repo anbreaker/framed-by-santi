@@ -10,6 +10,28 @@
     "photoAlt": "Retrato de Santi García",
     "title": "Santi García"
   },
+  "admin": {
+    "login": {
+      "eyebrow": "Área privada",
+      "title": "Iniciar sessão",
+      "email": "E-mail",
+      "password": "Palavra-passe",
+      "submit": "Entrar",
+      "submitting": "A entrar…",
+      "forgot": "Esqueceu-se da palavra-passe?",
+      "missing": "Introduza o seu e-mail e a palavra-passe.",
+      "failed": "Não foi possível iniciar a sessão. Verifique os dados e tente novamente.",
+      "emailFirst": "Escreva primeiro o seu e-mail.",
+      "resetSent": "Se esse endereço puder entrar, enviámos uma ligação para repor a palavra-passe.",
+      "unavailable": "O acesso não está disponível neste momento."
+    },
+    "dashboard": {
+      "eyebrow": "Área privada",
+      "title": "Painel",
+      "soon": "Em breve vai gerir os seus conjuntos de fotos a partir daqui.",
+      "signOut": "Terminar sessão"
+    }
+  },
   "common": {
     "instagram": "Instagram",
     "skipToContent": "Saltar para o conteúdo"

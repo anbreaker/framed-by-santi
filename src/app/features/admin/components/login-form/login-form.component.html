@@ -1,0 +1,58 @@
+<section class="login-form" *transloco="let t">
+  <header class="login-form__header">
+    <p class="meta">{{ t('admin.login.eyebrow') }}</p>
+    <h1 class="login-form__title">{{ t('admin.login.title') }}</h1>
+  </header>
+
+  @if (unavailable()) {
+    <p class="login-form__notice login-form__notice--error" role="alert">
+      {{ t('admin.login.unavailable') }}
+    </p>
+  } @else {
+    <form class="login-form__form" novalidate (submit)="submit($event)">
+      <label class="login-form__field">
+        <span class="login-form__label">{{ t('admin.login.email') }}</span>
+        <input
+          class="login-form__input"
+          autocomplete="username"
+          inputmode="email"
+          name="email"
+          type="email"
+          [value]="email()"
+          (input)="onEmail($event)"
+        />
+      </label>
+
+      <label class="login-form__field">
+        <span class="login-form__label">{{ t('admin.login.password') }}</span>
+        <input
+          class="login-form__input"
+          autocomplete="current-password"
+          name="password"
+          type="password"
+          [value]="password()"
+          (input)="onPassword($event)"
+        />
+      </label>
+
+      @if (notice(); as current) {
+        <p
+          class="login-form__notice"
+          [attr.role]="current.kind === 'error' ? 'alert' : 'status'"
+          [class.login-form__notice--error]="current.kind === 'error'"
+        >
+          {{ t(current.key) }}
+        </p>
+      }
+
+      <div class="login-form__actions">
+        <button class="btn btn--primary" type="submit" [disabled]="submitting()">
+          {{ submitting() ? t('admin.login.submitting') : t('admin.login.submit') }}
+        </button>
+        <button class="login-form__link" type="button" (click)="resetPassword()">
+          <span class="link-grow">{{ t('admin.login.forgot') }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</section>

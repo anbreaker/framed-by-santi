@@ -10,6 +10,28 @@
     "photoAlt": "Portrait of Santi García",
     "title": "Santi García"
   },
+  "admin": {
+    "login": {
+      "eyebrow": "Private area",
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgot": "Forgot your password?",
+      "missing": "Enter your email and password.",
+      "failed": "We could not sign you in. Check your details and try again.",
+      "emailFirst": "Type your email first.",
+      "resetSent": "If that address can sign in, we sent a link to reset the password.",
+      "unavailable": "Sign-in is not available right now."
+    },
+    "dashboard": {
+      "eyebrow": "Private area",
+      "title": "Dashboard",
+      "soon": "Your photo sets will be managed from here soon.",
+      "signOut": "Sign out"
+    }
+  },
   "common": {
     "instagram": "Instagram",
     "skipToContent": "Skip to content"
