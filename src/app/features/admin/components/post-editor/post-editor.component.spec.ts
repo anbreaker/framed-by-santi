@@ -209,6 +209,22 @@ describe('PostEditorComponent', () => {
     expect(root().textContent).toContain('1 photos');
   });
 
+  it('should show a placeholder first and the small preview once it is ready', async () => {
+    const id = localId++;
+    panel().queued.emit({ localId: id, name: 'a.jpg', previewUrl: '' });
+    await fixture.whenStable();
+
+    expect(root().querySelector('.photo-stage__placeholder')).not.toBeNull();
+
+    panel().previewReady.emit({ localId: id, previewUrl: 'blob:small' });
+    await fixture.whenStable();
+
+    expect(root().querySelector('img.photo-stage__preview')?.getAttribute('src')).toBe(
+      'blob:small'
+    );
+    expect(root().querySelector('.photo-stage__placeholder')).toBeNull();
+  });
+
   it('should swap the preview for the uploaded photo and keep the alt text typed meanwhile', async () => {
     const id = queue();
     await fixture.whenStable();

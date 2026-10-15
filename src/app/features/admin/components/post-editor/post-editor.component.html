@@ -64,7 +64,11 @@
         (removed)="onRemoved($event)"
       />
 
-      <app-upload-panel (finished)="onFinished($event)" (queued)="onQueued($event)" />
+      <app-upload-panel
+        (finished)="onFinished($event)"
+        (previewReady)="onPreviewReady($event)"
+        (queued)="onQueued($event)"
+      />
     </section>
 
     <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">

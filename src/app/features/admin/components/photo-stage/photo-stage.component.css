@@ -365,3 +365,19 @@
 .photo-stage__thumb--failed .photo-stage__thumb-state {
   color: var(--color-error);
 }
+
+.photo-stage__placeholder {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+.photo-stage__thumb-placeholder {
+  background: var(--color-surface-raised);
+  display: block;
+  height: 100%;
+  width: 100%;
+}

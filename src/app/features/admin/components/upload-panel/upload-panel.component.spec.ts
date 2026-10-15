@@ -4,7 +4,7 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
 import { ImageCodec } from '../../utils/prepare-photo';
-import { IMAGE_CODEC, UploadPanelComponent } from './upload-panel.component';
+import { IMAGE_CODEC, PREVIEW_MAKER, UploadPanelComponent } from './upload-panel.component';
 
 const fileOf = (name: string, type = 'image/jpeg'): File =>
   new File([new Uint8Array(1)], name, { type });
@@ -13,6 +13,7 @@ describe('UploadPanelComponent', () => {
   let fixture: ComponentFixture<UploadPanelComponent>;
   let upload: ReturnType<typeof vi.fn>;
   let decode: ReturnType<typeof vi.fn>;
+  let makePreview: ReturnType<typeof vi.fn>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
 
@@ -27,7 +28,8 @@ describe('UploadPanelComponent', () => {
   };
 
   beforeEach(async () => {
-    URL.createObjectURL = vi.fn(() => 'blob:preview');
+    URL.createObjectURL = vi.fn(() => 'blob:original');
+    makePreview = vi.fn(async (file: File) => `blob:small-${file.name}`);
     upload = vi.fn().mockResolvedValue({ height: 10, publicId: 'folder/a', width: 20 });
     decode = vi.fn().mockResolvedValue({ height: 3000, source: {}, width: 4000 });
     const codec: ImageCodec = { decode, encode: vi.fn() };
@@ -36,6 +38,7 @@ describe('UploadPanelComponent', () => {
       imports: [UploadPanelComponent, realTranslations()],
       providers: [
         { provide: IMAGE_CODEC, useValue: codec },
+        { provide: PREVIEW_MAKER, useValue: makePreview },
         { provide: PhotoUploadService, useValue: { upload } },
       ],
     }).compileComponents();
@@ -70,17 +73,59 @@ describe('UploadPanelComponent', () => {
     expect(root().querySelectorAll('.upload-panel__item').length).toBe(2);
   });
 
-  it('should announce each file with a local preview as soon as it is chosen, before any upload', () => {
+  it('should announce each file at once, without waiting for its preview or any upload', () => {
     const queued: { localId: number; name: string; previewUrl: string }[] = [];
     fixture.componentInstance.queued.subscribe((item) => queued.push(item));
 
     void fixture.componentInstance.addFiles([fileOf('a.jpg'), fileOf('b.jpg')]);
 
     expect(queued).toEqual([
-      { localId: 0, name: 'a.jpg', previewUrl: 'blob:preview' },
-      { localId: 1, name: 'b.jpg', previewUrl: 'blob:preview' },
+      { localId: 0, name: 'a.jpg', previewUrl: '' },
+      { localId: 1, name: 'b.jpg', previewUrl: '' },
     ]);
     expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('should send a small preview of each file as soon as it is ready, matched by its local id', async () => {
+    const ready: { localId: number; previewUrl: string }[] = [];
+    fixture.componentInstance.previewReady.subscribe((item) => ready.push(item));
+
+    await fixture.componentInstance.addFiles([fileOf('a.jpg'), fileOf('b.jpg')]);
+
+    expect(ready).toEqual([
+      { localId: 0, previewUrl: 'blob:small-a.jpg' },
+      { localId: 1, previewUrl: 'blob:small-b.jpg' },
+    ]);
+  });
+
+  it('should make the previews one at a time, so many 40 MP photos never decode at once', async () => {
+    let active = 0;
+    let peak = 0;
+    makePreview.mockImplementation(async (file: File) => {
+      active++;
+      peak = Math.max(peak, active);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      active--;
+      return `blob:small-${file.name}`;
+    });
+
+    await fixture.componentInstance.addFiles(
+      ['a', 'b', 'c', 'd'].map((name) => fileOf(`${name}.jpg`))
+    );
+    await vi.waitFor(() => expect(makePreview).toHaveBeenCalledTimes(4));
+    await new Promise((resolve) => setTimeout(resolve, 40));
+
+    expect(peak).toBe(1);
+  });
+
+  it('should fall back to showing the original file when a small preview cannot be made', async () => {
+    const ready: { localId: number; previewUrl: string }[] = [];
+    fixture.componentInstance.previewReady.subscribe((item) => ready.push(item));
+    makePreview.mockRejectedValue(new Error('unsupported'));
+
+    await fixture.componentInstance.addFiles([fileOf('a.jpg')]);
+
+    expect(ready).toEqual([{ localId: 0, previewUrl: 'blob:original' }]);
   });
 
   it('should finish each photo with the uploaded result, matched by its local id', async () => {

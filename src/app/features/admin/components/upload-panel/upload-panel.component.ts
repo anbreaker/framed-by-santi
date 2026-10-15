@@ -16,6 +16,7 @@ import {
   UploadedPhoto,
 } from '../../services/photo-upload.service';
 import { browserImageCodec } from '../../utils/browser-image-codec';
+import { makePreview } from '../../utils/browser-preview';
 import {
   ImageCodec,
   MAX_LONG_EDGE,
@@ -23,6 +24,11 @@ import {
   PhotoWarning,
   preparePhoto,
 } from '../../utils/prepare-photo';
+
+/** Makes the small preview shown while a photo uploads; replaced in tests. */
+export const PREVIEW_MAKER = new InjectionToken<(file: File) => Promise<string>>('PREVIEW_MAKER', {
+  factory: (): ((file: File) => Promise<string>) => makePreview,
+});
 
 export const IMAGE_CODEC = new InjectionToken<ImageCodec>('IMAGE_CODEC', {
   factory: (): ImageCodec => browserImageCodec,
@@ -34,6 +40,13 @@ type UploadStatus = 'done' | 'failed' | 'preparing' | 'uploading';
 export interface QueuedPhoto {
   localId: number;
   name: string;
+  /** Empty: the preview is not ready yet and arrives later as `previewReady`. */
+  previewUrl: string;
+}
+
+/** The small preview of a queued file, once it has been made. */
+export interface PreviewReady {
+  localId: number;
   previewUrl: string;
 }
 
@@ -71,13 +84,17 @@ const ERROR_KEYS: Record<PhotoRejectedError['reason'] | PhotoUploadError['reason
 })
 export class UploadPanelComponent {
   private readonly codec = inject(IMAGE_CODEC);
+  private readonly previewMaker = inject(PREVIEW_MAKER);
+  /** Previews are made one after another, so many large photos never decode at the same time. */
   private readonly uploads = inject(PhotoUploadService);
+  private previews: Promise<void> = Promise.resolve();
 
   private nextId = 0;
   private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
 
   readonly finished = output<FinishedPhoto>();
   /** Emits each file right away, before any upload, so the editor can show it from the local file. */
+  readonly previewReady = output<PreviewReady>();
   readonly queued = output<QueuedPhoto>();
 
   protected readonly items = signal<readonly UploadItem[]>([]);
@@ -108,18 +125,33 @@ export class UploadPanelComponent {
       warnings: [],
     }));
     this.items.update((current) => [...current, ...added]);
-    added.forEach((item, index) =>
-      this.queued.emit({
-        localId: item.id,
-        name: item.name,
-        previewUrl: URL.createObjectURL(files[index]),
-      })
-    );
+    added.forEach((item, index) => {
+      this.queued.emit({ localId: item.id, name: item.name, previewUrl: '' });
+      this.queuePreview(item.id, files[index]);
+    });
+
+    // The previews go first: seeing the photos matters more than starting to upload them.
+    await this.previews;
 
     // One photo at a time keeps memory and bandwidth predictable on a phone.
     for (const [index, file] of files.entries()) {
       await this.process(added[index].id, file);
     }
+  }
+
+  private queuePreview(localId: number, file: File): void {
+    this.previews = this.previews.then(async () => {
+      let previewUrl: string;
+
+      try {
+        previewUrl = await this.previewMaker(file);
+      } catch {
+        // A browser that cannot shrink the photo still shows it, just more slowly.
+        previewUrl = URL.createObjectURL(file);
+      }
+
+      this.previewReady.emit({ localId, previewUrl });
+    });
   }
 
   private async process(id: number, file: File): Promise<void> {

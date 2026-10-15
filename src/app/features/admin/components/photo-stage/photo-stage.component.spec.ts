@@ -178,6 +178,14 @@ describe('PhotoStageComponent', () => {
     expect(thumbs()[0].querySelector('img')?.getAttribute('src')).toBe('blob:mine');
   });
 
+  it('should show a placeholder instead of a broken image while the preview is being prepared', async () => {
+    await show([{ ...photo('a'), localId: 1, state: 'uploading' }]);
+
+    expect(root().querySelector('.photo-stage__placeholder')?.textContent).toContain('Preparing');
+    expect(root().querySelector('img')).toBeNull();
+    expect(thumbs()[0].querySelector('.photo-stage__thumb-placeholder')).not.toBeNull();
+  });
+
   it('should say when a photo failed to upload and keep it visible so it can be removed', async () => {
     await show([{ ...photo('a'), localId: 1, previewUrl: 'blob:mine', state: 'failed' }]);
 

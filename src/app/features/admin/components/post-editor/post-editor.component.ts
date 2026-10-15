@@ -35,6 +35,7 @@ import { ThemeCreatorComponent } from '../theme-creator/theme-creator.component'
 import { ThemeManagerComponent } from '../theme-manager/theme-manager.component';
 import {
   FinishedPhoto,
+  PreviewReady,
   QueuedPhoto,
   UploadPanelComponent,
 } from '../upload-panel/upload-panel.component';
@@ -176,11 +177,25 @@ export class PostEditorComponent implements OnInit {
         height: 0,
         id: `local-${localId}`,
         localId,
-        previewUrl,
+        previewUrl: previewUrl || undefined,
         state: 'uploading',
         width: 0,
       },
     ]);
+  }
+
+  protected onPreviewReady({ localId, previewUrl }: PreviewReady): void {
+    const waiting = this.photos().some((photo) => photo.localId === localId);
+
+    if (!waiting) {
+      // The photo is already uploaded or was removed: nothing will show this preview, so release it.
+      if (typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(previewUrl);
+      return;
+    }
+
+    this.photos.update((current) =>
+      current.map((photo) => (photo.localId === localId ? { ...photo, previewUrl } : photo))
+    );
   }
 
   protected onFinished({ localId, result }: FinishedPhoto): void {

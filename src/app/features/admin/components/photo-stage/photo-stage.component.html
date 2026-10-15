@@ -12,6 +12,8 @@
           [alt]="photo.alt"
           [src]="photo.previewUrl"
         />
+      } @else if (photo.state) {
+        <span class="photo-stage__placeholder">{{ t('admin.upload.status.preparing') }}</span>
       } @else {
         <app-post-photo
           class="photo-stage__image"
@@ -129,6 +131,8 @@
         >
           @if (item.previewUrl) {
             <img class="photo-stage__thumb-image" alt="" [src]="item.previewUrl" />
+          } @else if (item.state) {
+            <span class="photo-stage__thumb-placeholder" aria-hidden="true"></span>
           } @else {
             <app-post-photo sizes="80px" [alt]="''" [photo]="item" />
           }
