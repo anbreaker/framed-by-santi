@@ -1,4 +1,4 @@
-import { handleSignUpload } from './_sign-upload';
+import { handleSignUpload } from './_sign-upload.js';
 
 export default {
   fetch(request: Request): Promise<Response> {

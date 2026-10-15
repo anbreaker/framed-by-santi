@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { FetchFn, readUid, requireAdmin } from './_admin-auth';
+import { FetchFn, readUid, requireAdmin } from './_admin-auth.js';
 
 export { readUid };
 

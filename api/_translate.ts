@@ -1,4 +1,4 @@
-import { FetchFn, requireAdmin } from './_admin-auth';
+import { FetchFn, requireAdmin } from './_admin-auth.js';
 
 const DEEPL_URL = 'https://api-free.deepl.com/v2/translate';
 const DEEPL_TIMEOUT_MS = 10_000;

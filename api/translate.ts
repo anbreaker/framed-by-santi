@@ -1,4 +1,4 @@
-import { handleTranslate } from './_translate';
+import { handleTranslate } from './_translate.js';
 
 export default {
   fetch(request: Request): Promise<Response> {
