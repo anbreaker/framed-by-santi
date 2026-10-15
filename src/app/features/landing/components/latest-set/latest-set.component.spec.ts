@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
@@ -147,6 +148,29 @@ describe('LatestSetComponent', () => {
       fire('pointermove', 100, 'touch');
 
       expect(strip().scrollLeft).toBe(200);
+    });
+  });
+
+  describe('while the published sets are still loading', () => {
+    it('should hold its place so the page below does not jump when the set arrives', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [LatestSetComponent, realTranslations()],
+        providers: [
+          provideRouter([]),
+          { provide: PhotoPostsStore, useValue: { latestPost: signal(undefined), ready: signal(false) } },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(LatestSetComponent);
+      await fixture.whenStable();
+
+      expect(root().classList).toContain('latest-set--loading');
+      expect(root().querySelector('.latest-set__strip')).toBeNull();
+    });
+
+    it('should not reserve space once the sets have loaded', () => {
+      expect(root().classList).not.toContain('latest-set--loading');
     });
   });
 });

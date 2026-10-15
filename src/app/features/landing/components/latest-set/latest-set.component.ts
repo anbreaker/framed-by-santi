@@ -31,6 +31,7 @@ const EDGE_TOLERANCE = 2;
   selector: 'app-latest-set',
   styleUrl: './latest-set.component.css',
   templateUrl: './latest-set.component.html',
+  host: { '[class.latest-set--loading]': '!ready()' },
 })
 export class LatestSetComponent {
   private readonly languageStore = inject(LanguageStore);
@@ -39,6 +40,7 @@ export class LatestSetComponent {
   protected readonly counter = formatSetCounter;
   protected readonly lang = this.languageStore.currentLang;
   protected readonly post = this.photoPostsStore.latestPost;
+  protected readonly ready = this.photoPostsStore.ready;
 
   protected readonly atEnd = signal(false);
   protected readonly atStart = signal(true);

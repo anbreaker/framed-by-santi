@@ -36,6 +36,18 @@
         link.crossOrigin = 'anonymous';
         link.href = '/assets/i18n/' + (langs.indexOf(lang) > -1 ? lang : 'en') + '.json';
         document.head.appendChild(link);
+
+        // The home hero is the largest image on the first screen: start downloading it now instead of
+        // when Angular renders it. Other pages do not show it, so they must not pay for it.
+        // Keep the address in step with LANDING_HERO_SOURCE (a test checks it).
+        if (location.pathname === '/') {
+          var hero = document.createElement('link');
+          hero.rel = 'preload';
+          hero.as = 'image';
+          hero.href = '/assets/hero/flatiron.webp';
+          hero.setAttribute('fetchpriority', 'high');
+          document.head.appendChild(hero);
+        }
       })();
     </script>
   </head>

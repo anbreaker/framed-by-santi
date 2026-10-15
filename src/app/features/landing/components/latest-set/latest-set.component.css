@@ -2,6 +2,17 @@
   display: block;
 }
 
+/* The set arrives after the first screen; holding its place keeps the footer from jumping down. */
+:host(.latest-set--loading) {
+  min-height: calc(19.5rem + clamp(15rem, calc(100svh - 26rem), 30rem));
+}
+
+@media (min-width: 1024px) {
+  :host(.latest-set--loading) {
+    min-height: calc(22rem + clamp(15rem, calc(100svh - 26rem), 30rem));
+  }
+}
+
 .latest-set {
   display: flex;
   flex-direction: column;
