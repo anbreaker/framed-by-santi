@@ -1,0 +1,15 @@
+<ul class="set-thumbnails" role="list" *transloco="let t">
+  @for (photo of photos(); track photo.id; let index = $index) {
+    <li class="set-thumbnails__item">
+      <button
+        class="set-thumbnails__button"
+        type="button"
+        [attr.aria-current]="index === activeIndex() ? 'true' : null"
+        [attr.aria-label]="t('viewer.counterLabel', { current: index + 1, total: photos().length })"
+        (click)="picked.emit(index)"
+      >
+        <app-post-photo alt="" sizes="120px" [photo]="photo" />
+      </button>
+    </li>
+  }
+</ul>

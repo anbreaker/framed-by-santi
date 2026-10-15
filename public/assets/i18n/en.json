@@ -1,11 +1,90 @@
 {
+  "about": {
+    "camera": "Camera",
+    "cameraValue": "Fujifilm X100VI",
+    "city": "City",
+    "cityValue": "New York",
+    "eyebrow": "About",
+    "instagramCta": "Follow on Instagram",
+    "intro": "About seven years in New York, camera always on.",
+    "photoAlt": "Portrait of Santi García",
+    "title": "Santi García"
+  },
+  "common": {
+    "instagram": "Instagram",
+    "skipToContent": "Skip to content"
+  },
+  "footer": {
+    "about": "About",
+    "copyright": "© {{year}} Santi García · New York",
+    "instagram": "Instagram"
+  },
+  "gallery": {
+    "allFilter": "All",
+    "emptyFilter": "No sets match this filter yet.",
+    "filtersLabel": "Filter by theme",
+    "openSet": "Open set: {{title}}",
+    "photoCount": {
+      "one": "{{count}} photo",
+      "other": "{{count}} photos"
+    },
+    "postCount": {
+      "one": "{{count}} set",
+      "other": "{{count}} sets"
+    },
+    "title": "Gallery"
+  },
   "home": {
-    "eyebrow": "Street photography · New York",
-    "status": "A new home for this work is coming soon.",
-    "subtitle": "Photographs from the streets of New York, shot on a Fujifilm X100VI.",
-    "title": "Framed by Santi"
+    "aboutCta": "More about Santi",
+    "ctaGallery": "See the gallery",
+    "ctaInstagram": "@framedbysanti",
+    "latest": {
+      "cta": "Open the set",
+      "eyebrow": "Latest set",
+      "title": "Fresh from the street"
+    },
+    "meta": "New York · Fujifilm X100VI",
+    "scrollHint": "Scroll",
+    "tagline": "I just press buttons.",
+    "title": "Santi García"
   },
   "langSelector": {
     "label": "Language"
+  },
+  "nav": {
+    "about": "About",
+    "ariaLabel": "Main",
+    "closeMenu": "Close menu",
+    "gallery": "Gallery",
+    "home": "Framed by Santi, home",
+    "menu": "Menu"
+  },
+  "tags": {
+    "architecture": "Architecture",
+    "bw": "Black & white",
+    "night": "Night",
+    "sky": "Sky",
+    "street": "Street"
+  },
+  "viewer": {
+    "backToGallery": "Back to gallery",
+    "counterLabel": "Photo {{current}} of {{total}}",
+    "next": "Next photo",
+    "notFound": "We could not find this set.",
+    "previous": "Previous photo",
+    "takenOn": "Taken on {{date}}",
+    "thumbnails": "Photos in this set",
+    "zoom": {
+      "in": "Zoom in",
+      "label": "Zoom",
+      "out": "Zoom out",
+      "reset": "Reset zoom"
+    }
+  },
+  "viewfinder": {
+    "next": "Next",
+    "open": "Open",
+    "previous": "Prev",
+    "view": "View"
   }
 }

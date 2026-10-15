@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.tag-filter {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding: 0 var(--gutter) var(--space-4);
+  scrollbar-width: none;
+}
+
+.tag-filter__chip {
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  display: inline-flex;
+  flex: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-height: var(--touch-target);
+  padding-inline: 1.125rem;
+  text-decoration: none;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    border-color: var(--color-text);
+  }
+
+  &[aria-current='true'] {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+}
+
+@media (min-width: 768px) {
+  .tag-filter {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding-bottom: var(--space-5);
+  }
+}

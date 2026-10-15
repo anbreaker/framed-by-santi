@@ -5,12 +5,18 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import {
+  provideRouter,
+  withComponentInputBinding,
+  withInMemoryScrolling,
+  withViewTransitions,
+} from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 
 import { DEFAULT_LANG, SUPPORTED_LANGS } from '@core/const/lang.const';
 import { I18nLoaderService } from '@core/services/i18n-loader.service';
 import { prefetchTranslations } from '@core/utils/prefetch-translations';
+import { skipSamePageTransitions } from '@core/utils/view-transition';
 import { environment } from '@environments/environment';
 
 import { routes } from './app.routes';
@@ -37,7 +43,8 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
       }),
-      withViewTransitions()
+      withComponentInputBinding(),
+      withViewTransitions({ onViewTransitionCreated: skipSamePageTransitions })
     ),
   ],
 };

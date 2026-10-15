@@ -1,0 +1,13 @@
+{
+  "background_color": "#0e0d0c",
+  "description": "Photography from New York by Santi García, shot on a Fujifilm X100VI.",
+  "display": "standalone",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "name": "Framed by Santi",
+  "short_name": "Framed",
+  "start_url": "/",
+  "theme_color": "#0e0d0c"
+}

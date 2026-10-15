@@ -78,6 +78,10 @@ logs/
 .claude.json
 .engram/
 
+# Local photo drafts: Santi's work, never in the public repo
+/santiImages/
+/public/local-photos/
+
 # Deploy tooling
 .vercel/
 

@@ -1,0 +1,95 @@
+<div
+  class="zoomable"
+  #surface
+  *transloco="let t"
+  [class.zoomable--dragging]="dragging()"
+  [class.zoomable--zoomed]="isZoomed()"
+  (pointercancel)="onPointerCancel($event)"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (wheel)="onWheel($event)"
+>
+  <div class="zoomable__content" [style.transform]="transform()">
+    <app-post-photo
+      class="zoomable__photo"
+      [eager]="true"
+      [photo]="photo()"
+      [sizes]="isZoomed() ? '250vw' : '100vw'"
+    />
+  </div>
+
+  <div
+    class="zoomable__controls"
+    role="group"
+    [attr.aria-label]="t('viewer.zoom.label')"
+    (pointerdown)="$event.stopPropagation()"
+  >
+    <button
+      class="zoomable__button"
+      type="button"
+      [attr.aria-label]="t('viewer.zoom.out')"
+      [disabled]="!isZoomed()"
+      (click)="zoomOut()"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.6"
+        viewBox="0 0 24 24"
+        width="20"
+      >
+        <path d="M5 12h14" />
+      </svg>
+    </button>
+
+    <span class="meta zoomable__level" aria-live="polite">
+      {{ state().scale | localizedPercent: lang() }}
+    </span>
+
+    <button
+      class="zoomable__button"
+      type="button"
+      [attr.aria-label]="t('viewer.zoom.in')"
+      [disabled]="!canZoomIn()"
+      (click)="zoomIn()"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.6"
+        viewBox="0 0 24 24"
+        width="20"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    </button>
+
+    <button
+      class="zoomable__button"
+      type="button"
+      [attr.aria-label]="t('viewer.zoom.reset')"
+      [disabled]="!isZoomed()"
+      (click)="reset()"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="square"
+        stroke-width="1.6"
+        viewBox="0 0 24 24"
+        width="20"
+      >
+        <path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4" />
+      </svg>
+    </button>
+  </div>
+</div>

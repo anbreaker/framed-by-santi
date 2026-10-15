@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.post-tile {
+  color: var(--color-text);
+  display: block;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+}
+
+.post-tile__media {
+  aspect-ratio: var(--ratio);
+  background: var(--color-surface);
+  position: relative;
+}
+
+.post-tile__cover,
+.post-tile__peek {
+  --post-photo-height: 100%;
+
+  inset: 0;
+  position: absolute;
+}
+
+.post-tile__peek {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.post-tile__label,
+.post-tile__stack {
+  background: rgb(14 13 12 / 0.8);
+  color: var(--color-text);
+  padding: 0.125rem var(--space-2);
+  position: absolute;
+}
+
+.post-tile__label {
+  bottom: var(--space-2);
+  left: var(--space-2);
+  max-width: calc(100% - var(--space-4));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-tile__stack {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1);
+  right: var(--space-2);
+  top: var(--space-2);
+}
+
+@media (hover: hover) {
+  .post-tile:hover .post-tile__peek,
+  .post-tile:focus-visible .post-tile__peek {
+    opacity: 1;
+  }
+}

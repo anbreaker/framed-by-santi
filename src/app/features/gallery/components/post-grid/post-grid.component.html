@@ -1,0 +1,12 @@
+<ul class="post-grid" role="list">
+  @for (post of posts(); track post.id; let index = $index) {
+    <li
+      class="post-grid__item"
+      appScrollReveal
+      [style.--ratio]="ratioOf(post)"
+      [style.--reveal-delay.ms]="(index % 4) * 70"
+    >
+      <app-post-tile [post]="post" />
+    </li>
+  }
+</ul>

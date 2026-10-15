@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => {
   );
 
   return {
+    // `root` is `src`, so without this Vite would look for `.env*` files inside `src/`.
+    envDir: import.meta.dirname,
     envPrefix: 'NG_APP_',
     root: 'src',
     publicDir: '../public',

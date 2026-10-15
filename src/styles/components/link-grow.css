@@ -1,0 +1,41 @@
+/*
+ * Hover effect for text links: the label turns accent and a 2 px underline grows from the left.
+ * Wrap the label of a link or button in `.link-grow` so the line hugs the text.
+ * Add `.link-grow--current` to keep it drawn, for example on the active page.
+ */
+.link-grow {
+  position: relative;
+  transition: color var(--duration-base) var(--ease-out);
+
+  &::after {
+    background-color: var(--color-accent);
+    bottom: -0.125rem;
+    content: '';
+    height: 2px;
+    left: 0;
+    position: absolute;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-base) var(--ease-out);
+    width: 100%;
+  }
+}
+
+:is(a, button):focus-visible > .link-grow,
+.link-grow--current {
+  color: var(--color-accent);
+
+  &::after {
+    transform: scaleX(1);
+  }
+}
+
+@media (hover: hover) {
+  :is(a, button):hover > .link-grow {
+    color: var(--color-accent);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+}

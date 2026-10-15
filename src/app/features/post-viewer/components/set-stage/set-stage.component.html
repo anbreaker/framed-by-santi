@@ -1,0 +1,61 @@
+<div
+  class="set-stage"
+  *transloco="let t"
+  (pointercancel)="onPointerCancel()"
+  (pointerdown)="onPointerDown($event)"
+  (pointerup)="onPointerUp($event)"
+>
+  <div class="set-stage__frame" [style.view-transition-name]="transitionName()">
+    @for (shown of shownPhotos(); track shown.id) {
+      <app-zoomable-photo
+        class="set-stage__photo"
+        [photo]="shown"
+        (zoomedChange)="isZoomed.set($event)"
+      />
+    }
+  </div>
+
+  <button
+    class="set-stage__arrow set-stage__arrow--previous"
+    type="button"
+    [attr.aria-label]="t('viewer.previous')"
+    [disabled]="isFirst()"
+    (click)="previous.emit()"
+  >
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="22"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.6"
+      viewBox="0 0 24 24"
+      width="22"
+    >
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  </button>
+
+  <button
+    class="set-stage__arrow set-stage__arrow--next"
+    type="button"
+    [attr.aria-label]="t('viewer.next')"
+    [disabled]="isLast()"
+    (click)="next.emit()"
+  >
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="22"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.6"
+      viewBox="0 0 24 24"
+      width="22"
+    >
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+</div>

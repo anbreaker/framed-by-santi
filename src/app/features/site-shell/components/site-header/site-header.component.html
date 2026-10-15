@@ -1,0 +1,59 @@
+<header class="site-header" *transloco="let t">
+  <a
+    class="site-header__brand"
+    routerLink="/"
+    [attr.aria-label]="t('nav.home')"
+    (click)="closeMenu()"
+  >
+    <span class="link-grow">Framed by Santi</span>
+  </a>
+
+  <button
+    class="site-header__menu-button"
+    aria-controls="site-menu"
+    type="button"
+    [attr.aria-expanded]="menuOpen()"
+    [attr.aria-label]="menuOpen() ? t('nav.closeMenu') : t('nav.menu')"
+    (click)="toggleMenu()"
+  >
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="22"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-width="1.6"
+      viewBox="0 0 24 24"
+      width="22"
+    >
+      @if (menuOpen()) {
+        <path d="M6 6l12 12M18 6L6 18" />
+      } @else {
+        <path d="M4 8h16M4 16h16" />
+      }
+    </svg>
+  </button>
+
+  <div class="site-header__panel" id="site-menu" [class.site-header__panel--open]="menuOpen()">
+    <nav class="site-header__nav" [attr.aria-label]="t('nav.ariaLabel')">
+      <a
+        class="site-header__link"
+        routerLink="/gallery"
+        routerLinkActive="site-header__link--active"
+        (click)="closeMenu()"
+      >
+        <span class="link-grow">{{ t('nav.gallery') }}</span>
+      </a>
+      <a
+        class="site-header__link"
+        routerLink="/about"
+        routerLinkActive="site-header__link--active"
+        (click)="closeMenu()"
+      >
+        <span class="link-grow">{{ t('nav.about') }}</span>
+      </a>
+    </nav>
+
+    <app-lang-selector />
+  </div>
+</header>

@@ -1,11 +1,90 @@
 {
+  "about": {
+    "camera": "Cámara",
+    "cameraValue": "Fujifilm X100VI",
+    "city": "Ciudad",
+    "cityValue": "Nueva York",
+    "eyebrow": "Sobre mí",
+    "instagramCta": "Seguir en Instagram",
+    "intro": "Unos siete años en Nueva York, siempre con la cámara encima.",
+    "photoAlt": "Retrato de Santi García",
+    "title": "Santi García"
+  },
+  "common": {
+    "instagram": "Instagram",
+    "skipToContent": "Saltar al contenido"
+  },
+  "footer": {
+    "about": "Sobre mí",
+    "copyright": "© {{year}} Santi García · Nueva York",
+    "instagram": "Instagram"
+  },
+  "gallery": {
+    "allFilter": "Todas",
+    "emptyFilter": "Todavía no hay series con este filtro.",
+    "filtersLabel": "Filtrar por temática",
+    "openSet": "Abrir serie: {{title}}",
+    "photoCount": {
+      "one": "{{count}} foto",
+      "other": "{{count}} fotos"
+    },
+    "postCount": {
+      "one": "{{count}} serie",
+      "other": "{{count}} series"
+    },
+    "title": "Galería"
+  },
   "home": {
-    "eyebrow": "Fotografía urbana · Nueva York",
-    "status": "Muy pronto, un nuevo espacio para este trabajo.",
-    "subtitle": "Fotografías de las calles de Nueva York, tomadas con una Fujifilm X100VI.",
-    "title": "Framed by Santi"
+    "aboutCta": "Conocer a Santi",
+    "ctaGallery": "Ver la galería",
+    "ctaInstagram": "@framedbysanti",
+    "latest": {
+      "cta": "Abrir la serie",
+      "eyebrow": "Última serie",
+      "title": "Recién salida de la calle"
+    },
+    "meta": "Nueva York · Fujifilm X100VI",
+    "scrollHint": "Desliza",
+    "tagline": "Yo solo aprieto botones.",
+    "title": "Santi García"
   },
   "langSelector": {
     "label": "Idioma"
+  },
+  "nav": {
+    "about": "Sobre mí",
+    "ariaLabel": "Principal",
+    "closeMenu": "Cerrar menú",
+    "gallery": "Galería",
+    "home": "Framed by Santi, inicio",
+    "menu": "Menú"
+  },
+  "tags": {
+    "architecture": "Arquitectura",
+    "bw": "Blanco y negro",
+    "night": "Noche",
+    "sky": "Cielo",
+    "street": "Calle"
+  },
+  "viewer": {
+    "backToGallery": "Volver a la galería",
+    "counterLabel": "Foto {{current}} de {{total}}",
+    "next": "Foto siguiente",
+    "notFound": "No hemos encontrado esta serie.",
+    "previous": "Foto anterior",
+    "takenOn": "Tomada el {{date}}",
+    "thumbnails": "Fotos de esta serie",
+    "zoom": {
+      "in": "Acercar",
+      "label": "Zoom",
+      "out": "Alejar",
+      "reset": "Restablecer zoom"
+    }
+  },
+  "viewfinder": {
+    "next": "Sig.",
+    "open": "Abrir",
+    "previous": "Ant.",
+    "view": "Ver"
   }
 }

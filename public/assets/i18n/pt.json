@@ -1,11 +1,90 @@
 {
+  "about": {
+    "camera": "Câmara",
+    "cameraValue": "Fujifilm X100VI",
+    "city": "Cidade",
+    "cityValue": "Nova Iorque",
+    "eyebrow": "Sobre",
+    "instagramCta": "Seguir no Instagram",
+    "intro": "Cerca de sete anos em Nova Iorque, sempre com a câmara ao ombro.",
+    "photoAlt": "Retrato de Santi García",
+    "title": "Santi García"
+  },
+  "common": {
+    "instagram": "Instagram",
+    "skipToContent": "Saltar para o conteúdo"
+  },
+  "footer": {
+    "about": "Sobre",
+    "copyright": "© {{year}} Santi García · Nova Iorque",
+    "instagram": "Instagram"
+  },
+  "gallery": {
+    "allFilter": "Todas",
+    "emptyFilter": "Ainda não há séries com este filtro.",
+    "filtersLabel": "Filtrar por tema",
+    "openSet": "Abrir série: {{title}}",
+    "photoCount": {
+      "one": "{{count}} foto",
+      "other": "{{count}} fotos"
+    },
+    "postCount": {
+      "one": "{{count}} série",
+      "other": "{{count}} séries"
+    },
+    "title": "Galeria"
+  },
   "home": {
-    "eyebrow": "Fotografia de rua · Nova Iorque",
-    "status": "Em breve, um novo espaço para este trabalho.",
-    "subtitle": "Fotografias das ruas de Nova Iorque, captadas com uma Fujifilm X100VI.",
-    "title": "Framed by Santi"
+    "aboutCta": "Conhecer o Santi",
+    "ctaGallery": "Ver a galeria",
+    "ctaInstagram": "@framedbysanti",
+    "latest": {
+      "cta": "Abrir a série",
+      "eyebrow": "Última série",
+      "title": "Fresquinha da rua"
+    },
+    "meta": "Nova Iorque · Fujifilm X100VI",
+    "scrollHint": "Deslize",
+    "tagline": "Eu só carrego nos botões.",
+    "title": "Santi García"
   },
   "langSelector": {
     "label": "Idioma"
+  },
+  "nav": {
+    "about": "Sobre",
+    "ariaLabel": "Principal",
+    "closeMenu": "Fechar menu",
+    "gallery": "Galeria",
+    "home": "Framed by Santi, início",
+    "menu": "Menu"
+  },
+  "tags": {
+    "architecture": "Arquitetura",
+    "bw": "Preto e branco",
+    "night": "Noite",
+    "sky": "Céu",
+    "street": "Rua"
+  },
+  "viewer": {
+    "backToGallery": "Voltar à galeria",
+    "counterLabel": "Foto {{current}} de {{total}}",
+    "next": "Foto seguinte",
+    "notFound": "Não encontrámos esta série.",
+    "previous": "Foto anterior",
+    "takenOn": "Tirada a {{date}}",
+    "thumbnails": "Fotos desta série",
+    "zoom": {
+      "in": "Aproximar",
+      "label": "Zoom",
+      "out": "Afastar",
+      "reset": "Repor zoom"
+    }
+  },
+  "viewfinder": {
+    "next": "Seg.",
+    "open": "Abrir",
+    "previous": "Ant.",
+    "view": "Ver"
   }
 }

@@ -1,0 +1,33 @@
+<a
+  class="post-tile"
+  *transloco="let t"
+  [attr.aria-label]="t('gallery.openSet', { title: post().caption })"
+  [routerLink]="['/gallery', post().id]"
+>
+  <div class="post-tile__media" [style.view-transition-name]="viewTransitionName()">
+    <app-post-photo class="post-tile__cover" alt="" [photo]="cover()" [sizes]="tileSizes" />
+    @if (peek(); as second) {
+      <app-post-photo class="post-tile__peek" alt="" [photo]="second" [sizes]="tileSizes" />
+    }
+  </div>
+
+  <span class="meta post-tile__label" aria-hidden="true">{{ post().caption }}</span>
+
+  @if (isSet()) {
+    <span class="meta post-tile__stack" aria-hidden="true">
+      <svg
+        fill="none"
+        height="14"
+        stroke="currentColor"
+        stroke-linejoin="round"
+        stroke-width="1.6"
+        viewBox="0 0 24 24"
+        width="14"
+      >
+        <rect height="13" rx="1" width="13" x="9" y="2" />
+        <path d="M5 6v13a1 1 0 0 0 1 1h13" />
+      </svg>
+      {{ post().photos.length }}
+    </span>
+  }
+</a>
