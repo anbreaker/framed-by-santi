@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { PostEditorComponent } from '@features/admin/components/post-editor/post-editor.component';
@@ -9,7 +9,7 @@ import { AuthStore } from '@features/auth/store/auth.store';
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PostEditorComponent, TranslocoDirective],
+  imports: [PostEditorComponent, RouterLink, TranslocoDirective],
   selector: 'app-admin-dashboard-page',
   styleUrl: './admin-dashboard.page.css',
   templateUrl: './admin-dashboard.page.html',

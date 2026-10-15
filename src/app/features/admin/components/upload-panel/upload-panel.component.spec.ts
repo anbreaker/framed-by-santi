@@ -51,6 +51,15 @@ describe('UploadPanelComponent', () => {
     expect(input.multiple).toBe(true);
   });
 
+  it('should open the file chooser when the editor asks for photos', () => {
+    const input = root().querySelector('input[type="file"]') as HTMLInputElement;
+    const open = vi.spyOn(input, 'click');
+
+    fixture.componentInstance.openPicker();
+
+    expect(open).toHaveBeenCalledTimes(1);
+  });
+
   it('should emit each photo once it is uploaded', async () => {
     const emitted: unknown[] = [];
     fixture.componentInstance.uploaded.subscribe((photo) => emitted.push(photo));

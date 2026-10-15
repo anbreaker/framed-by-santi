@@ -26,9 +26,8 @@
       "unavailable": "O acesso não está disponível neste momento."
     },
     "dashboard": {
-      "eyebrow": "Área privada",
-      "title": "Painel",
-      "signOut": "Terminar sessão"
+      "signOut": "Terminar sessão",
+      "viewSite": "Ver o site"
     },
     "upload": {
       "title": "Carregar fotos",
@@ -64,7 +63,21 @@
         "moveUp": "Mover a foto {{n}} para trás",
         "moveDown": "Mover a foto {{n}} para a frente",
         "makeCover": "Usar como capa",
-        "remove": "Remover"
+        "remove": "Remover",
+        "previous": "Foto anterior",
+        "next": "Foto seguinte",
+        "earlier": "Mover para trás",
+        "later": "Mover para a frente",
+        "show": "Ver a foto {{n}}",
+        "badge": "Foto {{n}}",
+        "add": "Adicionar fotos",
+        "addShort": "Adicionar",
+        "choose": "Escolher fotos",
+        "emptyTitle": "Largue aqui as fotos desta série ou escolha-as no seu dispositivo.",
+        "all": "Todas as fotos, arraste para reordenar",
+        "altFor": "Descrição da foto {{n}} para leitores de ecrã",
+        "optional": "opcional",
+        "summary": "{{count}} fotos · a primeira é a capa"
       },
       "caption": "Legenda",
       "description": "Descrição (opcional)",
@@ -76,7 +89,8 @@
       "status": {
         "saving": "A guardar…",
         "saved": "Guardado.",
-        "failed": "Não foi possível guardar. Verifique a ligação e tente novamente."
+        "failed": "Não foi possível guardar. Verifique a ligação e tente novamente.",
+        "draft": "Rascunho · por guardar"
       },
       "errors": {
         "caption": "Escreva uma legenda com até {{max}} caracteres em pelo menos um idioma.",

@@ -1,161 +1,151 @@
 <section class="post-editor" *transloco="let t">
-  <h2 class="post-editor__title">{{ t('admin.editor.title') }}</h2>
+  <div class="post-editor__head">
+    <h1 class="post-editor__title">{{ t('admin.editor.title') }}</h1>
+
+    <div class="post-editor__bar">
+      <p class="post-editor__status" aria-live="polite" role="status">
+        @switch (status()) {
+          @case ('saving') {
+            {{ t('admin.editor.status.saving') }}
+          }
+          @case ('saved') {
+            {{ t('admin.editor.status.saved') }}
+          }
+          @case ('failed') {
+            <span class="post-editor__error">{{ t('admin.editor.status.failed') }}</span>
+          }
+          @default {
+            <span class="post-editor__dot" aria-hidden="true"></span>
+            {{ t('admin.editor.status.draft') }}
+          }
+        }
+      </p>
+      <button class="btn btn--ghost" type="button" [disabled]="!canSave()" (click)="save(true)">
+        {{ t('admin.editor.saveDraft') }}
+      </button>
+      <button class="btn btn--primary" type="button" [disabled]="!canSave()" (click)="save(false)">
+        {{ t('admin.editor.publish') }}
+      </button>
+    </div>
+  </div>
 
   <div class="post-editor__layout">
-    <div class="post-editor__column">
-      <div class="post-editor__card">
-        <app-upload-panel (uploaded)="addPhoto($event)" />
-      </div>
+    <section
+      class="post-editor__section post-editor__photos"
+      [attr.aria-label]="t('admin.editor.photos.title')"
+    >
+      <header class="post-editor__section-head">
+        <h2 class="post-editor__subtitle">{{ t('admin.editor.photos.title') }}</h2>
+        <span class="post-editor__meta">
+          {{ t('admin.editor.photos.summary', { count: photos().length }) }}
+        </span>
+      </header>
 
-      <div class="post-editor__card post-editor__photos">
-        <h3 class="post-editor__subtitle">{{ t('admin.editor.photos.title') }}</h3>
-        <p class="post-editor__hint">{{ t('admin.editor.photos.hint') }}</p>
+      @if (photosMissing()) {
+        <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.missing') }}</p>
+      }
 
-        @if (photosMissing()) {
-          <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.missing') }}</p>
-        }
+      <app-photo-stage
+        [photos]="photos()"
+        (addRequested)="openPicker()"
+        (altChanged)="onAltChanged($event)"
+        (coverChosen)="onCoverChosen($event)"
+        (moved)="onMoved($event)"
+        (removed)="onRemoved($event)"
+      />
 
-        @if (photos().length > 0) {
-          <ol class="post-editor__list" role="list">
-            @for (photo of photos(); track photo.id; let index = $index; let last = $last) {
-              <li
-                class="post-editor__item"
-                draggable="true"
-                [class.post-editor__item--dragging]="dragFrom() === index"
-                (dragend)="dragFrom.set(null)"
-                (dragover)="$event.preventDefault()"
-                (dragstart)="dragFrom.set(index)"
-                (drop)="onDrop(index)"
-              >
-                <div class="post-editor__thumb">
-                  <app-post-photo sizes="12rem" [alt]="''" [photo]="photo" />
-                  <span class="post-editor__position">
-                    {{ index + 1 }}
-                    @if (index === 0) {
-                      <span class="post-editor__badge">{{ t('admin.editor.photos.cover') }}</span>
-                    }
-                  </span>
-                </div>
-                <label class="post-editor__alt">
-                  <span class="post-editor__label">{{ t('admin.editor.photos.alt') }}</span>
-                  <input
-                    class="post-editor__input"
-                    type="text"
-                    [value]="photo.alt"
-                    (input)="setAlt(index, $event)"
-                  />
-                </label>
-                <div class="post-editor__actions">
-                  <button
-                    class="post-editor__action"
-                    type="button"
-                    [attr.aria-label]="t('admin.editor.photos.moveUp', { n: index + 1 })"
-                    [disabled]="index === 0"
-                    (click)="move(index, index - 1)"
-                  >
-                    ←
-                  </button>
-                  <button
-                    class="post-editor__action"
-                    type="button"
-                    [attr.aria-label]="t('admin.editor.photos.moveDown', { n: index + 1 })"
-                    [disabled]="last"
-                    (click)="move(index, index + 1)"
-                  >
-                    →
-                  </button>
-                  <button
-                    class="post-editor__action"
-                    type="button"
-                    [disabled]="index === 0"
-                    (click)="cover(index)"
-                  >
-                    {{ t('admin.editor.photos.makeCover') }}
-                  </button>
-                  <button class="post-editor__action" type="button" (click)="remove(index)">
-                    {{ t('admin.editor.photos.remove') }}
-                  </button>
-                </div>
-              </li>
-            }
-          </ol>
-        }
-      </div>
-    </div>
+      <app-upload-panel (uploaded)="addPhoto($event)" />
+    </section>
 
-    <form class="post-editor__column" novalidate (submit)="$event.preventDefault()">
-      <div class="post-editor__card">
-        <h3 class="post-editor__subtitle">{{ t('admin.editor.sections.texts') }}</h3>
-        <div class="post-editor__texts">
+    <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">
+      <section class="post-editor__section" [attr.aria-label]="t('admin.editor.sections.texts')">
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.texts') }}</h2>
+        </header>
+
+        <div class="post-editor__langbar">
           <app-lang-tabs [(active)]="activeLang" [missing]="missingLangs()" />
-
-          <div class="post-editor__translate">
-            <button
-              class="btn btn--ghost"
-              type="button"
-              [disabled]="!canTranslate()"
-              (click)="translate()"
+          <button
+            class="btn btn--ghost"
+            type="button"
+            [disabled]="!canTranslate()"
+            (click)="translate()"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+              width="18"
             >
-              @if (translateStatus() === 'working') {
-                {{ t('admin.editor.translate.working') }}
-              } @else {
-                {{ t('admin.editor.translate.button', { lang: activeLang().toUpperCase() }) }}
-              }
-            </button>
-          </div>
-          <div class="post-editor__translate">
-            <p class="post-editor__hint">
-              {{
-                t('admin.editor.translate.hint', {
-                  lang: t('admin.editor.langs.names.' + activeLang()),
-                })
-              }}
-            </p>
-            <p class="post-editor__status" aria-live="polite" role="status">
-              @if (translateErrorKey(); as key) {
-                <span class="post-editor__error">{{ t(key) }}</span>
-              } @else if (translateStatus() === 'done') {
-                {{ t('admin.editor.translate.done') }}
-              }
-            </p>
-          </div>
+              <circle cx="12" cy="12" r="9" />
+              <path
+                d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"
+              />
+            </svg>
+            @if (translateStatus() === 'working') {
+              {{ t('admin.editor.translate.working') }}
+            } @else {
+              {{ t('admin.editor.translate.button', { lang: activeLang().toUpperCase() }) }}
+            }
+          </button>
+        </div>
 
-          @for (code of langs; track code) {
-            @if (activeLang() === code) {
-              <label class="post-editor__field">
-                <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
-                <input
-                  class="post-editor__input"
-                  type="text"
-                  [formField]="postForm.caption[code]"
-                />
-              </label>
-              @if (postForm.caption().touched() && postForm.caption().invalid()) {
-                <span class="post-editor__error" role="alert">
-                  {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
-                </span>
-              }
+        <p class="post-editor__hint" aria-live="polite" role="status">
+          @if (translateErrorKey(); as key) {
+            <span class="post-editor__error">{{ t(key) }}</span>
+          } @else if (translateStatus() === 'done') {
+            {{ t('admin.editor.translate.done') }}
+          } @else {
+            {{
+              t('admin.editor.translate.hint', {
+                lang: t('admin.editor.langs.names.' + activeLang()),
+              })
+            }}
+          }
+        </p>
 
-              <label class="post-editor__field">
-                <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
-                <textarea
-                  class="post-editor__input"
-                  rows="4"
-                  [formField]="postForm.description[code]"
-                ></textarea>
-              </label>
-              @if (postForm.description[code]().invalid()) {
-                <span class="post-editor__error" role="alert">
-                  {{ t('admin.editor.errors.description', { max: maxDescription }) }}
-                </span>
-              }
+        @for (code of langs; track code) {
+          @if (activeLang() === code) {
+            <label class="post-editor__field">
+              <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
+              <input class="post-editor__input" type="text" [formField]="postForm.caption[code]" />
+            </label>
+            @if (postForm.caption().touched() && postForm.caption().invalid()) {
+              <span class="post-editor__error" role="alert">
+                {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
+              </span>
+            }
+
+            <label class="post-editor__field">
+              <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
+              <textarea
+                class="post-editor__input"
+                rows="4"
+                [formField]="postForm.description[code]"
+              ></textarea>
+            </label>
+            @if (postForm.description[code]().invalid()) {
+              <span class="post-editor__error" role="alert">
+                {{ t('admin.editor.errors.description', { max: maxDescription }) }}
+              </span>
             }
           }
-        </div>
-      </div>
+        }
+      </section>
 
-      <div class="post-editor__card post-editor__details">
-        <h3 class="post-editor__subtitle">{{ t('admin.editor.sections.details') }}</h3>
+      <section
+        class="post-editor__section post-editor__details"
+        [attr.aria-label]="t('admin.editor.sections.details')"
+      >
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.details') }}</h2>
+        </header>
+
         <label class="post-editor__field">
           <span class="post-editor__label">{{ t('admin.editor.hashtags') }}</span>
           <input
@@ -173,51 +163,28 @@
             <span class="post-editor__error" role="alert">{{ t('admin.editor.errors.date') }}</span>
           }
         </label>
-      </div>
+      </section>
 
-      <div class="post-editor__card">
-        <h3 class="post-editor__subtitle">{{ t('admin.editor.sections.themes') }}</h3>
-        <fieldset class="post-editor__tags">
-          <legend class="post-editor__label">{{ t('admin.editor.tags') }}</legend>
+      <section class="post-editor__section" [attr.aria-label]="t('admin.editor.sections.themes')">
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.themes') }}</h2>
+        </header>
+
+        <div class="post-editor__themes" role="group" [attr.aria-label]="t('admin.editor.tags')">
           @for (theme of allThemes(); track theme.id) {
-            <label class="post-editor__tag">
-              <input
-                type="checkbox"
-                [checked]="selectedTags().includes(theme.id)"
-                (change)="toggleTheme(theme.id, $event)"
-              />
+            <button
+              class="post-editor__chip"
+              type="button"
+              [attr.aria-pressed]="selectedTags().includes(theme.id)"
+              (click)="toggleTheme(theme.id)"
+            >
               {{ theme.label | localizedText: lang() }}
-            </label>
+            </button>
           }
-        </fieldset>
-
-        <app-theme-creator [sourceLang]="activeLang()" (created)="selectNewTheme($event)" />
-      </div>
-
-      <div class="post-editor__bar">
-        <div class="post-editor__submit">
-          <button class="btn btn--ghost" type="button" [disabled]="!canSave()" (click)="save(true)">
-            {{ t('admin.editor.saveDraft') }}
-          </button>
-          <button class="btn" type="button" [disabled]="!canSave()" (click)="save(false)">
-            {{ t('admin.editor.publish') }}
-          </button>
         </div>
 
-        <p class="post-editor__status" aria-live="polite" role="status">
-          @switch (status()) {
-            @case ('saving') {
-              {{ t('admin.editor.status.saving') }}
-            }
-            @case ('saved') {
-              {{ t('admin.editor.status.saved') }}
-            }
-            @case ('failed') {
-              <span class="post-editor__error">{{ t('admin.editor.status.failed') }}</span>
-            }
-          }
-        </p>
-      </div>
+        <app-theme-creator [sourceLang]="activeLang()" (created)="selectNewTheme($event)" />
+      </section>
     </form>
   </div>
 </section>

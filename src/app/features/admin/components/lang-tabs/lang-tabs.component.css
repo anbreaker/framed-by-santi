@@ -37,11 +37,10 @@
 }
 
 .lang-tabs__missing {
-  background: currentColor;
+  background: var(--color-accent);
   border-radius: 50%;
-  height: 0.5rem;
-  opacity: 0.7;
-  width: 0.5rem;
+  height: 0.4375rem;
+  width: 0.4375rem;
 }
 
 .lang-tabs__sr {
@@ -51,4 +50,8 @@
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
+}
+
+.lang-tabs__button[aria-pressed='true'] .lang-tabs__missing {
+  background: #9a6f00;
 }

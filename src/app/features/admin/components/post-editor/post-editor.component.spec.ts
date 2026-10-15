@@ -85,7 +85,7 @@ describe('PostEditorComponent', () => {
     await type('textarea[name$=".description.en"]', 'Set text');
     await type('input[name$=".hashtags"]', '#street nyc');
     await type('input[name$=".takenAt"]', '2026-10-02');
-    (root().querySelector('.post-editor__tag input') as HTMLInputElement).click();
+    (root().querySelector('.post-editor__chip') as HTMLButtonElement).click();
     await fixture.whenStable();
 
     button('Publish').click();
@@ -116,30 +116,42 @@ describe('PostEditorComponent', () => {
     expect(create.mock.calls[0][1]).toEqual({ hidden: true });
   });
 
-  it('should reorder with the arrow buttons, set a cover and remove photos', async () => {
+  it('should reorder, set a cover and remove photos from the viewer, and publish them in that order', async () => {
     await upload('a', 'b', 'c');
-    const ids = (): string[] =>
-      Array.from(root().querySelectorAll('.post-editor__item')).map((item) =>
-        (item.querySelector('.post-editor__position')?.textContent ?? '').trim()
-      );
-    expect(ids()[0]).toContain('Cover');
+    const click = async (label: string): Promise<void> => {
+      button(label).click();
+      await fixture.whenStable();
+    };
+    const thumb = async (index: number): Promise<void> => {
+      (root().querySelectorAll('.photo-stage__thumb')[index] as HTMLButtonElement).click();
+      await fixture.whenStable();
+    };
 
-    (root().querySelector('[aria-label="Move photo 1 later"]') as HTMLButtonElement).click();
-    await fixture.whenStable();
-    root().querySelectorAll('.post-editor__item')[2].querySelectorAll('button')[2].click();
-    await fixture.whenStable();
-    root().querySelectorAll('.post-editor__item')[1].querySelectorAll('button')[3].click();
-    await fixture.whenStable();
+    await click('Move later'); // a,b,c -> b,a,c
+    await thumb(2);
+    await click('Make cover'); // -> c,b,a
+    await thumb(1);
+    await click('Remove'); // -> c,a
 
     await type('input[name$=".caption.en"]', 'C');
     button('Publish').click();
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
 
-    // a,b,c -> b,a,c -> c,b,a (c made cover) -> c,a (b removed)
     expect(create.mock.calls[0][0].photos.map((photo: { id: string }) => photo.id)).toEqual([
       'c',
       'a',
     ]);
+  });
+
+  it('should publish the alt text written for a photo in the viewer', async () => {
+    await upload('a');
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    await type('.photo-stage__alt', 'A cyclist at dusk');
+
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][0].photos[0].alt).toBe('A cyclist at dusk');
   });
 
   it('should write the texts of each language apart and flag the languages still missing', async () => {

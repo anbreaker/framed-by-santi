@@ -26,9 +26,8 @@
       "unavailable": "Sign-in is not available right now."
     },
     "dashboard": {
-      "eyebrow": "Private area",
-      "title": "Dashboard",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "viewSite": "View site"
     },
     "upload": {
       "title": "Upload photos",
@@ -64,7 +63,21 @@
         "moveUp": "Move photo {{n}} earlier",
         "moveDown": "Move photo {{n}} later",
         "makeCover": "Make cover",
-        "remove": "Remove"
+        "remove": "Remove",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "earlier": "Move earlier",
+        "later": "Move later",
+        "show": "Show photo {{n}}",
+        "badge": "Photo {{n}}",
+        "add": "Add photos",
+        "addShort": "Add",
+        "choose": "Choose photos",
+        "emptyTitle": "Drop the photos of this set here, or choose them from your device.",
+        "all": "All photos, drag to reorder",
+        "altFor": "Description of photo {{n}} for screen readers",
+        "optional": "optional",
+        "summary": "{{count}} photos · the first is the cover"
       },
       "caption": "Caption",
       "description": "Description (optional)",
@@ -76,7 +89,8 @@
       "status": {
         "saving": "Saving…",
         "saved": "Saved.",
-        "failed": "Could not save. Check your connection and try again."
+        "failed": "Could not save. Check your connection and try again.",
+        "draft": "Draft · not saved yet"
       },
       "errors": {
         "caption": "Write a caption of up to {{max}} characters in at least one language.",

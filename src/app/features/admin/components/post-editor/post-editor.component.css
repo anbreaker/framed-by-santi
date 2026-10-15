@@ -2,82 +2,82 @@
   display: block;
 }
 
+/* Phones: title first, then the sections, with the save actions pinned to the bottom. */
 .post-editor {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-/* One column on phones; photos on the left and texts on the right once there is room. */
-.post-editor__layout {
-  align-items: start;
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: minmax(0, 1fr);
-
-  @media (min-width: 1024px) {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  }
+.post-editor__head {
+  display: contents;
 }
 
-.post-editor__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
+.post-editor__title {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin: 0;
 }
 
-.post-editor__card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-}
-
-.post-editor__details {
-  @media (min-width: 640px) {
-    display: grid;
-    gap: var(--space-3) var(--space-4);
-    grid-template-columns: 1fr 14rem;
-
-    .post-editor__subtitle {
-      grid-column: 1 / -1;
-    }
-  }
-}
-
-/* Language tabs and the translate button share one row, like in mimacrame. */
-.post-editor__langbar {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  justify-content: space-between;
-}
-
-/* Actions stay in view while the texts are long. */
 .post-editor__bar {
+  align-items: center;
   background: var(--color-bg);
   border-top: 1px solid var(--color-hairline);
   bottom: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  padding-block: var(--space-3);
+  gap: var(--space-2);
+  margin-inline: calc(var(--gutter) * -1);
+  order: 3;
+  padding: var(--space-3) var(--gutter) var(--space-4);
   position: sticky;
-  z-index: 1;
+  z-index: 2;
+
+  .btn {
+    flex: 1;
+  }
 }
 
-.post-editor__title {
-  font-size: 1.75rem;
+.post-editor__layout {
+  display: grid;
+  gap: var(--space-5) var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.post-editor__section,
+.post-editor__form {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.post-editor__section {
+  border-top: 1px solid var(--color-hairline);
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.post-editor__form {
+  gap: var(--space-5);
+}
+
+.post-editor__section-head {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
 }
 
 .post-editor__subtitle {
-  font-size: 1.125rem;
+  font-size: 1.75rem;
+  line-height: 1.1;
   margin: 0;
+}
+
+.post-editor__meta {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
 }
 
 .post-editor__hint {
@@ -86,134 +86,100 @@
   margin: 0;
 }
 
-.post-editor__list {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.post-editor__item {
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-sm);
-  cursor: grab;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-2);
-}
-
-.post-editor__thumb {
-  --post-photo-height: 100%;
-
-  aspect-ratio: 4 / 5;
-  background: var(--color-bg);
-  overflow: hidden;
-  position: relative;
-}
-
-.post-editor__item--dragging {
-  opacity: 0.5;
-}
-
-.post-editor__position {
+.post-editor__langbar {
   align-items: center;
-  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
-  display: flex;
-  font-weight: 600;
-  gap: var(--space-2);
-  inset: var(--space-2) auto auto var(--space-2);
-  padding: 0.125rem var(--space-2);
-  position: absolute;
-}
-
-.post-editor__badge {
-  background: var(--color-accent);
-  border-radius: var(--radius-sm);
-  color: var(--color-on-accent);
-  font-size: 0.75rem;
-  padding: 0.125rem var(--space-2);
-}
-
-.post-editor__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  justify-content: space-between;
 }
 
-.post-editor__action {
-  background: transparent;
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-sm);
-  color: inherit;
-  cursor: pointer;
-  flex: 1 1 auto;
-  font: inherit;
-  min-height: 2.75rem;
-  min-width: 2.75rem;
-  padding-inline: var(--space-2);
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-}
-
-.post-editor__field,
-.post-editor__alt {
+.post-editor__field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .post-editor__label {
-  color: var(--color-text-muted);
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .post-editor__input {
-  background: transparent;
-  border: 1px solid var(--color-hairline);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   color: inherit;
   font: inherit;
-  min-height: 3rem;
-  padding: var(--space-2) var(--space-3);
+  min-height: 3.25rem;
+  padding: var(--space-2) 0.875rem;
+  width: 100%;
+
+  &:hover {
+    border-color: var(--color-text);
+  }
 
   &:focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 }
 
-.post-editor__tags {
-  border: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
+textarea.post-editor__input {
+  line-height: 1.5;
+  resize: vertical;
 }
 
-.post-editor__tag {
-  align-items: center;
+.post-editor__themes {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  min-height: 3rem;
 }
 
-.post-editor__submit {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+.post-editor__chip {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+
+  &:hover {
+    border-color: var(--color-text);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+.post-editor__status {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: none;
+  font-size: 0.875rem;
+  font-variant-caps: all-small-caps;
+  gap: var(--space-2);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.post-editor__dot {
+  background: var(--color-accent);
+  border-radius: 50%;
+  height: 0.4375rem;
+  width: 0.4375rem;
 }
 
 .post-editor__error {
@@ -221,20 +187,58 @@
   font-size: 0.875rem;
 }
 
-.post-editor__status {
-  margin: 0;
-  min-height: 1.5rem;
-}
+/* Desktop: photos on the left, texts on the right, and the actions pinned next to the title. */
+@media (min-width: 1000px) {
+  .post-editor {
+    gap: var(--space-4);
+  }
 
-.post-editor__texts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
+  .post-editor__head {
+    align-items: center;
+    background: var(--color-bg);
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+    padding-block: var(--space-2);
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
 
-.post-editor__translate {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  .post-editor__title {
+    font-size: 3rem;
+  }
+
+  .post-editor__bar {
+    border-top: 0;
+    bottom: auto;
+    margin-inline: 0;
+    order: 0;
+    padding: 0;
+    position: static;
+
+    .btn {
+      flex: none;
+    }
+  }
+
+  .post-editor__status {
+    display: flex;
+    margin-inline-end: var(--space-2);
+  }
+
+  .post-editor__layout {
+    align-items: start;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+
+  .post-editor__photos {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .post-editor__form > :first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
 }

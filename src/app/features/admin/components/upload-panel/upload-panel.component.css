@@ -8,38 +8,10 @@
   gap: var(--space-3);
 }
 
-.upload-panel__title {
-  font-size: 1.75rem;
-}
-
 .upload-panel__hint {
   color: var(--color-text-muted);
   font-size: 0.875rem;
   margin: 0;
-}
-
-.upload-panel__input {
-  color: var(--color-text-muted);
-  font: inherit;
-  font-size: 0.875rem;
-
-  &::file-selector-button {
-    background: var(--color-accent);
-    border: 0;
-    border-radius: var(--radius-sm);
-    color: var(--color-on-accent);
-    cursor: pointer;
-    font: inherit;
-    font-weight: 600;
-    margin-inline-end: var(--space-3);
-    min-height: 3rem;
-    padding-inline: var(--space-4);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 4px;
-  }
 }
 
 .upload-panel__list {

@@ -26,9 +26,8 @@
       "unavailable": "El acceso no está disponible ahora mismo."
     },
     "dashboard": {
-      "eyebrow": "Zona privada",
-      "title": "Panel",
-      "signOut": "Cerrar sesión"
+      "signOut": "Cerrar sesión",
+      "viewSite": "Ver el sitio"
     },
     "upload": {
       "title": "Subir fotos",
@@ -64,7 +63,21 @@
         "moveUp": "Mover la foto {{n}} antes",
         "moveDown": "Mover la foto {{n}} después",
         "makeCover": "Usar de portada",
-        "remove": "Quitar"
+        "remove": "Quitar",
+        "previous": "Foto anterior",
+        "next": "Foto siguiente",
+        "earlier": "Mover antes",
+        "later": "Mover después",
+        "show": "Ver la foto {{n}}",
+        "badge": "Foto {{n}}",
+        "add": "Añadir fotos",
+        "addShort": "Añadir",
+        "choose": "Elegir fotos",
+        "emptyTitle": "Suelta aquí las fotos de esta serie o elígelas desde tu dispositivo.",
+        "all": "Todas las fotos, arrastra para reordenar",
+        "altFor": "Descripción de la foto {{n}} para lectores de pantalla",
+        "optional": "opcional",
+        "summary": "{{count}} fotos · la primera es la portada"
       },
       "caption": "Pie de foto",
       "description": "Descripción (opcional)",
@@ -76,7 +89,8 @@
       "status": {
         "saving": "Guardando…",
         "saved": "Guardado.",
-        "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo."
+        "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
+        "draft": "Borrador · sin guardar"
       },
       "errors": {
         "caption": "Escribe un pie de foto de hasta {{max}} caracteres en al menos un idioma.",

@@ -1,0 +1,167 @@
+<div class="photo-stage" *transloco="let t">
+  @if (current(); as photo) {
+    <div
+      class="photo-stage__frame"
+      aria-roledescription="carousel"
+      role="group"
+      [attr.aria-label]="t('admin.editor.photos.show', { n: index() + 1 })"
+    >
+      <app-post-photo
+        class="photo-stage__image"
+        sizes="(min-width: 1000px) 55vw, 100vw"
+        [alt]="photo.alt"
+        [photo]="photo"
+      />
+      <span class="photo-stage__badge" [class.photo-stage__badge--cover]="index() === 0">
+        @if (index() === 0) {
+          {{ t('admin.editor.photos.cover') }}
+        } @else {
+          {{ t('admin.editor.photos.badge', { n: index() + 1 }) }}
+        }
+      </span>
+      <span class="photo-stage__count" aria-hidden="true">{{ index() + 1 }} / {{ count() }}</span>
+      <button
+        class="photo-stage__arrow photo-stage__arrow--prev"
+        type="button"
+        [attr.aria-disabled]="index() === 0"
+        [attr.aria-label]="t('admin.editor.photos.previous')"
+        (click)="go(index() - 1)"
+      >
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="22"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.8"
+          viewBox="0 0 24 24"
+          width="22"
+        >
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+      </button>
+      <button
+        class="photo-stage__arrow photo-stage__arrow--next"
+        type="button"
+        [attr.aria-disabled]="index() === count() - 1"
+        [attr.aria-label]="t('admin.editor.photos.next')"
+        (click)="go(index() + 1)"
+      >
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="22"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.8"
+          viewBox="0 0 24 24"
+          width="22"
+        >
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="photo-stage__actions" role="group">
+      <button
+        class="photo-stage__action"
+        type="button"
+        [attr.aria-disabled]="index() === 0"
+        [attr.aria-label]="t('admin.editor.photos.moveUp', { n: index() + 1 })"
+        (click)="move(index() - 1)"
+      >
+        ← {{ t('admin.editor.photos.earlier') }}
+      </button>
+      <button
+        class="photo-stage__action"
+        type="button"
+        [attr.aria-disabled]="index() === count() - 1"
+        [attr.aria-label]="t('admin.editor.photos.moveDown', { n: index() + 1 })"
+        (click)="move(index() + 1)"
+      >
+        {{ t('admin.editor.photos.later') }} →
+      </button>
+      <button
+        class="photo-stage__action"
+        type="button"
+        [attr.aria-disabled]="index() === 0"
+        (click)="index() === 0 ? null : makeCover()"
+      >
+        {{ t('admin.editor.photos.makeCover') }}
+      </button>
+      <button class="photo-stage__action" type="button" (click)="remove()">
+        {{ t('admin.editor.photos.remove') }}
+      </button>
+    </div>
+
+    <div class="photo-stage__strip" role="group" [attr.aria-label]="t('admin.editor.photos.all')">
+      @for (item of photos(); track item.id; let position = $index) {
+        <button
+          class="photo-stage__thumb"
+          draggable="true"
+          type="button"
+          [attr.aria-label]="t('admin.editor.photos.show', { n: position + 1 })"
+          [attr.aria-pressed]="position === index()"
+          (click)="go(position)"
+          (dragover)="$event.preventDefault()"
+          (dragstart)="startDrag(position)"
+          (drop)="drop(position)"
+        >
+          <app-post-photo sizes="80px" [alt]="''" [photo]="item" />
+          <span class="photo-stage__number" aria-hidden="true">{{ position + 1 }}</span>
+        </button>
+      }
+      <button
+        class="photo-stage__add"
+        type="button"
+        [attr.aria-label]="t('admin.editor.photos.add')"
+        (click)="addRequested.emit()"
+      >
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="22"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+          width="22"
+        >
+          <path d="M12 15V4M8 8l4-4 4 4M5 14v5h14v-5" />
+        </svg>
+        {{ t('admin.editor.photos.addShort') }}
+      </button>
+    </div>
+
+    <label class="photo-stage__field">
+      <span class="photo-stage__label">
+        {{ t('admin.editor.photos.altFor', { n: index() + 1 }) }}
+        <span class="photo-stage__optional">({{ t('admin.editor.photos.optional') }})</span>
+      </span>
+      <input class="photo-stage__alt" type="text" [value]="photo.alt" (input)="setAlt($event)" />
+    </label>
+  } @else {
+    <div class="photo-stage__empty">
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="44"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.4"
+        viewBox="0 0 24 24"
+        width="44"
+      >
+        <path d="M12 15V4M8 8l4-4 4 4M5 14v5h14v-5" />
+      </svg>
+      <p class="photo-stage__empty-text">{{ t('admin.editor.photos.emptyTitle') }}</p>
+      <button class="btn" type="button" (click)="addRequested.emit()">
+        {{ t('admin.editor.photos.choose') }}
+      </button>
+    </div>
+  }
+</div>

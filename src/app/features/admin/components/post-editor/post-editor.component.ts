@@ -5,13 +5,13 @@ import {
   inject,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { form, FormField, maxLength, submit, validate } from '@angular/forms/signals';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { SUPPORTED_LANGS, SupportedLang } from '@core/const/lang.const';
 import { LanguageStore } from '@core/store/language.store';
-import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
@@ -23,6 +23,7 @@ import { PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
 import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
+import { AltChange, PhotoMove, PhotoStageComponent } from '../photo-stage/photo-stage.component';
 import { ThemeCreatorComponent } from '../theme-creator/theme-creator.component';
 import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
 
@@ -50,7 +51,7 @@ const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
     FormField,
     LangTabsComponent,
     LocalizedTextPipe,
-    PostPhotoComponent,
+    PhotoStageComponent,
     ThemeCreatorComponent,
     TranslocoDirective,
     UploadPanelComponent,
@@ -62,17 +63,17 @@ const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
 export class PostEditorComponent {
   private readonly posts = inject(PostsAdminService);
   private readonly translation = inject(TranslationService);
-
   protected readonly allThemes = inject(PhotoPostsStore).themes;
 
   protected readonly lang = inject(LanguageStore).currentLang;
+
+  private readonly uploads = viewChild.required(UploadPanelComponent);
 
   /** Emits the id of a post once it is saved. */
   readonly saved = output<string>();
 
   /** The language being written; it is also the source when translating. */
   protected readonly activeLang = signal<SupportedLang>('en');
-  protected readonly dragFrom = signal<number | null>(null);
 
   private readonly model = signal({
     caption: emptyTexts(),
@@ -136,23 +137,26 @@ export class PostEditorComponent {
     ]);
   }
 
-  protected move(from: number, to: number): void {
+  protected onMoved({ from, to }: PhotoMove): void {
     this.photos.update((current) => movePhoto(current, from, to));
   }
 
-  protected cover(index: number): void {
+  protected onCoverChosen(index: number): void {
     this.photos.update((current) => makeCover(current, index));
   }
 
-  protected remove(index: number): void {
+  protected onRemoved(index: number): void {
     this.photos.update((current) => current.filter((_, position) => position !== index));
   }
 
-  protected setAlt(index: number, event: Event): void {
-    const alt = (event.target as HTMLInputElement).value;
+  protected onAltChanged({ alt, index }: AltChange): void {
     this.photos.update((current) =>
       current.map((photo, position) => (position === index ? { ...photo, alt } : photo))
     );
+  }
+
+  protected openPicker(): void {
+    this.uploads().openPicker();
   }
 
   /** Translates the caption and description written in the active language into the other two. */
@@ -196,17 +200,10 @@ export class PostEditorComponent {
     );
   }
 
-  protected toggleTheme(id: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+  protected toggleTheme(id: string): void {
     this.selectedTags.update((current) =>
-      checked ? [...current, id] : current.filter((item) => item !== id)
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
-  }
-
-  protected onDrop(to: number): void {
-    const from = this.dragFrom();
-    this.dragFrom.set(null);
-    if (from !== null) this.move(from, to);
   }
 
   /** Saves the post; `hidden` true keeps it as a draft only admins can see, false publishes it. */

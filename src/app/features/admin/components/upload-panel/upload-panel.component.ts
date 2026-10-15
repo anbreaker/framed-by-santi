@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   inject,
   InjectionToken,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -59,12 +61,18 @@ export class UploadPanelComponent {
   private readonly uploads = inject(PhotoUploadService);
 
   private nextId = 0;
+  private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
 
   /** Emits each photo as soon as it is on Cloudinary, so a post can collect them. */
   readonly uploaded = output<UploadedPhoto>();
 
   protected readonly items = signal<readonly UploadItem[]>([]);
   protected readonly maxLongEdge = MAX_LONG_EDGE;
+
+  /** Opens the file chooser; the editor calls it from its own "add photos" buttons. */
+  openPicker(): void {
+    this.picker().nativeElement.click();
+  }
 
   protected async onFiles(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

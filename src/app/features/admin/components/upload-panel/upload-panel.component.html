@@ -1,10 +1,11 @@
 <section class="upload-panel" *transloco="let t">
-  <h2 class="upload-panel__title">{{ t('admin.upload.title') }}</h2>
   <p class="upload-panel__hint">{{ t('admin.upload.hint', { max: maxLongEdge }) }}</p>
 
   <input
     class="upload-panel__input"
+    #picker
     accept="image/jpeg,image/png,image/webp"
+    hidden
     multiple
     type="file"
     [attr.aria-label]="t('admin.upload.pick')"
