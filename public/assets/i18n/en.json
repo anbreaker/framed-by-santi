@@ -16,6 +16,7 @@
       "caption": "Caption",
       "date": "Date",
       "description": "Description (optional)",
+      "editTitle": "Edit set",
       "errors": {
         "caption": "Write a caption of up to {{max}} characters in at least one language.",
         "date": "Choose a valid date.",
@@ -68,6 +69,7 @@
         "draft": "Draft · not saved yet",
         "failed": "Could not save. Check your connection and try again.",
         "partial": "Published, but some languages could not be translated. They show the first language available.",
+        "published": "Published",
         "saved": "Saved.",
         "saving": "Saving…"
       },
@@ -154,6 +156,10 @@
       "submitting": "Signing in…",
       "title": "Sign in",
       "unavailable": "Sign-in is not available right now."
+    },
+    "set": {
+      "loadFailed": "Could not load this set. Check your connection.",
+      "notFound": "This set does not exist any more."
     },
     "upload": {
       "errors": {

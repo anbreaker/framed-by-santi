@@ -1,6 +1,8 @@
 <section class="post-editor" *transloco="let t">
   <div class="post-editor__head">
-    <h1 class="post-editor__title">{{ t('admin.editor.title') }}</h1>
+    <h1 class="post-editor__title">
+      {{ editing() ? t('admin.editor.editTitle') : t('admin.editor.title') }}
+    </h1>
 
     <div class="post-editor__bar">
       <p class="post-editor__status" aria-live="polite" role="status">
@@ -19,7 +21,11 @@
           }
           @default {
             <span class="post-editor__dot" aria-hidden="true"></span>
-            {{ t('admin.editor.status.draft') }}
+            {{
+              savedAsPublished()
+                ? t('admin.editor.status.published')
+                : t('admin.editor.status.draft')
+            }}
           }
         }
       </p>

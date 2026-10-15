@@ -37,5 +37,11 @@ export const routes: Routes = [
     loadComponent: async () =>
       (await import('@pages/admin-set/admin-set.page')).AdminSetPageComponent,
   },
+  {
+    path: 'admin/sets/:id',
+    canActivate: [adminGuard],
+    loadComponent: async () =>
+      (await import('@pages/admin-set/admin-set.page')).AdminSetPageComponent,
+  },
   { path: '**', redirectTo: '' },
 ];

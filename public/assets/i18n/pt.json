@@ -16,6 +16,7 @@
       "caption": "Legenda",
       "date": "Data",
       "description": "Descrição (opcional)",
+      "editTitle": "Editar série",
       "errors": {
         "caption": "Escreva uma legenda com até {{max}} caracteres em pelo menos um idioma.",
         "date": "Escolha uma data válida.",
@@ -68,6 +69,7 @@
         "draft": "Rascunho · por guardar",
         "failed": "Não foi possível guardar. Verifique a ligação e tente novamente.",
         "partial": "Publicada, mas alguns idiomas não puderam ser traduzidos. Aparecem no primeiro idioma disponível.",
+        "published": "Publicada",
         "saved": "Guardado.",
         "saving": "A guardar…"
       },
@@ -154,6 +156,10 @@
       "submitting": "A entrar…",
       "title": "Iniciar sessão",
       "unavailable": "O acesso não está disponível neste momento."
+    },
+    "set": {
+      "loadFailed": "Não foi possível carregar esta série. Verifique a ligação.",
+      "notFound": "Esta série já não existe."
     },
     "upload": {
       "errors": {

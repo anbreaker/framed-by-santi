@@ -3,6 +3,8 @@ import {
   Component,
   computed,
   inject,
+  input,
+  OnInit,
   output,
   signal,
   viewChild,
@@ -12,13 +14,14 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { SUPPORTED_LANGS, SupportedLang } from '@core/const/lang.const';
 import { LanguageStore } from '@core/store/language.store';
+import { PostText } from '@features/photo-posts/models/localized-text.model';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { makeCover, movePhoto } from '@features/photo-posts/utils/reorder-photos';
 import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
-import { PostsAdminService } from '../../services/posts-admin.service';
+import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
 import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
@@ -53,6 +56,14 @@ const TRANSLATE_ERRORS: Record<TranslationError['reason'], string> = {
 
 const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
 
+/** A text from before translations is one string; it goes in English, so publishing can translate the rest. */
+const toLanguageTexts = (text: PostText | undefined): LanguageTexts =>
+  text === undefined
+    ? emptyTexts()
+    : typeof text === 'string'
+      ? { ...emptyTexts(), en: text }
+      : { ...text };
+
 /** Creates a post: upload photos, order them (the first is the cover), write the texts, save as draft or publish. */
 @Component({
   standalone: true,
@@ -71,7 +82,7 @@ const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
   styleUrl: './post-editor.component.css',
   templateUrl: './post-editor.component.html',
 })
-export class PostEditorComponent {
+export class PostEditorComponent implements OnInit {
   private readonly posts = inject(PostsAdminService);
   private readonly translation = inject(TranslationService);
   protected readonly allThemes = inject(PhotoPostsStore).themes;
@@ -79,6 +90,9 @@ export class PostEditorComponent {
   protected readonly lang = inject(LanguageStore).currentLang;
 
   private readonly uploads = viewChild.required(UploadPanelComponent);
+
+  /** A saved set to change; without it the editor starts empty to create a new one. */
+  readonly initial = input<PostEntry | null>(null);
 
   /** Emits the id of a post once it is saved. */
   readonly saved = output<string>();
@@ -118,6 +132,8 @@ export class PostEditorComponent {
   protected readonly translateStatus = signal<TranslateStatus>('idle');
 
   protected readonly canSave = computed(() => this.status() !== 'saving');
+  protected readonly editing = computed(() => this.initial() !== null);
+  protected readonly savedAsPublished = computed(() => this.initial()?.hidden === false);
 
   /** Languages that still miss text: no caption, or no description while another language has one. */
   protected readonly missingLangs = computed<readonly SupportedLang[]>(() => {
@@ -133,6 +149,22 @@ export class PostEditorComponent {
     () =>
       this.translateStatus() !== 'working' && this.model().caption[this.activeLang()].trim() !== ''
   );
+
+  ngOnInit(): void {
+    const entry = this.initial();
+    if (entry === null) return;
+
+    const { post } = entry;
+
+    this.model.set({
+      caption: toLanguageTexts(post.caption),
+      description: toLanguageTexts(post.description),
+      hashtags: (post.hashtags ?? []).map((tag) => `#${tag}`).join(' '),
+      takenAt: post.takenAt,
+    });
+    this.photos.set(post.photos.map((photo) => ({ ...photo })));
+    this.selectedTags.set([...post.tags]);
+  }
 
   /** A chosen file shows up at once from the local file; the upload finishes it later. */
   protected onQueued({ localId, previewUrl }: QueuedPhoto): void {
@@ -312,7 +344,12 @@ export class PostEditorComponent {
       });
 
       try {
-        const id = await this.posts.create(post, { hidden });
+        const existingId = this.initial()?.post.id;
+        const id = existingId ?? (await this.posts.create(post, { hidden }));
+
+        if (existingId !== undefined)
+          await this.posts.save({ ...post, id: existingId }, { hidden });
+
         this.status.set(translated ? 'saved' : 'partial');
         this.saved.emit(id);
       } catch {

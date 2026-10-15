@@ -16,6 +16,7 @@
       "caption": "Pie de foto",
       "date": "Fecha",
       "description": "Descripción (opcional)",
+      "editTitle": "Editar serie",
       "errors": {
         "caption": "Escribe un pie de foto de hasta {{max}} caracteres en al menos un idioma.",
         "date": "Elige una fecha válida.",
@@ -68,6 +69,7 @@
         "draft": "Borrador · sin guardar",
         "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
         "partial": "Publicada, pero algunos idiomas no se pudieron traducir. Se muestran en el primer idioma disponible.",
+        "published": "Publicada",
         "saved": "Guardado.",
         "saving": "Guardando…"
       },
@@ -154,6 +156,10 @@
       "submitting": "Entrando…",
       "title": "Iniciar sesión",
       "unavailable": "El acceso no está disponible ahora mismo."
+    },
+    "set": {
+      "loadFailed": "No se pudo cargar esta serie. Revisa tu conexión.",
+      "notFound": "Esta serie ya no existe."
     },
     "upload": {
       "errors": {

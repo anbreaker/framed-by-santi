@@ -13,6 +13,7 @@ import { PostEditorComponent } from './post-editor.component';
 describe('PostEditorComponent', () => {
   let fixture: ComponentFixture<PostEditorComponent>;
   let create: ReturnType<typeof vi.fn>;
+  let save: ReturnType<typeof vi.fn>;
   let translate: ReturnType<typeof vi.fn>;
   let createTheme: ReturnType<typeof vi.fn>;
   let saved: string[];
@@ -52,6 +53,7 @@ describe('PostEditorComponent', () => {
 
   beforeEach(async () => {
     create = vi.fn().mockResolvedValue('new-1');
+    save = vi.fn().mockResolvedValue(undefined);
     // Publishing translates what is missing; by default that fails, and publishing must go on anyway.
     translate = vi.fn().mockRejectedValue(new TranslationError('failed'));
     createTheme = vi.fn();
@@ -60,7 +62,7 @@ describe('PostEditorComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PostEditorComponent, realTranslations()],
       providers: [
-        { provide: PostsAdminService, useValue: { create } },
+        { provide: PostsAdminService, useValue: { create, save } },
         { provide: TranslationService, useValue: { translate } },
         { provide: ThemesAdminService, useValue: { create: createTheme } },
       ],
@@ -431,5 +433,96 @@ describe('PostEditorComponent', () => {
 
     expect(button('Publish').disabled).toBe(false);
     expect(saved).toEqual([]);
+  });
+
+  describe('editing an existing set', () => {
+    const existing = {
+      hidden: true,
+      post: {
+        caption: { en: 'Flatiron', es: 'Flatiron ES', pt: 'Flatiron PT' },
+        description: { en: 'Four frames', es: 'Cuatro cuadros', pt: 'Quatro' },
+        hashtags: ['street', 'nyc'],
+        id: 'set-9',
+        photos: [
+          { alt: 'First', height: 800, id: 'a', publicId: 'a', width: 1200 },
+          { alt: 'Second', height: 800, id: 'b', publicId: 'b', width: 1200 },
+        ],
+        tags: ['street', 'sunset'],
+        takenAt: '2025-10-02',
+      },
+    };
+
+    const open = async (entry = existing): Promise<void> => {
+      fixture = TestBed.createComponent(PostEditorComponent);
+      fixture.componentRef.setInput('initial', entry);
+      fixture.componentInstance.saved.subscribe((id) => saved.push(id));
+      await fixture.whenStable();
+    };
+    const value = (selector: string): string =>
+      (root().querySelector(selector) as HTMLInputElement).value;
+
+    it('should start from the saved set: texts per language, hashtags, date, themes and photos', async () => {
+      await open();
+
+      expect(root().querySelector('h1')?.textContent).toContain('Edit set');
+      expect(value('input[name$=".caption.en"]')).toBe('Flatiron');
+      expect(value('textarea[name$=".description.en"]')).toBe('Four frames');
+      expect(value('input[name$=".hashtags"]')).toBe('#street #nyc');
+      expect(value('input[name$=".takenAt"]')).toBe('2025-10-02');
+      expect(root().querySelectorAll('.photo-stage__thumb').length).toBe(2);
+      expect((root().querySelector('.photo-stage__alt') as HTMLInputElement).value).toBe('First');
+      const pressed = Array.from(
+        root().querySelectorAll('.post-editor__chip[aria-pressed="true"]')
+      );
+      expect(pressed.map((chip) => chip.textContent?.trim())).toEqual(['Street']);
+    });
+
+    it('should show a text from before translations, kept as one string, in English so publishing can translate it', async () => {
+      await open({
+        ...existing,
+        post: { ...existing.post, caption: 'Old caption', description: undefined },
+      });
+
+      expect(value('input[name$=".caption.en"]')).toBe('Old caption');
+      expect(value('textarea[name$=".description.en"]')).toBe('');
+    });
+
+    it('should save over the same set instead of creating another, keeping its id', async () => {
+      await open();
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(save).toHaveBeenCalled());
+
+      expect(create).not.toHaveBeenCalled();
+      expect(save.mock.calls[0][0]).toMatchObject({ id: 'set-9', takenAt: '2025-10-02' });
+      expect(save.mock.calls[0][1]).toEqual({ hidden: false });
+      await vi.waitFor(() => expect(saved).toEqual(['set-9']));
+    });
+
+    it('should keep it hidden when saved as a draft, and not translate it', async () => {
+      await open();
+
+      button('Save as draft').click();
+      await vi.waitFor(() => expect(save).toHaveBeenCalled());
+
+      expect(save.mock.calls[0][1]).toEqual({ hidden: true });
+      expect(translate).not.toHaveBeenCalled();
+    });
+
+    it('should save the changes made to an existing set', async () => {
+      await open();
+      await type('input[name$=".caption.en"]', 'Flatiron, edited');
+      (root().querySelectorAll('.photo-stage__thumb')[1] as HTMLButtonElement).click();
+      await fixture.whenStable();
+      button('Remove').click();
+      await fixture.whenStable();
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(save).toHaveBeenCalled());
+
+      const post = save.mock.calls[0][0];
+      expect(post.caption.en).toBe('Flatiron, edited');
+      expect(post.photos.map((item: { id: string }) => item.id)).toEqual(['a']);
+    });
   });
 });
