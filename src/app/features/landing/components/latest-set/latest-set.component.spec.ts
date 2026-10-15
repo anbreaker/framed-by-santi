@@ -5,7 +5,6 @@ import { LanguageStore } from '@core/store/language.store';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
-import { LATEST_SET_PREVIEW_COUNT } from '../../const/landing.const';
 import { LatestSetComponent } from './latest-set.component';
 
 describe('LatestSetComponent', () => {
@@ -27,9 +26,16 @@ describe('LatestSetComponent', () => {
     await fixture.whenStable();
   });
 
-  it('should preview only the first photos of the latest set', () => {
-    expect(root().querySelectorAll('.latest-set__item')).toHaveLength(LATEST_SET_PREVIEW_COUNT);
-    expect(latest().photos.length).toBeGreaterThan(LATEST_SET_PREVIEW_COUNT);
+  it('should show every photo of the latest set', () => {
+    expect(root().querySelectorAll('.latest-set__item')).toHaveLength(latest().photos.length);
+  });
+
+  it('should offer the gallery next to the full set', () => {
+    const hrefs = Array.from(root().querySelectorAll('.latest-set__actions a')).map((link) =>
+      link.getAttribute('href')
+    );
+
+    expect(hrefs).toEqual(['/gallery', `/gallery/${latest().id}`]);
   });
 
   it('should number each photo against the full size of the set', () => {
@@ -41,7 +47,7 @@ describe('LatestSetComponent', () => {
   });
 
   it('should link to the full set', () => {
-    const link = root().querySelector('a.latest-set__cta') as HTMLAnchorElement;
+    const link = root().querySelector('a.btn--ghost') as HTMLAnchorElement;
 
     expect(link.getAttribute('href')).toBe(`/gallery/${latest().id}`);
   });
@@ -54,5 +60,26 @@ describe('LatestSetComponent', () => {
 
     expect(root().textContent).toContain('10 fotos');
     expect(root().textContent).toContain('2 de outubro de 2026');
+  });
+
+  it('should offer previous and next arrows, with previous disabled at the start', () => {
+    const arrows = Array.from(root().querySelectorAll<HTMLButtonElement>('.latest-set__arrow'));
+
+    expect(arrows.map((arrow) => arrow.getAttribute('aria-label'))).toEqual([
+      'Previous photo',
+      'Next photo',
+    ]);
+    expect(arrows[0].disabled).toBe(true);
+    expect(arrows[1].disabled).toBe(false);
+  });
+
+  it('should scroll the strip when an arrow is pressed', () => {
+    const strip = root().querySelector('.latest-set__strip') as HTMLElement;
+    const scrollBy = vi.fn();
+    strip.scrollBy = scrollBy;
+
+    (root().querySelectorAll('.latest-set__arrow')[1] as HTMLButtonElement).click();
+
+    expect(scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: expect.any(Number) }));
   });
 });
