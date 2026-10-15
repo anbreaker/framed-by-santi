@@ -5,4 +5,6 @@
 </ng-container>
 <app-site-header />
 <router-outlet />
-<app-site-footer />
+@if (pageReady()) {
+  <app-site-footer />
+}

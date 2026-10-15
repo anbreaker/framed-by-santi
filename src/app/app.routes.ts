@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 
 import { adminGuard } from '@features/auth/guards/admin.guard';
+import { HomePageComponent } from '@pages/home/home.page';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: async () => (await import('@pages/home/home.page')).HomePageComponent,
+    // Most visitors open the home page first: shipping it in the main bundle saves a round trip.
+    component: HomePageComponent,
   },
   {
     path: 'gallery',
