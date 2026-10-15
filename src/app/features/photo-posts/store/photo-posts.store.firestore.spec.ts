@@ -61,7 +61,7 @@ describe('PhotoPostsStore with Firestore', () => {
     const store = await create();
 
     expect(store.posts().map((item) => item.id)).toEqual(['new', 'old']);
-    expect(store.latestPost().id).toBe('new');
+    expect(store.latestPost()?.id).toBe('new');
   });
 
   it('should add the themes created in Firestore to the default ones', async () => {
@@ -103,14 +103,34 @@ describe('PhotoPostsStore with Firestore', () => {
     const store = await create();
 
     expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+    expect(store.ready()).toBe(true);
   });
 
-  it('should keep the local posts when Firestore has nothing to show yet', async () => {
+  it('should show nothing, not the local posts, when Firestore answers with no visible set', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] });
+
+    const store = await create();
+
+    expect(store.posts()).toEqual([]);
+    expect(store.latestPost()).toBeUndefined();
+    expect(store.ready()).toBe(true);
+  });
+
+  it('should show nothing when Firestore only has malformed documents', async () => {
     mocks.getDocs.mockResolvedValue({ docs: [docOf('bad', {})] });
 
     const store = await create();
 
-    expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+    expect(store.posts()).toEqual([]);
+  });
+
+  it('should not show the local posts while Firestore has not answered yet', () => {
+    mocks.getDocs.mockReturnValue(new Promise(() => undefined));
+
+    const store = TestBed.inject(PhotoPostsStore);
+
+    expect(store.posts()).toEqual([]);
+    expect(store.ready()).toBe(false);
   });
 
   it('should not touch Firestore when Firebase is not configured', () => {
@@ -120,6 +140,7 @@ describe('PhotoPostsStore with Firestore', () => {
 
     expect(mocks.getDocs).not.toHaveBeenCalled();
     expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+    expect(store.ready()).toBe(true);
   });
 
   describe('refresh', () => {
@@ -134,17 +155,17 @@ describe('PhotoPostsStore with Firestore', () => {
       await store.refresh();
 
       expect(store.posts().map((item) => item.id)).toEqual(['new', 'old']);
-      expect(store.latestPost().id).toBe('new');
+      expect(store.latestPost()?.id).toBe('new');
     });
 
-    it('should drop a set that was hidden, and use the local data when none is visible any more', async () => {
+    it('should drop a set that was hidden, and show nothing when none is visible any more', async () => {
       mocks.getDocs.mockResolvedValue({ docs: [docOf('only', post('2026-01-01'))] });
       const store = await create();
 
       mocks.getDocs.mockResolvedValue({ docs: [] });
       await store.refresh();
 
-      expect(store.posts()).toBe(LOCAL_PHOTO_POSTS);
+      expect(store.posts()).toEqual([]);
     });
 
     it('should keep what is shown when the request fails', async () => {

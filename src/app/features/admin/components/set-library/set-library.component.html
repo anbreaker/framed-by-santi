@@ -103,6 +103,27 @@
             </h2>
             <p class="set-library__meta">{{ meta(entry.post) }}</p>
 
+            @if (confirmingId() === entry.post.id) {
+              <div class="set-library__confirm" role="group">
+                <p class="set-library__confirm-text">{{ t('admin.library.deleteConfirm') }}</p>
+                <div class="set-library__foot">
+                  <button
+                    class="btn btn--ghost set-library__confirm-yes"
+                    type="button"
+                    (click)="confirmDelete(entry.post.id)"
+                  >
+                    {{ t('admin.library.deleteForever') }}
+                  </button>
+                  <button
+                    class="btn btn--ghost set-library__confirm-no"
+                    type="button"
+                    (click)="cancelDelete()"
+                  >
+                    {{ t('admin.library.cancel') }}
+                  </button>
+                </div>
+              </div>
+            } @else {
             <div class="set-library__foot">
               <a class="btn btn--ghost" [routerLink]="['/admin/sets', entry.post.id]">
                 {{ t('admin.library.edit') }}
@@ -118,7 +139,11 @@
                 />
                 {{ t('admin.library.published') }}
               </label>
+              <button class="set-library__delete" type="button" (click)="askToDelete(entry.post.id)">
+                {{ t('admin.library.delete') }}
+              </button>
             </div>
+            }
           </div>
         </li>
       }

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { LanguageStore } from '@core/store/language.store';
+import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
@@ -11,8 +12,7 @@ describe('LatestSetComponent', () => {
   let fixture: ComponentFixture<LatestSetComponent>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const latest = (): { id: string; photos: unknown[] } =>
-    TestBed.inject(PhotoPostsStore).latestPost();
+  const latest = (): PhotoPost => TestBed.inject(PhotoPostsStore).latestPost() as PhotoPost;
 
   beforeEach(async () => {
     localStorage.clear();

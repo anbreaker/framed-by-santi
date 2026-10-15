@@ -271,3 +271,41 @@
   font-size: 0.875rem;
   margin: 0;
 }
+
+.set-library__delete {
+  background: none;
+  border: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  margin-left: auto;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-error);
+  }
+}
+
+.set-library__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.set-library__confirm-text {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.set-library__confirm-yes {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}

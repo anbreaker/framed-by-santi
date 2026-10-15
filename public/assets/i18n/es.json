@@ -119,8 +119,13 @@
       }
     },
     "library": {
+      "cancel": "Cancelar",
       "countMany": "{{count}} series",
       "countOne": "1 serie",
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Eliminar esta serie para siempre? No se puede deshacer. Sus fotos se borran de Cloudinary automáticamente pasada una semana.",
+      "deleteFailed": "No se pudo eliminar la serie. Inténtalo de nuevo.",
+      "deleteForever": "Eliminar para siempre",
       "draft": "Borrador",
       "edit": "Editar",
       "editSet": "Editar la serie: {{title}}",
@@ -199,6 +204,7 @@
   },
   "gallery": {
     "allFilter": "Todas",
+    "empty": "Todavía no se ha publicado nada.",
     "emptyFilter": "Todavía no hay series con este filtro.",
     "filtersLabel": "Filtrar por temática",
     "openSet": "Abrir serie: {{title}}",

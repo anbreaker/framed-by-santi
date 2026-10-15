@@ -42,6 +42,7 @@ describe('SetLibraryComponent', () => {
   let fixture: ComponentFixture<SetLibraryComponent>;
   let list: ReturnType<typeof vi.fn>;
   let setHidden: ReturnType<typeof vi.fn>;
+  let remove: ReturnType<typeof vi.fn>;
   let runIfDue: ReturnType<typeof vi.fn>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
@@ -65,13 +66,14 @@ describe('SetLibraryComponent', () => {
     localStorage.clear();
     list = vi.fn().mockResolvedValue(ENTRIES);
     setHidden = vi.fn().mockResolvedValue(undefined);
+    remove = vi.fn().mockResolvedValue(undefined);
     runIfDue = vi.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [SetLibraryComponent, realTranslations()],
       providers: [
         provideRouter([]),
-        { provide: PostsAdminService, useValue: { list, setHidden } },
+        { provide: PostsAdminService, useValue: { list, remove, setHidden } },
         { provide: PhotoCleanupService, useValue: { runIfDue } },
       ],
     }).compileComponents();
@@ -196,5 +198,62 @@ describe('SetLibraryComponent', () => {
       ) as HTMLButtonElement
     ).click();
     await vi.waitFor(() => expect(titles().length).toBe(3));
+  });
+
+  describe('deleting a set', () => {
+    const button = (card: number, selector: string): HTMLButtonElement =>
+      cards()[card].querySelector(selector) as HTMLButtonElement;
+    const click = async (card: number, selector: string): Promise<void> => {
+      button(card, selector).click();
+      await fixture.whenStable();
+    };
+
+    it('should ask for confirmation first and delete nothing yet', async () => {
+      await create();
+
+      await click(1, '.set-library__delete');
+
+      expect(cards()[1].querySelector('.set-library__confirm')?.textContent).toContain(
+        'cannot be undone'
+      );
+      expect(remove).not.toHaveBeenCalled();
+      expect(titles()).toEqual(['Flatiron', 'Cyclist', 'Fireworks']);
+    });
+
+    it('should keep the set when the confirmation is cancelled', async () => {
+      await create();
+
+      await click(1, '.set-library__delete');
+      await click(1, '.set-library__confirm-no');
+
+      expect(cards()[1].querySelector('.set-library__confirm')).toBeNull();
+      expect(remove).not.toHaveBeenCalled();
+    });
+
+    it('should delete the set for good, drop it from the list and refresh the public site', async () => {
+      await create();
+      const refresh = vi.spyOn(TestBed.inject(PhotoPostsStore), 'refresh').mockResolvedValue();
+
+      await click(1, '.set-library__delete');
+      await click(1, '.set-library__confirm-yes');
+      await vi.waitFor(() => expect(remove).toHaveBeenCalledWith('b'));
+      await fixture.whenStable();
+
+      expect(titles()).toEqual(['Flatiron', 'Fireworks']);
+      expect(root().textContent).toContain('2 sets');
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it('should keep the set and explain the failure when it could not be deleted', async () => {
+      remove.mockRejectedValue(new Error('denied'));
+      await create();
+
+      await click(1, '.set-library__delete');
+      await click(1, '.set-library__confirm-yes');
+      await vi.waitFor(() => expect(root().querySelector('[role="alert"]')).not.toBeNull());
+
+      expect(titles()).toEqual(['Flatiron', 'Cyclist', 'Fireworks']);
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('Could not delete');
+    });
   });
 });

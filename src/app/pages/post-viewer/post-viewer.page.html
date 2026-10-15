@@ -46,7 +46,7 @@
       {{ t('viewer.takenOn', { date: (current.takenAt | localizedDate: lang() : 'long') }) }}
     </p>
   </header>
-  } @else {
+  } @else if (ready()) {
   <div class="viewer__missing">
     <p>{{ t('viewer.notFound') }}</p>
     <a class="btn btn--ghost" routerLink="/gallery">{{ t('viewer.backToGallery') }}</a>

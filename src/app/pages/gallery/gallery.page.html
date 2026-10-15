@@ -1,20 +1,26 @@
 <main class="gallery-page" id="main-content" tabindex="-1" *transloco="let t">
   <header class="gallery-page__header" appScrollReveal>
+    @if (ready()) {
     <p class="meta">
       {{ t(postCount() | pluralKey: 'gallery.postCount' : lang(), { count: postCount() }) }}
     </p>
+    }
     <h1 class="gallery-page__title">{{ t('gallery.title') }}</h1>
   </header>
 
   <app-tag-filter [selected]="selectedTag()" [themes]="availableThemes()" />
 
-  @if (postCount() > 0) {
+  @if (!ready()) {
+  <!-- The sets are still being read: showing "nothing" now would be wrong. -->
+  } @else if (postCount() > 0) {
   <div class="gallery-page__sets">
     @for (post of visiblePosts(); track post.id) {
     <app-set-strip [post]="post" />
     }
   </div>
   } @else {
-  <p class="gallery-page__empty">{{ t('gallery.emptyFilter') }}</p>
+  <p class="gallery-page__empty">
+    {{ selectedTag() === null ? t('gallery.empty') : t('gallery.emptyFilter') }}
+  </p>
   }
 </main>

@@ -31,6 +31,8 @@ export class SetLibraryComponent {
 
   private readonly cleanup = inject(PhotoCleanupService);
   private readonly datePipe = new LocalizedDatePipe();
+  /** Id of the set that is waiting for the deletion to be confirmed, if any. */
+  protected readonly confirmingId = signal<string | null>(null);
   protected readonly entries = signal<readonly PostEntry[] | null>(null);
   protected readonly errorKey = signal<string | null>(null);
   protected readonly filter = signal<StatusFilter>('all');
@@ -103,6 +105,30 @@ export class SetLibraryComponent {
       this.setHidden(postId, published);
       input.checked = !published;
       this.errorKey.set('admin.library.toggleFailed');
+    }
+  }
+
+  protected askToDelete(postId: string): void {
+    this.errorKey.set(null);
+    this.confirmingId.set(postId);
+  }
+
+  protected cancelDelete(): void {
+    this.confirmingId.set(null);
+  }
+
+  /** Deletes the set from Firestore for good; its photos are cleared from Cloudinary later by the clean-up. */
+  protected async confirmDelete(postId: string): Promise<void> {
+    this.errorKey.set(null);
+
+    try {
+      await this.posts.remove(postId);
+      this.entries.update((entries) => (entries ?? []).filter((entry) => entry.post.id !== postId));
+      this.confirmingId.set(null);
+      void this.store.refresh();
+    } catch {
+      this.confirmingId.set(null);
+      this.errorKey.set('admin.library.deleteFailed');
     }
   }
 
