@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { PROFILE_PHOTO } from '@features/about/const/profile-photo.const';
+import { PROFILE_PHOTO, PROFILE_PHOTO_SOURCE } from '@features/about/const/profile-photo.const';
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
 
@@ -16,4 +16,5 @@ import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll
 })
 export class AboutTeaserComponent {
   protected readonly profilePhoto = PROFILE_PHOTO;
+  protected readonly profileSource = PROFILE_PHOTO_SOURCE;
 }

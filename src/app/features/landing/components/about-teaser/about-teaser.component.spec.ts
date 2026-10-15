@@ -25,7 +25,7 @@ describe('AboutTeaserComponent', () => {
   });
 
   it('should show the portrait with a translated alt text', async () => {
-    expect(portrait().getAttribute('src')).toBe('/local-photos/profile.webp');
+    expect(portrait().getAttribute('src')).toBe('/assets/images/profile.webp');
     expect(portrait().alt).toBe('Portrait of Santi García');
 
     TestBed.inject(LanguageStore).setLang('es');
