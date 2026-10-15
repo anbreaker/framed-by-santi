@@ -66,6 +66,32 @@ describe('SiteHeaderComponent', () => {
     expect(panel().classList.contains('site-header__panel--open')).toBe(true);
   });
 
+  it('should morph the same two bars into a cross instead of swapping the icon', async () => {
+    const bars = (): number => menuButton().querySelectorAll('.site-header__menu-bar').length;
+    const isCross = (): boolean =>
+      menuButton().classList.contains('site-header__menu-button--open');
+
+    expect(bars()).toBe(2);
+    expect(isCross()).toBe(false);
+
+    menuButton().click();
+    await fixture.whenStable();
+
+    expect(bars()).toBe(2);
+    expect(isCross()).toBe(true);
+
+    menuButton().click();
+    await fixture.whenStable();
+
+    expect(bars()).toBe(2);
+    expect(isCross()).toBe(false);
+  });
+
+  it('should keep the closed panel in the DOM so it can animate in', () => {
+    expect(panel()).not.toBeNull();
+    expect(panel().classList.contains('site-header__panel--open')).toBe(false);
+  });
+
   it('should close the open menu with the Escape key', async () => {
     menuButton().click();
     await fixture.whenStable();

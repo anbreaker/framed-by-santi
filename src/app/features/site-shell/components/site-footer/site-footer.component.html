@@ -9,4 +9,24 @@
       <span class="link-grow">{{ t('footer.about') }}</span>
     </a>
   </nav>
+
+  <p class="site-footer__credit">
+    <a
+      class="site-footer__credit-link"
+      rel="noopener noreferrer"
+      target="_blank"
+      [href]="rootdevsUrl"
+    >
+      <span class="link-grow">{{ t('footer.madeWith') }}</span>
+      <img
+        class="site-footer__credit-logo"
+        alt="rootdevs"
+        decoding="async"
+        height="75"
+        loading="lazy"
+        src="/assets/images/rootdevs-logo.webp"
+        width="200"
+      />
+    </a>
+  </p>
 </footer>
