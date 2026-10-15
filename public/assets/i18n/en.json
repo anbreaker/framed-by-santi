@@ -22,9 +22,6 @@
         "date": "Choose a valid date.",
         "description": "The description is too long (max {{max}} characters)."
       },
-      "hashtagAdd": "Add hashtag",
-      "hashtagRemove": "Remove {{tag}}",
-      "hashtags": "Hashtags (optional)",
       "langs": {
         "label": "Language of the texts",
         "missing": "text missing",

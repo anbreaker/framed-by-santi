@@ -17,7 +17,6 @@ describe('toPhotoPost', () => {
     expect(post).toEqual({
       caption: 'Cyclist',
       description: 'Set text',
-      hashtags: ['street', 'nyc'],
       id: 'post-9',
       photos: valid.photos,
       tags: ['street', 'bw'],
@@ -44,11 +43,14 @@ describe('toPhotoPost', () => {
     );
   });
 
-  it('should keep every theme id as text and drop other values and non-string hashtags', () => {
-    const post = toPhotoPost('p', { ...valid, hashtags: ['ok', 3], tags: ['street', 'sunset', 4] });
+  it('should keep every theme id as text and drop other values', () => {
+    const post = toPhotoPost('p', { ...valid, tags: ['street', 'sunset', 4] });
 
     expect(post?.tags).toEqual(['street', 'sunset']);
-    expect(post?.hashtags).toEqual(['ok']);
+  });
+
+  it('should ignore the hashtags that older sets still carry', () => {
+    expect(toPhotoPost('p', valid)).not.toHaveProperty('hashtags');
   });
 
   it('should leave the optional fields out when they are missing', () => {
@@ -60,7 +62,6 @@ describe('toPhotoPost', () => {
     });
 
     expect(post).not.toHaveProperty('description');
-    expect(post).not.toHaveProperty('hashtags');
   });
 
   it('should keep the Cloudinary public id of uploaded photos', () => {

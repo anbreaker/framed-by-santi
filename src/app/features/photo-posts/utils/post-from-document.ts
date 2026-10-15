@@ -35,12 +35,12 @@ function toPhoto(value: unknown): Photo | null {
 
 /**
  * Turns a Firestore post document into a `PhotoPost`, or null when it cannot be shown.
- * Unknown tags and non-text hashtags are dropped rather than failing the whole post.
+ * Unknown tags are dropped rather than failing the whole post.
  */
 export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
   if (!isFields(data)) return null;
 
-  const { caption, description, hashtags, photos, tags, takenAt } = data;
+  const { caption, description, photos, tags, takenAt } = data;
 
   const parsedCaption = parseText(caption);
   const parsedDescription = parseText(description);
@@ -57,14 +57,10 @@ export function toPhotoPost(id: string, data: unknown): PhotoPost | null {
   const themeIds = Array.isArray(tags)
     ? tags.filter((tag): tag is string => typeof tag === 'string')
     : [];
-  const texts = Array.isArray(hashtags)
-    ? hashtags.filter((tag): tag is string => typeof tag === 'string')
-    : null;
 
   return {
     caption: parsedCaption,
     ...(parsedDescription !== null && { description: parsedDescription }),
-    ...(texts !== null && { hashtags: texts }),
     id,
     photos: mapped as Photo[],
     tags: themeIds,

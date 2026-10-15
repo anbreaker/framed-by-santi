@@ -5,7 +5,6 @@ import { toPostDocument } from './post-to-document';
 const post: PhotoPost = {
   caption: 'Cyclist',
   description: 'Set text',
-  hashtags: ['street', 'nyc'],
   id: 'ignored-by-the-document',
   photos: [
     {
@@ -28,7 +27,6 @@ describe('toPostDocument', () => {
     expect(document).toEqual({
       caption: 'Cyclist',
       description: 'Set text',
-      hashtags: ['street', 'nyc'],
       hidden: true,
       photos: post.photos,
       tags: ['street'],
@@ -42,7 +40,6 @@ describe('toPostDocument', () => {
       {
         ...post,
         description: undefined,
-        hashtags: undefined,
         photos: [{ alt: '', height: 1, id: 'x', width: 1 }],
       },
       { hidden: false }
@@ -51,7 +48,6 @@ describe('toPostDocument', () => {
     expect(Object.values(document)).not.toContain(undefined);
     expect(document['photos']).toEqual([{ alt: '', height: 1, id: 'x', width: 1 }]);
     expect('description' in document).toBe(false);
-    expect('hashtags' in document).toBe(false);
   });
 
   it('should round-trip through the reader the public site uses', () => {

@@ -1,4 +1,4 @@
-import { buildPost, parseHashtags, todayIso } from './post-draft';
+import { buildPost, todayIso } from './post-draft';
 
 const photo = {
   alt: '',
@@ -7,16 +7,6 @@ const photo = {
   publicId: 'framed-by-santi/posts/a',
   width: 1200,
 };
-
-describe('parseHashtags', () => {
-  it('should split on spaces and commas, drop the # and repeated tags', () => {
-    expect(parseHashtags('#Street, nyc  #street\n#bw')).toEqual(['Street', 'nyc', 'bw']);
-  });
-
-  it('should return an empty list for blank text', () => {
-    expect(parseHashtags('  # , ')).toEqual([]);
-  });
-});
 
 describe('todayIso', () => {
   it('should format the local date as YYYY-MM-DD', () => {
@@ -28,7 +18,6 @@ describe('buildPost', () => {
   const draft = {
     caption: { en: '  Cyclist ', es: 'Ciclista', pt: '' },
     description: { en: '  ', es: '', pt: '' },
-    hashtags: '#street nyc',
     photos: [photo],
     tags: ['street'],
     takenAt: '2026-10-02',
@@ -37,7 +26,6 @@ describe('buildPost', () => {
   it('should trim every language and reuse the first caption as alt text of photos without one', () => {
     expect(buildPost(draft)).toEqual({
       caption: { en: 'Cyclist', es: 'Ciclista', pt: '' },
-      hashtags: ['street', 'nyc'],
       id: '',
       photos: [{ ...photo, alt: 'Cyclist' }],
       tags: ['street'],

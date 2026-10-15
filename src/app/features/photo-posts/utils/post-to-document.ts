@@ -16,7 +16,6 @@ export function toPostDocument(
   return {
     caption: post.caption,
     ...(post.description !== undefined && { description: post.description }),
-    ...(post.hashtags !== undefined && { hashtags: [...post.hashtags] }),
     hidden,
     photos: post.photos.map((photo) => ({ ...photo })),
     tags: [...post.tags],
