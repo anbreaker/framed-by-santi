@@ -17,7 +17,8 @@
   "footer": {
     "about": "Sobre mí",
     "copyright": "© {{year}} Santi García · Nueva York",
-    "instagram": "Instagram"
+    "instagram": "Instagram",
+    "madeWith": "Hecho con cariño por un amigo"
   },
   "gallery": {
     "allFilter": "Todas",
