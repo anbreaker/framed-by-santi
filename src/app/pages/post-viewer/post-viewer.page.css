@@ -12,7 +12,8 @@
   display: inline-flex;
   font-size: 0.9375rem;
   gap: var(--space-2);
-  margin: var(--space-2) var(--gutter);
+  /* The touch height is the band; extra margin on top of it only takes room from the photo. */
+  margin: 0 var(--gutter);
   min-height: var(--touch-target);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-out);
@@ -26,7 +27,13 @@
   align-items: center;
   display: flex;
   gap: var(--space-3);
+  justify-content: center;
   padding: var(--space-3) var(--gutter) 0;
+}
+
+/* Lets a long strip shrink and scroll inside the bar instead of pushing the group off-centre. */
+app-set-thumbnails {
+  min-width: 0;
 }
 
 .viewer__counter {
