@@ -14,7 +14,6 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { SUPPORTED_LANGS, SupportedLang } from '@core/const/lang.const';
 import { LanguageStore } from '@core/store/language.store';
-import { PostText } from '@features/photo-posts/models/localized-text.model';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
@@ -23,6 +22,7 @@ import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
+import { fillMissingLanguages, toLanguageTexts } from '../../utils/fill-languages';
 import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
 import {
@@ -56,14 +56,6 @@ const TRANSLATE_ERRORS: Record<TranslationError['reason'], string> = {
 };
 
 const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
-
-/** A text from before translations is one string; it goes in English, so publishing can translate the rest. */
-const toLanguageTexts = (text: PostText | undefined): LanguageTexts =>
-  text === undefined
-    ? emptyTexts()
-    : typeof text === 'string'
-      ? { ...emptyTexts(), en: text }
-      : { ...text };
 
 /** Creates a post: upload photos, order them (the first is the cover), write the texts, save as draft or publish. */
 @Component({
@@ -308,36 +300,16 @@ export class PostEditorComponent implements OnInit {
    * only blank languages and never replaces what was written; returns false when the translation failed.
    */
   private async fillMissingLanguages(): Promise<boolean> {
-    const model = this.model();
-    const items = (['caption', 'description'] as const).flatMap((field) => {
-      const texts = model[field];
-      const written = [this.activeLang(), ...SUPPORTED_LANGS]
-        .map((lang) => texts[lang])
-        .find((text) => text.trim() !== '');
-      const someEmpty = SUPPORTED_LANGS.some((lang) => texts[lang].trim() === '');
-
-      return written !== undefined && someEmpty ? [{ field, text: written }] : [];
-    });
-
-    if (items.length === 0) return true;
+    const { caption, description } = this.model();
 
     try {
-      const result = await this.translation.translate(
-        'auto',
-        items.map((item) => item.text)
+      const filled = await fillMissingLanguages(
+        { caption, description },
+        (source, texts) => this.translation.translate(source, texts),
+        this.activeLang()
       );
 
-      this.model.update((current) => {
-        const next = { caption: { ...current.caption }, description: { ...current.description } };
-
-        items.forEach(({ field }, index) => {
-          SUPPORTED_LANGS.filter((lang) => next[field][lang].trim() === '').forEach((lang) => {
-            next[field][lang] = result[lang][index];
-          });
-        });
-
-        return { ...current, ...next };
-      });
+      this.model.update((current) => ({ ...current, ...filled }));
 
       return true;
     } catch {

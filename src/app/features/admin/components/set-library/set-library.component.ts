@@ -12,6 +12,8 @@ import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { PhotoCleanupService } from '../../services/photo-cleanup.service';
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
+import { TranslationService } from '../../services/translation.service';
+import { fillMissingLanguages, toLanguageTexts } from '../../utils/fill-languages';
 
 type StatusFilter = 'all' | 'drafts' | 'published';
 
@@ -27,6 +29,7 @@ type StatusFilter = 'all' | 'drafts' | 'published';
 export class SetLibraryComponent {
   private readonly posts = inject(PostsAdminService);
   private readonly store = inject(PhotoPostsStore);
+  private readonly translation = inject(TranslationService);
   protected readonly lang = inject(LanguageStore).currentLang;
 
   private readonly cleanup = inject(PhotoCleanupService);
@@ -90,6 +93,8 @@ export class SetLibraryComponent {
   /**
    * Flips the switch at once and puts it back if saving fails, so it never lies about the real state.
    * The checkbox itself is reset too: when the revert lands before the next render, Angular sees no change.
+   * Publishing also translates the languages left blank, like the editor does; if that fails the set is
+   * published anyway and the author is told, since the site falls back to the language that is written.
    */
   protected async setPublished(postId: string, input: HTMLInputElement): Promise<void> {
     const published = input.checked;
@@ -98,7 +103,11 @@ export class SetLibraryComponent {
     this.setHidden(postId, !published);
 
     try {
-      await this.posts.setHidden(postId, !published);
+      if (published) {
+        await this.publish(postId);
+      } else {
+        await this.posts.setHidden(postId, true);
+      }
       // Keeps the public site in step with the switch, without a reload.
       void this.store.refresh();
     } catch {
@@ -106,6 +115,40 @@ export class SetLibraryComponent {
       input.checked = !published;
       this.errorKey.set('admin.library.toggleFailed');
     }
+  }
+
+  /** Publishes a set, saving it together with its missing translations when there are any. */
+  private async publish(postId: string): Promise<void> {
+    const post = this.entries()?.find((entry) => entry.post.id === postId)?.post;
+    if (post === undefined) return this.posts.setHidden(postId, false);
+
+    const texts = { caption: toLanguageTexts(post.caption), description: toLanguageTexts(post.description) };
+    let filled = texts;
+
+    try {
+      filled = await fillMissingLanguages(texts, (source, items) =>
+        this.translation.translate(source, items)
+      );
+    } catch {
+      this.errorKey.set('admin.editor.status.partial');
+    }
+
+    if (filled === texts) return this.posts.setHidden(postId, false);
+
+    const translated = {
+      ...post,
+      caption: filled.caption,
+      ...(Object.values(filled.description).some((text) => text !== '') && {
+        description: filled.description,
+      }),
+    };
+
+    await this.posts.save(translated, { hidden: false });
+    this.entries.update((entries) =>
+      (entries ?? []).map((entry) =>
+        entry.post.id === postId ? { ...entry, post: translated } : entry
+      )
+    );
   }
 
   protected askToDelete(postId: string): void {
