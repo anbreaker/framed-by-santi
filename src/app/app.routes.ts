@@ -43,5 +43,9 @@ export const routes: Routes = [
     loadComponent: async () =>
       (await import('@pages/admin-set/admin-set.page')).AdminSetPageComponent,
   },
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    loadComponent: async () =>
+      (await import('@pages/not-found/not-found.page')).NotFoundPageComponent,
+  },
 ];

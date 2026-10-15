@@ -13,7 +13,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { PostEditorComponent } from '@features/admin/components/post-editor/post-editor.component';
 import { PostEntry, PostsAdminService } from '@features/admin/services/posts-admin.service';
-import { useNoIndex } from '@features/admin/utils/use-noindex';
+import { useNoIndex } from '@shared/utils/use-noindex';
 
 type SetState = 'failed' | 'loading' | 'missing' | 'ready';
 

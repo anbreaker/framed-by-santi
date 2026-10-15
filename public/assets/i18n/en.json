@@ -236,6 +236,13 @@
     "menu": "Menu",
     "signOut": "Sign out"
   },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "gallery": "See the gallery",
+    "home": "Back to home",
+    "text": "The page you were looking for does not exist, or it has moved.",
+    "title": "Out of frame."
+  },
   "viewer": {
     "backToGallery": "Back to gallery",
     "counterLabel": "Photo {{current}} of {{total}}",

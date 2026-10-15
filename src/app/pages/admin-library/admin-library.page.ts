@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { SetLibraryComponent } from '@features/admin/components/set-library/set-library.component';
-import { useNoIndex } from '@features/admin/utils/use-noindex';
+import { useNoIndex } from '@shared/utils/use-noindex';
 
 @Component({
   standalone: true,

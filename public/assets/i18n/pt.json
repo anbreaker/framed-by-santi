@@ -236,6 +236,13 @@
     "menu": "Menu",
     "signOut": "Terminar sessão"
   },
+  "notFound": {
+    "eyebrow": "Erro 404",
+    "gallery": "Ver a galeria",
+    "home": "Voltar ao início",
+    "text": "A página que procura não existe ou mudou de sítio.",
+    "title": "Fora de enquadramento."
+  },
   "viewer": {
     "backToGallery": "Voltar à galeria",
     "counterLabel": "Foto {{current}} de {{total}}",
