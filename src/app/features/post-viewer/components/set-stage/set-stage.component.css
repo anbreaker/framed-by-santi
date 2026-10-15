@@ -12,11 +12,20 @@
 
 .set-stage__frame {
   height: 100%;
+  position: relative;
 }
 
 .set-stage__photo {
   --post-photo-fit: contain;
   --post-photo-height: 100%;
+}
+
+/* The photo that is loading sits behind the one on screen, invisible, until it can take over. */
+.set-stage__photo--incoming {
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 .set-stage__arrow {
@@ -65,20 +74,64 @@
   }
 }
 
+/* Change of photo: the old one fades out (FADE_OUT_MS) and the new one fades in, each with a small slide
+   in the direction the set is walked. */
 @media (prefers-reduced-motion: no-preference) {
   .set-stage__photo {
-    animation: set-stage-in var(--duration-base) var(--ease-out) both;
+    animation: set-stage-in 260ms var(--ease-out) both;
+
+    &[data-direction='previous'] {
+      animation-name: set-stage-in-previous;
+    }
+  }
+
+  .set-stage__photo--incoming {
+    animation: none;
+  }
+
+  .set-stage__photo--out {
+    animation: set-stage-out 160ms var(--ease-out) both;
+
+    &[data-direction='previous'] {
+      animation-name: set-stage-out-previous;
+    }
   }
 }
 
 @keyframes set-stage-in {
   from {
     opacity: 0;
-    transform: scale(1.015);
+    transform: translateX(1.5%);
   }
 
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes set-stage-in-previous {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5%);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes set-stage-out {
+  to {
+    opacity: 0;
+    transform: translateX(-1.5%);
+  }
+}
+
+@keyframes set-stage-out-previous {
+  to {
+    opacity: 0;
+    transform: translateX(1.5%);
   }
 }

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 
 import { LanguageStore } from '@core/store/language.store';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
+import { settlePhotoChange } from '@shared/testing/photo-swap';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PostViewerPageComponent } from './post-viewer.page';
@@ -76,7 +77,7 @@ describe('PostViewerPageComponent', () => {
     expect(arrow('previous').disabled).toBe(true);
 
     arrow('next').click();
-    await fixture.whenStable();
+    await settlePhotoChange(fixture);
     expect(counter()).toBe('02 / 10');
     expect(mainImage()).toBe('/local-photos/post-2/02.webp');
 
@@ -103,7 +104,7 @@ describe('PostViewerPageComponent', () => {
     await open('post-2');
 
     (root().querySelectorAll('.set-thumbnails__button')[4] as HTMLButtonElement).click();
-    await fixture.whenStable();
+    await settlePhotoChange(fixture);
 
     expect(counter()).toBe('05 / 10');
     expect(mainImage()).toBe('/local-photos/post-2/05.webp');
