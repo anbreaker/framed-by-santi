@@ -145,6 +145,23 @@ NG_APP_CLOUDINARY_ID_PREFIX=framed-by-santi/test/
 
 Restart `npm start` after changing it. On Vercel add the same two variables to Production and Preview. API keys and secrets never go in this file nor in the app: they belong only to the signing function (Vercel environment variables) and to your own terminal when you run the local tools.
 
+### 🔐 Firebase (auth and posts)
+
+Sign-in uses Firebase Auth (email and password only, no public sign-up flow) and posts will live in Firestore. Admins are listed in the Firestore collection `admins`: one document per person, whose id is their Firebase Auth UID, created by hand in the console. `firestore.rules` holds the security rules (paste them in the console, Firestore > Rules). `AuthStore` and `adminGuard` live in `features/auth/`.
+
+The web config is **public** too. Add it to `.env.local` (and to Vercel, Production and Preview):
+
+```bash
+NG_APP_FIREBASE_API_KEY=<apiKey>
+NG_APP_FIREBASE_AUTH_DOMAIN=<authDomain>
+NG_APP_FIREBASE_PROJECT_ID=<projectId>
+NG_APP_FIREBASE_STORAGE_BUCKET=<storageBucket>
+NG_APP_FIREBASE_MESSAGING_SENDER_ID=<messagingSenderId>
+NG_APP_FIREBASE_APP_ID=<appId>
+```
+
+Without them Firebase stays off (`AuthStore` reports `unavailable`) and the app keeps running on local data.
+
 ### 🧪 Testing and quality
 
 - Vitest runs in a `jsdom` environment.
@@ -309,6 +326,23 @@ NG_APP_CLOUDINARY_ID_PREFIX=framed-by-santi/test/
 
 Reinicia `npm start` después de cambiarlo. En Vercel añade las mismas dos variables en Production y Preview. Las claves y secretos nunca van en este archivo ni en la app: pertenecen solo a la función que firma las subidas (variables de entorno de Vercel) y a tu propia terminal cuando ejecutas las herramientas locales.
 
+### 🔐 Firebase (acceso y posts)
+
+El acceso usa Firebase Auth (solo correo y contraseña, sin registro público) y los posts vivirán en Firestore. Los administradores están en la colección `admins` de Firestore: un documento por persona, cuyo id es su UID de Firebase Auth, creado a mano en la consola. `firestore.rules` tiene las reglas de seguridad (se pegan en la consola, Firestore > Reglas). `AuthStore` y `adminGuard` están en `features/auth/`.
+
+La configuración web también es **pública**. Añádela al `.env.local` (y a Vercel, Production y Preview):
+
+```bash
+NG_APP_FIREBASE_API_KEY=<apiKey>
+NG_APP_FIREBASE_AUTH_DOMAIN=<authDomain>
+NG_APP_FIREBASE_PROJECT_ID=<projectId>
+NG_APP_FIREBASE_STORAGE_BUCKET=<storageBucket>
+NG_APP_FIREBASE_MESSAGING_SENDER_ID=<messagingSenderId>
+NG_APP_FIREBASE_APP_ID=<appId>
+```
+
+Sin ellas Firebase queda apagado (`AuthStore` informa `unavailable`) y la app sigue funcionando con datos locales.
+
 ### 🧪 Testing y calidad
 
 - Vitest corre en entorno `jsdom`.
@@ -472,6 +506,23 @@ NG_APP_CLOUDINARY_ID_PREFIX=framed-by-santi/test/
 ```
 
 Reinicie `npm start` depois de o alterar. Na Vercel, adicione as mesmas duas variáveis em Production e Preview. As chaves e segredos nunca vão neste ficheiro nem na aplicação: pertencem apenas à função que assina os envios (variáveis de ambiente da Vercel) e ao seu próprio terminal quando executa as ferramentas locais.
+
+### 🔐 Firebase (acesso e _posts_)
+
+O acesso usa o Firebase Auth (apenas e-mail e palavra-passe, sem registo público) e os _posts_ passarão a viver no Firestore. Os administradores estão na coleção `admins` do Firestore: um documento por pessoa, cujo id é o seu UID do Firebase Auth, criado à mão na consola. O `firestore.rules` tem as regras de segurança (colam-se na consola, Firestore > Regras). `AuthStore` e `adminGuard` estão em `features/auth/`.
+
+A configuração web também é **pública**. Adicione-a ao `.env.local` (e à Vercel, Production e Preview):
+
+```bash
+NG_APP_FIREBASE_API_KEY=<apiKey>
+NG_APP_FIREBASE_AUTH_DOMAIN=<authDomain>
+NG_APP_FIREBASE_PROJECT_ID=<projectId>
+NG_APP_FIREBASE_STORAGE_BUCKET=<storageBucket>
+NG_APP_FIREBASE_MESSAGING_SENDER_ID=<messagingSenderId>
+NG_APP_FIREBASE_APP_ID=<appId>
+```
+
+Sem elas o Firebase fica desligado (`AuthStore` indica `unavailable`) e a aplicação continua a funcionar com dados locais.
 
 ### 🧪 Testes e qualidade
 
