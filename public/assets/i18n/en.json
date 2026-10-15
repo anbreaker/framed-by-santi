@@ -80,9 +80,42 @@
         "failed": "Could not save. Check your connection and try again."
       },
       "errors": {
-        "caption": "Write a caption of up to {{max}} characters.",
+        "caption": "Write a caption of up to {{max}} characters in at least one language.",
         "description": "The description is too long (max {{max}} characters).",
         "date": "Choose a valid date."
+      },
+      "langs": {
+        "label": "Language of the texts",
+        "missing": "text missing",
+        "names": {
+          "en": "English",
+          "es": "Spanish",
+          "pt": "Portuguese"
+        }
+      },
+      "translate": {
+        "button": "Translate from {{lang}}",
+        "hint": "Translates the caption and description you wrote in {{lang}} into the other two languages. Texts already in those languages are replaced.",
+        "working": "Translating…",
+        "done": "Translated. Review the texts before saving.",
+        "errors": {
+          "notAllowed": "This account is not allowed to translate. Sign in again.",
+          "limit": "The translation limit was reached. Try again later.",
+          "failed": "Could not translate. Try again in a moment."
+        }
+      },
+      "themes": {
+        "title": "New theme",
+        "name": "Theme name",
+        "hint": "Write it in {{lang}}; it is translated to the other two languages.",
+        "add": "Create theme",
+        "working": "Creating…",
+        "errors": {
+          "exists": "A theme with this name already exists.",
+          "invalidName": "Use a name with letters or numbers.",
+          "failed": "Could not create the theme. Try again.",
+          "notConfigured": "The database is not available right now."
+        }
       }
     }
   },

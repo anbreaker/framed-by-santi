@@ -1,9 +1,13 @@
+import { SupportedLang } from '@core/const/lang.const';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
 
+/** The same text written in each site language; blank means not written yet. */
+export type LanguageTexts = Record<SupportedLang, string>;
+
 export interface PostDraft {
-  caption: string;
-  description: string;
+  caption: LanguageTexts;
+  description: LanguageTexts;
   /** Free text as typed, for example `#street nyc`. */
   hashtags: string;
   photos: readonly Photo[];
@@ -34,19 +38,26 @@ export function todayIso(now: Date = new Date()): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
-/** Turns what the author typed into a post. Photos without alt text get the caption, so none is left unlabelled. */
+const trimTexts = (texts: LanguageTexts): LanguageTexts => ({
+  en: texts.en.trim(),
+  es: texts.es.trim(),
+  pt: texts.pt.trim(),
+});
+
+/** Turns what the author typed into a post. Photos without alt text get the first caption written, so none is left unlabelled. */
 export function buildPost(draft: PostDraft, id = ''): PhotoPost {
-  const caption = draft.caption.trim();
-  const description = draft.description.trim();
+  const caption = trimTexts(draft.caption);
+  const description = trimTexts(draft.description);
   const hashtags = parseHashtags(draft.hashtags);
+  const altText = caption.en || caption.es || caption.pt;
 
   return {
     caption,
-    ...(description !== '' && { description }),
+    ...(Object.values(description).some((text) => text !== '') && { description }),
     ...(hashtags.length > 0 && { hashtags }),
     id,
     photos: draft.photos.map((photo) =>
-      photo.alt.trim() === '' ? { ...photo, alt: caption } : photo
+      photo.alt.trim() === '' ? { ...photo, alt: altText } : photo
     ),
     tags: [...draft.tags],
     takenAt: draft.takenAt,

@@ -1,0 +1,22 @@
+<div
+  class="lang-tabs"
+  role="group"
+  *transloco="let t"
+  [attr.aria-label]="t('admin.editor.langs.label')"
+>
+  @for (lang of langs; track lang) {
+    <button
+      class="lang-tabs__button"
+      type="button"
+      [attr.aria-pressed]="active() === lang"
+      [attr.title]="t('admin.editor.langs.names.' + lang)"
+      (click)="active.set(lang)"
+    >
+      {{ lang.toUpperCase() }}
+      @if (missing().includes(lang)) {
+        <span class="lang-tabs__missing" aria-hidden="true"></span>
+        <span class="lang-tabs__sr">{{ t('admin.editor.langs.missing') }}</span>
+      }
+    </button>
+  }
+</div>

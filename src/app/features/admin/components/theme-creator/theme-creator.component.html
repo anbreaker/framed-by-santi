@@ -1,0 +1,23 @@
+<div class="theme-creator" *transloco="let t">
+  <label class="theme-creator__field">
+    <span class="theme-creator__label">{{ t('admin.editor.themes.name') }}</span>
+    <span class="theme-creator__hint">
+      {{ t('admin.editor.themes.hint', { lang: t('admin.editor.langs.names.' + sourceLang()) }) }}
+    </span>
+    <span class="theme-creator__row">
+      <input class="theme-creator__input" type="text" [formField]="themeForm.name" />
+      <button
+        class="btn btn--ghost"
+        type="button"
+        [disabled]="working() || themeForm.name().invalid()"
+        (click)="create()"
+      >
+        {{ working() ? t('admin.editor.themes.working') : t('admin.editor.themes.add') }}
+      </button>
+    </span>
+  </label>
+
+  @if (errorKey(); as key) {
+    <p class="theme-creator__error" role="alert">{{ t(key) }}</p>
+  }
+</div>

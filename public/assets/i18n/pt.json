@@ -80,9 +80,42 @@
         "failed": "Não foi possível guardar. Verifique a ligação e tente novamente."
       },
       "errors": {
-        "caption": "Escreva uma legenda com até {{max}} caracteres.",
+        "caption": "Escreva uma legenda com até {{max}} caracteres em pelo menos um idioma.",
         "description": "A descrição é demasiado longa (máximo {{max}} caracteres).",
         "date": "Escolha uma data válida."
+      },
+      "langs": {
+        "label": "Idioma dos textos",
+        "missing": "falta o texto",
+        "names": {
+          "en": "Inglês",
+          "es": "Espanhol",
+          "pt": "Português"
+        }
+      },
+      "translate": {
+        "button": "Traduzir a partir de {{lang}}",
+        "hint": "Traduz a legenda e a descrição que escreveu em {{lang}} para os outros dois idiomas. Os textos que já existam nesses idiomas são substituídos.",
+        "working": "A traduzir…",
+        "done": "Traduzido. Reveja os textos antes de guardar.",
+        "errors": {
+          "notAllowed": "Esta conta não tem permissão para traduzir. Inicie sessão novamente.",
+          "limit": "O limite de traduções foi atingido. Tente mais tarde.",
+          "failed": "Não foi possível traduzir. Tente novamente dentro de instantes."
+        }
+      },
+      "themes": {
+        "title": "Novo tema",
+        "name": "Nome do tema",
+        "hint": "Escreva-o em {{lang}}; é traduzido para os outros dois idiomas.",
+        "add": "Criar tema",
+        "working": "A criar…",
+        "errors": {
+          "exists": "Já existe um tema com este nome.",
+          "invalidName": "Use um nome com letras ou números.",
+          "failed": "Não foi possível criar o tema. Tente novamente.",
+          "notConfigured": "A base de dados não está disponível neste momento."
+        }
       }
     }
   },

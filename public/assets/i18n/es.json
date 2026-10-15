@@ -58,8 +58,8 @@
       "title": "Nueva serie",
       "photos": {
         "title": "Fotos de esta serie",
-        "hint": "La primera foto es la portada. Arrastrá para reordenar, o usá los botones con flechas.",
-        "missing": "Agregá al menos una foto.",
+        "hint": "La primera foto es la portada. Arrastra para reordenar, o usa los botones con flechas.",
+        "missing": "Agrega al menos una foto.",
         "cover": "Portada",
         "alt": "Descripción para lectores de pantalla (opcional, por defecto el pie de foto)",
         "moveUp": "Subir la foto {{n}}",
@@ -77,12 +77,45 @@
       "status": {
         "saving": "Guardando…",
         "saved": "Guardado.",
-        "failed": "No se pudo guardar. Revisá la conexión e intentá de nuevo."
+        "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo."
       },
       "errors": {
-        "caption": "Escribí un pie de foto de hasta {{max}} caracteres.",
+        "caption": "Escribe un pie de foto de hasta {{max}} caracteres en al menos un idioma.",
         "description": "La descripción es demasiado larga (máximo {{max}} caracteres).",
-        "date": "Elegí una fecha válida."
+        "date": "Elige una fecha válida."
+      },
+      "langs": {
+        "label": "Idioma de los textos",
+        "missing": "falta el texto",
+        "names": {
+          "en": "Inglés",
+          "es": "Español",
+          "pt": "Portugués"
+        }
+      },
+      "translate": {
+        "button": "Traducir desde {{lang}}",
+        "hint": "Traduce el pie de foto y la descripción que escribiste en {{lang}} a los otros dos idiomas. Los textos que ya haya en esos idiomas se reemplazan.",
+        "working": "Traduciendo…",
+        "done": "Traducido. Revisa los textos antes de guardar.",
+        "errors": {
+          "notAllowed": "Esta cuenta no tiene permiso para traducir. Inicia sesión de nuevo.",
+          "limit": "Se alcanzó el límite de traducciones. Inténtalo más tarde.",
+          "failed": "No se pudo traducir. Inténtalo de nuevo en un momento."
+        }
+      },
+      "themes": {
+        "title": "Nuevo tema",
+        "name": "Nombre del tema",
+        "hint": "Escríbelo en {{lang}}; se traduce a los otros dos idiomas.",
+        "add": "Crear tema",
+        "working": "Creando…",
+        "errors": {
+          "exists": "Ya existe un tema con este nombre.",
+          "invalidName": "Usa un nombre con letras o números.",
+          "failed": "No se pudo crear el tema. Inténtalo de nuevo.",
+          "notConfigured": "La base de datos no está disponible ahora."
+        }
       }
     }
   },

@@ -76,25 +76,66 @@
   </div>
 
   <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">
-    <label class="post-editor__field">
-      <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
-      <input class="post-editor__input" type="text" [formField]="postForm.caption" />
-      @if (postForm.caption().touched() && postForm.caption().invalid()) {
-        <span class="post-editor__error" role="alert">
-          {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
-        </span>
-      }
-    </label>
+    <div class="post-editor__texts">
+      <app-lang-tabs [(active)]="activeLang" [missing]="missingLangs()" />
 
-    <label class="post-editor__field">
-      <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
-      <textarea class="post-editor__input" rows="4" [formField]="postForm.description"></textarea>
-      @if (postForm.description().invalid()) {
-        <span class="post-editor__error" role="alert">
-          {{ t('admin.editor.errors.description', { max: maxDescription }) }}
-        </span>
+      <div class="post-editor__translate">
+        <button
+          class="btn btn--ghost"
+          type="button"
+          [disabled]="!canTranslate()"
+          (click)="translate()"
+        >
+          @if (translateStatus() === 'working') {
+            {{ t('admin.editor.translate.working') }}
+          } @else {
+            {{ t('admin.editor.translate.button', { lang: activeLang().toUpperCase() }) }}
+          }
+        </button>
+        <p class="post-editor__hint">
+          {{
+            t('admin.editor.translate.hint', {
+              lang: t('admin.editor.langs.names.' + activeLang()),
+            })
+          }}
+        </p>
+        <p class="post-editor__status" aria-live="polite" role="status">
+          @if (translateErrorKey(); as key) {
+            <span class="post-editor__error">{{ t(key) }}</span>
+          } @else if (translateStatus() === 'done') {
+            {{ t('admin.editor.translate.done') }}
+          }
+        </p>
+      </div>
+
+      @for (code of langs; track code) {
+        @if (activeLang() === code) {
+          <label class="post-editor__field">
+            <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
+            <input class="post-editor__input" type="text" [formField]="postForm.caption[code]" />
+          </label>
+          @if (postForm.caption().touched() && postForm.caption().invalid()) {
+            <span class="post-editor__error" role="alert">
+              {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
+            </span>
+          }
+
+          <label class="post-editor__field">
+            <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
+            <textarea
+              class="post-editor__input"
+              rows="4"
+              [formField]="postForm.description[code]"
+            ></textarea>
+          </label>
+          @if (postForm.description[code]().invalid()) {
+            <span class="post-editor__error" role="alert">
+              {{ t('admin.editor.errors.description', { max: maxDescription }) }}
+            </span>
+          }
+        }
       }
-    </label>
+    </div>
 
     <label class="post-editor__field">
       <span class="post-editor__label">{{ t('admin.editor.hashtags') }}</span>
@@ -127,6 +168,8 @@
         </label>
       }
     </fieldset>
+
+    <app-theme-creator [sourceLang]="activeLang()" (created)="selectNewTheme($event)" />
 
     <div class="post-editor__submit">
       <button class="btn btn--ghost" type="button" [disabled]="!canSave()" (click)="save(true)">

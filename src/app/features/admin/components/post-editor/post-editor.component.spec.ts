@@ -4,12 +4,16 @@ import { By } from '@angular/platform-browser';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PostsAdminError, PostsAdminService } from '../../services/posts-admin.service';
+import { ThemesAdminService } from '../../services/themes-admin.service';
+import { TranslationError, TranslationService } from '../../services/translation.service';
 import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
 import { PostEditorComponent } from './post-editor.component';
 
 describe('PostEditorComponent', () => {
   let fixture: ComponentFixture<PostEditorComponent>;
   let create: ReturnType<typeof vi.fn>;
+  let translate: ReturnType<typeof vi.fn>;
+  let createTheme: ReturnType<typeof vi.fn>;
   let saved: string[];
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
@@ -39,11 +43,17 @@ describe('PostEditorComponent', () => {
 
   beforeEach(async () => {
     create = vi.fn().mockResolvedValue('new-1');
+    translate = vi.fn();
+    createTheme = vi.fn();
     saved = [];
 
     await TestBed.configureTestingModule({
       imports: [PostEditorComponent, realTranslations()],
-      providers: [{ provide: PostsAdminService, useValue: { create } }],
+      providers: [
+        { provide: PostsAdminService, useValue: { create } },
+        { provide: TranslationService, useValue: { translate } },
+        { provide: ThemesAdminService, useValue: { create: createTheme } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PostEditorComponent);
@@ -52,7 +62,7 @@ describe('PostEditorComponent', () => {
   });
 
   it('should not save without photos and say so', async () => {
-    await type('input[name$=".caption"]', 'Cyclist');
+    await type('input[name$=".caption.en"]', 'Cyclist');
     button('Publish').click();
     await fixture.whenStable();
 
@@ -71,8 +81,8 @@ describe('PostEditorComponent', () => {
 
   it('should publish a visible post with its texts, hashtags, tags and photos', async () => {
     await upload('a');
-    await type('input[name$=".caption"]', 'Cyclist');
-    await type('textarea[name$=".description"]', 'Set text');
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    await type('textarea[name$=".description.en"]', 'Set text');
     await type('input[name$=".hashtags"]', '#street nyc');
     await type('input[name$=".takenAt"]', '2026-10-02');
     (root().querySelector('.post-editor__tag input') as HTMLInputElement).click();
@@ -84,8 +94,8 @@ describe('PostEditorComponent', () => {
     const [post, visibility] = create.mock.calls[0];
     expect(visibility).toEqual({ hidden: false });
     expect(post).toMatchObject({
-      caption: 'Cyclist',
-      description: 'Set text',
+      caption: { en: 'Cyclist', es: '', pt: '' },
+      description: { en: 'Set text', es: '', pt: '' },
       hashtags: ['street', 'nyc'],
       tags: ['architecture'],
       takenAt: '2026-10-02',
@@ -98,7 +108,7 @@ describe('PostEditorComponent', () => {
 
   it('should keep the post hidden when saved as a draft', async () => {
     await upload('a');
-    await type('input[name$=".caption"]', 'Cyclist');
+    await type('input[name$=".caption.en"]', 'Cyclist');
 
     button('Save as draft').click();
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
@@ -121,7 +131,7 @@ describe('PostEditorComponent', () => {
     root().querySelectorAll('.post-editor__item')[1].querySelectorAll('button')[3].click();
     await fixture.whenStable();
 
-    await type('input[name$=".caption"]', 'C');
+    await type('input[name$=".caption.en"]', 'C');
     button('Publish').click();
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
 
@@ -132,10 +142,87 @@ describe('PostEditorComponent', () => {
     ]);
   });
 
+  it('should write the texts of each language apart and flag the languages still missing', async () => {
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    const tabs = (): HTMLButtonElement[] =>
+      Array.from(root().querySelectorAll('.lang-tabs__button')) as HTMLButtonElement[];
+
+    expect(tabs().map((tab) => tab.querySelector('.lang-tabs__missing') !== null)).toEqual([
+      false,
+      true,
+      true,
+    ]);
+
+    tabs()[1].click();
+    await fixture.whenStable();
+    expect(root().querySelector('input[name$=".caption.en"]')).toBeNull();
+    await type('input[name$=".caption.es"]', 'Ciclista');
+
+    await upload('a');
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][0].caption).toEqual({ en: 'Cyclist', es: 'Ciclista', pt: '' });
+  });
+
+  it('should translate from the active language into the other two and let the author edit the result', async () => {
+    translate.mockResolvedValue({
+      en: ['Cyclist', 'Set text'],
+      es: ['Ciclista', 'Texto'],
+      pt: ['Ciclista PT', 'Texto PT'],
+    });
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    await type('textarea[name$=".description.en"]', 'Set text');
+
+    button('Translate from EN').click();
+    await vi.waitFor(() => expect(root().textContent).toContain('Translated.'));
+
+    expect(translate).toHaveBeenCalledWith('en', ['Cyclist', 'Set text']);
+    (Array.from(root().querySelectorAll('.lang-tabs__button'))[2] as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect((root().querySelector('input[name$=".caption.pt"]') as HTMLInputElement).value).toBe(
+      'Ciclista PT'
+    );
+    expect(
+      (root().querySelector('textarea[name$=".description.pt"]') as HTMLTextAreaElement).value
+    ).toBe('Texto PT');
+  });
+
+  it('should not offer to translate without a caption in the active language', () => {
+    expect(button('Translate from EN').disabled).toBe(true);
+  });
+
+  it('should say why a translation failed and leave the texts alone', async () => {
+    translate.mockRejectedValue(new TranslationError('limit'));
+    await type('input[name$=".caption.en"]', 'Cyclist');
+
+    button('Translate from EN').click();
+    await vi.waitFor(() => expect(root().textContent).toContain('limit was reached'));
+
+    expect(button('Translate from EN').disabled).toBe(false);
+  });
+
+  it('should select a theme right after creating it', async () => {
+    const theme = { id: 'sunset', label: { en: 'Sunset', es: 'Atardecer', pt: 'Pôr do sol' } };
+    translate.mockResolvedValue({ en: ['Sunset'], es: ['Atardecer'], pt: ['Pôr do sol'] });
+    createTheme.mockResolvedValue(theme);
+    await upload('a');
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    await type('.theme-creator input', 'Sunset');
+
+    button('Create theme').click();
+    await vi.waitFor(() => expect(createTheme).toHaveBeenCalled());
+    await fixture.whenStable();
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][0].tags).toEqual(['sunset']);
+  });
+
   it('should tell the author when saving fails and allow trying again', async () => {
     create.mockRejectedValue(new PostsAdminError('request-failed'));
     await upload('a');
-    await type('input[name$=".caption"]', 'Cyclist');
+    await type('input[name$=".caption.en"]', 'Cyclist');
 
     button('Publish').click();
     await vi.waitFor(() => expect(root().textContent).toContain('Could not save'));
