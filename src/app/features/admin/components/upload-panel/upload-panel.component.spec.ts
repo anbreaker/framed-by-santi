@@ -27,6 +27,7 @@ describe('UploadPanelComponent', () => {
   };
 
   beforeEach(async () => {
+    URL.createObjectURL = vi.fn(() => 'blob:preview');
     upload = vi.fn().mockResolvedValue({ height: 10, publicId: 'folder/a', width: 20 });
     decode = vi.fn().mockResolvedValue({ height: 3000, source: {}, width: 4000 });
     const codec: ImageCodec = { decode, encode: vi.fn() };
@@ -69,14 +70,43 @@ describe('UploadPanelComponent', () => {
     expect(root().querySelectorAll('.upload-panel__item').length).toBe(2);
   });
 
-  it('should emit each photo once it is uploaded', async () => {
-    const emitted: unknown[] = [];
-    fixture.componentInstance.uploaded.subscribe((photo) => emitted.push(photo));
+  it('should announce each file with a local preview as soon as it is chosen, before any upload', () => {
+    const queued: { localId: number; name: string; previewUrl: string }[] = [];
+    fixture.componentInstance.queued.subscribe((item) => queued.push(item));
+
+    void fixture.componentInstance.addFiles([fileOf('a.jpg'), fileOf('b.jpg')]);
+
+    expect(queued).toEqual([
+      { localId: 0, name: 'a.jpg', previewUrl: 'blob:preview' },
+      { localId: 1, name: 'b.jpg', previewUrl: 'blob:preview' },
+    ]);
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('should finish each photo with the uploaded result, matched by its local id', async () => {
+    const finished: unknown[] = [];
+    fixture.componentInstance.finished.subscribe((item) => finished.push(item));
 
     await pick(fileOf('a.jpg'));
-    await vi.waitFor(() =>
-      expect(emitted).toEqual([{ height: 10, publicId: 'folder/a', width: 20 }])
-    );
+    await vi.waitFor(() => expect(finished).toHaveLength(1));
+
+    expect(finished).toEqual([
+      { localId: 0, result: { height: 10, publicId: 'folder/a', width: 20 } },
+    ]);
+  });
+
+  it('should finish with no result when the upload or the preparation fails', async () => {
+    const finished: { localId: number; result: unknown }[] = [];
+    fixture.componentInstance.finished.subscribe((item) => finished.push(item));
+    upload.mockRejectedValueOnce(new PhotoUploadError('sign-failed'));
+    decode.mockRejectedValueOnce(new Error('unreadable'));
+
+    await fixture.componentInstance.addFiles([fileOf('a.jpg'), fileOf('b.jpg')]);
+
+    expect(finished).toEqual([
+      { localId: 0, result: null },
+      { localId: 1, result: null },
+    ]);
   });
 
   it('should upload each chosen photo and mark it as done', async () => {

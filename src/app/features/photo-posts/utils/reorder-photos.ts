@@ -1,7 +1,5 @@
-import { Photo } from '../models/photo.model';
-
 /** Moves one photo to a new position; an out-of-range or no-op move returns the same order. */
-export function movePhoto(photos: readonly Photo[], from: number, to: number): readonly Photo[] {
+export function movePhoto<T>(photos: readonly T[], from: number, to: number): readonly T[] {
   const inRange = (index: number): boolean => index >= 0 && index < photos.length;
 
   if (from === to || !inRange(from) || !inRange(to)) return photos;
@@ -13,6 +11,6 @@ export function movePhoto(photos: readonly Photo[], from: number, to: number): r
 }
 
 /** The first photo is the cover, so choosing a cover is moving that photo to the front. */
-export function makeCover(photos: readonly Photo[], index: number): readonly Photo[] {
+export function makeCover<T>(photos: readonly T[], index: number): readonly T[] {
   return movePhoto(photos, index, 0);
 }

@@ -74,7 +74,8 @@
         "all": "Todas las fotos, arrastra para reordenar",
         "altFor": "Descripción de la foto {{n}} para lectores de pantalla",
         "optional": "opcional",
-        "summary": "{{count}} fotos · la primera es la portada"
+        "summary": "{{count}} fotos · la primera es la portada",
+        "pending": "Espera a que terminen las subidas, o quita las fotos que fallaron."
       },
       "caption": "Pie de foto",
       "description": "Descripción (opcional)",

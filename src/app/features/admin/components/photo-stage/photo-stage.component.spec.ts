@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Photo } from '@features/photo-posts/models/photo.model';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
+import { StagePhoto } from './photo-stage.component';
 import { PhotoStageComponent } from './photo-stage.component';
 
-const photo = (id: string, alt = ''): Photo => ({
+const photo = (id: string, alt = ''): StagePhoto => ({
   alt,
   height: 800,
   id,
@@ -29,7 +29,7 @@ describe('PhotoStageComponent', () => {
     root().querySelector(selector)?.textContent?.trim() ?? '';
   const thumbs = (): HTMLButtonElement[] =>
     Array.from(root().querySelectorAll('.photo-stage__thumb')) as HTMLButtonElement[];
-  const show = async (photos: readonly Photo[]): Promise<void> => {
+  const show = async (photos: readonly StagePhoto[]): Promise<void> => {
     fixture.componentRef.setInput('photos', photos);
     await fixture.whenStable();
   };
@@ -164,6 +164,31 @@ describe('PhotoStageComponent', () => {
     await fixture.whenStable();
 
     expect(moved).toEqual([{ from: 0, to: 2 }]);
+  });
+
+  it('should show a photo that is still uploading from its local preview, with its state', async () => {
+    await show([
+      { ...photo('a'), localId: 1, previewUrl: 'blob:mine', state: 'uploading' },
+      photo('b'),
+    ]);
+
+    const preview = root().querySelector('img.photo-stage__preview') as HTMLImageElement;
+    expect(preview.getAttribute('src')).toBe('blob:mine');
+    expect(text('.photo-stage__state')).toContain('Uploading');
+    expect(thumbs()[0].querySelector('img')?.getAttribute('src')).toBe('blob:mine');
+  });
+
+  it('should say when a photo failed to upload and keep it visible so it can be removed', async () => {
+    await show([{ ...photo('a'), localId: 1, previewUrl: 'blob:mine', state: 'failed' }]);
+
+    expect(text('.photo-stage__state')).toContain('Failed');
+    expect(root().querySelector('img.photo-stage__preview')).not.toBeNull();
+    expect(thumbs()[0].classList).toContain('photo-stage__thumb--failed');
+  });
+
+  it('should show no state for a photo that is already uploaded', () => {
+    expect(root().querySelector('.photo-stage__state')).toBeNull();
+    expect(root().querySelector('img.photo-stage__preview')).toBeNull();
   });
 
   it('should ask for photos from the add button', () => {

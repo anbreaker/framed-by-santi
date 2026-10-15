@@ -4,6 +4,15 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { Photo } from '@features/photo-posts/models/photo.model';
 
+/** A photo in the editor: uploaded (plain), or still local while it uploads or after it failed. */
+export interface StagePhoto extends Photo {
+  /** Links the photo to its file in the upload panel until it is uploaded. */
+  localId?: number;
+  /** Object URL of the local file, shown until the uploaded photo replaces it. */
+  previewUrl?: string;
+  state?: 'failed' | 'uploading';
+}
+
 export interface PhotoMove {
   from: number;
   to: number;
@@ -27,7 +36,7 @@ export interface AltChange {
   templateUrl: './photo-stage.component.html',
 })
 export class PhotoStageComponent {
-  readonly photos = input.required<readonly Photo[]>();
+  readonly photos = input.required<readonly StagePhoto[]>();
 
   readonly addRequested = output<void>();
   readonly altChanged = output<AltChange>();

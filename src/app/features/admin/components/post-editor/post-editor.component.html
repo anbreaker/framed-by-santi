@@ -41,8 +41,8 @@
         </span>
       </header>
 
-      @if (photosMissing()) {
-        <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.missing') }}</p>
+      @if (photosProblem(); as problem) {
+        <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.' + problem) }}</p>
       }
 
       <app-photo-stage
@@ -55,7 +55,7 @@
         (removed)="onRemoved($event)"
       />
 
-      <app-upload-panel (uploaded)="addPhoto($event)" />
+      <app-upload-panel (finished)="onFinished($event)" (queued)="onQueued($event)" />
     </section>
 
     <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">

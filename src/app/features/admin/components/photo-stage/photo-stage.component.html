@@ -6,12 +6,29 @@
       role="group"
       [attr.aria-label]="t('admin.editor.photos.show', { n: index() + 1 })"
     >
-      <app-post-photo
-        class="photo-stage__image"
-        sizes="(min-width: 1000px) 55vw, 100vw"
-        [alt]="photo.alt"
-        [photo]="photo"
-      />
+      @if (photo.previewUrl) {
+        <img
+          class="photo-stage__image photo-stage__preview"
+          [alt]="photo.alt"
+          [src]="photo.previewUrl"
+        />
+      } @else {
+        <app-post-photo
+          class="photo-stage__image"
+          sizes="(min-width: 1000px) 55vw, 100vw"
+          [alt]="photo.alt"
+          [photo]="photo"
+        />
+      }
+      @if (photo.state; as state) {
+        <span
+          class="photo-stage__state"
+          [attr.role]="state === 'failed' ? 'alert' : null"
+          [class.photo-stage__state--failed]="state === 'failed'"
+        >
+          {{ t('admin.upload.status.' + state) }}
+        </span>
+      }
       <span class="photo-stage__badge" [class.photo-stage__badge--cover]="index() === 0">
         @if (index() === 0) {
           {{ t('admin.editor.photos.cover') }}
@@ -104,12 +121,22 @@
           type="button"
           [attr.aria-label]="t('admin.editor.photos.show', { n: position + 1 })"
           [attr.aria-pressed]="position === index()"
+          [class.photo-stage__thumb--failed]="item.state === 'failed'"
           (click)="go(position)"
           (dragover)="$event.preventDefault()"
           (dragstart)="startDrag(position)"
           (drop)="drop(position)"
         >
-          <app-post-photo sizes="80px" [alt]="''" [photo]="item" />
+          @if (item.previewUrl) {
+            <img class="photo-stage__thumb-image" alt="" [src]="item.previewUrl" />
+          } @else {
+            <app-post-photo sizes="80px" [alt]="''" [photo]="item" />
+          }
+          @if (item.state) {
+            <span class="photo-stage__thumb-state" aria-hidden="true">
+              {{ item.state === 'failed' ? '!' : '…' }}
+            </span>
+          }
           <span class="photo-stage__number" aria-hidden="true">{{ position + 1 }}</span>
         </button>
       }

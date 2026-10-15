@@ -18,20 +18,29 @@ import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { makeCover, movePhoto } from '@features/photo-posts/utils/reorder-photos';
 import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
-import { UploadedPhoto } from '../../services/photo-upload.service';
 import { PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
 import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
-import { AltChange, PhotoMove, PhotoStageComponent } from '../photo-stage/photo-stage.component';
+import {
+  AltChange,
+  PhotoMove,
+  PhotoStageComponent,
+  StagePhoto,
+} from '../photo-stage/photo-stage.component';
 import { ThemeCreatorComponent } from '../theme-creator/theme-creator.component';
-import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
+import {
+  FinishedPhoto,
+  QueuedPhoto,
+  UploadPanelComponent,
+} from '../upload-panel/upload-panel.component';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export const MAX_CAPTION = 150;
 export const MAX_DESCRIPTION = 2200;
 
+type PhotosProblem = 'missing' | 'pending';
 type SaveStatus = 'idle' | 'saved' | 'saving' | 'failed';
 type TranslateStatus = 'done' | 'idle' | 'working';
 
@@ -99,8 +108,8 @@ export class PostEditorComponent {
   protected readonly maxCaption = MAX_CAPTION;
   protected readonly maxDescription = MAX_DESCRIPTION;
 
-  protected readonly photos = signal<readonly Photo[]>([]);
-  protected readonly photosMissing = signal(false);
+  protected readonly photos = signal<readonly StagePhoto[]>([]);
+  protected readonly photosProblem = signal<PhotosProblem | null>(null);
   protected readonly selectedTags = signal<readonly string[]>([]);
   protected readonly status = signal<SaveStatus>('idle');
   protected readonly translateErrorKey = signal<string | null>(null);
@@ -123,18 +132,42 @@ export class PostEditorComponent {
       this.translateStatus() !== 'working' && this.model().caption[this.activeLang()].trim() !== ''
   );
 
-  protected addPhoto(uploaded: UploadedPhoto): void {
-    this.photosMissing.set(false);
+  /** A chosen file shows up at once from the local file; the upload finishes it later. */
+  protected onQueued({ localId, previewUrl }: QueuedPhoto): void {
+    this.photosProblem.set(null);
     this.photos.update((current) => [
       ...current,
       {
         alt: '',
-        height: uploaded.height,
-        id: uploaded.publicId,
-        publicId: uploaded.publicId,
-        width: uploaded.width,
+        height: 0,
+        id: `local-${localId}`,
+        localId,
+        previewUrl,
+        state: 'uploading',
+        width: 0,
       },
     ]);
+  }
+
+  protected onFinished({ localId, result }: FinishedPhoto): void {
+    this.photos.update((current) =>
+      current.map((photo) => {
+        if (photo.localId !== localId) return photo;
+        if (result === null) return { ...photo, state: 'failed' };
+
+        if (photo.previewUrl && typeof URL.revokeObjectURL === 'function') {
+          URL.revokeObjectURL(photo.previewUrl);
+        }
+
+        return {
+          alt: photo.alt,
+          height: result.height,
+          id: result.publicId,
+          publicId: result.publicId,
+          width: result.width,
+        };
+      })
+    );
   }
 
   protected onMoved({ from, to }: PhotoMove): void {
@@ -208,8 +241,12 @@ export class PostEditorComponent {
 
   /** Saves the post; `hidden` true keeps it as a draft only admins can see, false publishes it. */
   protected async save(hidden: boolean): Promise<void> {
-    this.photosMissing.set(this.photos().length === 0);
-    if (this.photosMissing()) return;
+    const photos = this.photos();
+    const problem: PhotosProblem | null =
+      photos.length === 0 ? 'missing' : photos.some((photo) => photo.state) ? 'pending' : null;
+
+    this.photosProblem.set(problem);
+    if (problem !== null) return;
 
     await submit(this.postForm, async () => {
       this.status.set('saving');
@@ -217,7 +254,9 @@ export class PostEditorComponent {
       const value = this.model();
       const post = buildPost({
         ...value,
-        photos: this.photos(),
+        photos: photos.map<Photo>(
+          ({ localId: _localId, previewUrl: _preview, state: _state, ...photo }) => photo
+        ),
         tags: this.selectedTags(),
       });
 

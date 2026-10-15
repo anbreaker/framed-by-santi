@@ -74,7 +74,8 @@
         "all": "All photos, drag to reorder",
         "altFor": "Description of photo {{n}} for screen readers",
         "optional": "optional",
-        "summary": "{{count}} photos · the first is the cover"
+        "summary": "{{count}} photos · the first is the cover",
+        "pending": "Wait for the uploads to finish, or remove the photos that failed."
       },
       "caption": "Caption",
       "description": "Description (optional)",

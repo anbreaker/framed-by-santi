@@ -74,7 +74,8 @@
         "all": "Todas as fotos, arraste para reordenar",
         "altFor": "Descrição da foto {{n}} para leitores de ecrã",
         "optional": "opcional",
-        "summary": "{{count}} fotos · a primeira é a capa"
+        "summary": "{{count}} fotos · a primeira é a capa",
+        "pending": "Aguarde que os envios terminem, ou remova as fotos que falharam."
       },
       "caption": "Legenda",
       "description": "Descrição (opcional)",

@@ -30,6 +30,19 @@ export const IMAGE_CODEC = new InjectionToken<ImageCodec>('IMAGE_CODEC', {
 
 type UploadStatus = 'done' | 'failed' | 'preparing' | 'uploading';
 
+/** A file the moment it is accepted: it can be previewed locally while it is prepared and uploaded. */
+export interface QueuedPhoto {
+  localId: number;
+  name: string;
+  previewUrl: string;
+}
+
+/** The end of one file: the uploaded photo, or no result when preparing or uploading failed. */
+export interface FinishedPhoto {
+  localId: number;
+  result: UploadedPhoto | null;
+}
+
 export interface UploadItem {
   errorKey: string | null;
   id: number;
@@ -63,8 +76,9 @@ export class UploadPanelComponent {
   private nextId = 0;
   private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
 
-  /** Emits each photo as soon as it is on Cloudinary, so a post can collect them. */
-  readonly uploaded = output<UploadedPhoto>();
+  readonly finished = output<FinishedPhoto>();
+  /** Emits each file right away, before any upload, so the editor can show it from the local file. */
+  readonly queued = output<QueuedPhoto>();
 
   protected readonly items = signal<readonly UploadItem[]>([]);
   protected readonly maxLongEdge = MAX_LONG_EDGE;
@@ -94,6 +108,13 @@ export class UploadPanelComponent {
       warnings: [],
     }));
     this.items.update((current) => [...current, ...added]);
+    added.forEach((item, index) =>
+      this.queued.emit({
+        localId: item.id,
+        name: item.name,
+        previewUrl: URL.createObjectURL(files[index]),
+      })
+    );
 
     // One photo at a time keeps memory and bandwidth predictable on a phone.
     for (const [index, file] of files.entries()) {
@@ -108,13 +129,14 @@ export class UploadPanelComponent {
 
       const result = await this.uploads.upload(prepared.blob);
       this.patch(id, { result, status: 'done' });
-      this.uploaded.emit(result);
+      this.finished.emit({ localId: id, result });
     } catch (error) {
       const reason =
         error instanceof PhotoRejectedError || error instanceof PhotoUploadError
           ? ERROR_KEYS[error.reason]
           : ERROR_KEYS['upload-failed'];
       this.patch(id, { errorKey: reason, status: 'failed' });
+      this.finished.emit({ localId: id, result: null });
     }
   }
 

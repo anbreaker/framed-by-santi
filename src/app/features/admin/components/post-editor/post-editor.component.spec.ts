@@ -29,16 +29,24 @@ describe('PostEditorComponent', () => {
     await fixture.whenStable();
   };
 
-  const upload = async (...ids: string[]): Promise<void> => {
-    const panel = fixture.debugElement.query(By.directive(UploadPanelComponent));
-    for (const id of ids) {
-      (panel.componentInstance as UploadPanelComponent).uploaded.emit({
-        height: 800,
-        publicId: id,
-        width: 1200,
-      });
-    }
+  let localId = 0;
+  const panel = (): UploadPanelComponent =>
+    fixture.debugElement.query(By.directive(UploadPanelComponent))
+      .componentInstance as UploadPanelComponent;
+  const queue = (name = 'x.jpg'): number => {
+    const id = localId++;
+    panel().queued.emit({ localId: id, name, previewUrl: 'blob:preview' });
+    return id;
+  };
+  const finish = async (id: number, publicId: string | null): Promise<void> => {
+    panel().finished.emit({
+      localId: id,
+      result: publicId === null ? null : { height: 800, publicId, width: 1200 },
+    });
     await fixture.whenStable();
+  };
+  const upload = async (...ids: string[]): Promise<void> => {
+    for (const id of ids) await finish(queue(), id);
   };
 
   beforeEach(async () => {
@@ -169,6 +177,56 @@ describe('PostEditorComponent', () => {
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
 
     expect(create.mock.calls[0][0].photos[0].alt).toBe('A cyclist at dusk');
+  });
+
+  it('should show a chosen photo right away from its local preview, before it is uploaded', async () => {
+    queue('a.jpg');
+    await fixture.whenStable();
+
+    expect(root().querySelector('img.photo-stage__preview')?.getAttribute('src')).toBe(
+      'blob:preview'
+    );
+    expect(root().textContent).toContain('1 photos');
+  });
+
+  it('should swap the preview for the uploaded photo and keep the alt text typed meanwhile', async () => {
+    const id = queue();
+    await fixture.whenStable();
+    await type('.photo-stage__alt', 'A cyclist');
+
+    await finish(id, 'folder/a');
+
+    expect(root().querySelector('img.photo-stage__preview')).toBeNull();
+    expect((root().querySelector('.photo-stage__alt') as HTMLInputElement).value).toBe('A cyclist');
+  });
+
+  it('should not publish while a photo is still uploading or has failed, and say so', async () => {
+    const failed = queue();
+    queue();
+    await finish(failed, null);
+    await type('input[name$=".caption.en"]', 'Cyclist');
+
+    button('Publish').click();
+    await fixture.whenStable();
+
+    expect(create).not.toHaveBeenCalled();
+    expect(root().textContent).toContain('uploads to finish');
+  });
+
+  it('should publish once the failed photo is removed and the rest are uploaded', async () => {
+    const failed = queue();
+    await finish(failed, null);
+    await upload('good');
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    (root().querySelectorAll('.photo-stage__thumb')[0] as HTMLButtonElement).click();
+    await fixture.whenStable();
+    button('Remove').click();
+    await fixture.whenStable();
+
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][0].photos.map((p: { id: string }) => p.id)).toEqual(['good']);
   });
 
   it('should write the texts of each language apart and flag the languages still missing', async () => {
