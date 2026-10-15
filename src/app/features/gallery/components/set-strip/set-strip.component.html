@@ -18,34 +18,9 @@
     </a>
   </header>
 
-  <ul class="set-strip__photos" role="list">
-    @for (photo of preview(); track photo.id; let index = $index) {
-      <li class="set-strip__item" [style.--ratio]="photo.width / photo.height">
-        <a
-          class="set-strip__link"
-          [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
-          [queryParams]="{ photo: index + 1 }"
-          [routerLink]="['/gallery', post().id]"
-        >
-          <app-post-photo
-            alt=""
-            sizes="(min-width: 1280px) 20vw, (min-width: 768px) 25vw, 60vw"
-            [photo]="photo"
-            [style.view-transition-name]="index === 0 ? viewTransitionName() : null"
-          />
-        </a>
-      </li>
-    }
-    @if (left() > 0) {
-      <li class="set-strip__item set-strip__item--more">
-        <a
-          class="set-strip__more-tile"
-          [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
-          [routerLink]="['/gallery', post().id]"
-        >
-          +{{ left() }}
-        </a>
-      </li>
-    }
-  </ul>
+  <app-photo-carousel
+    class="set-strip__carousel"
+    [label]="post().caption | localizedText: lang()"
+    [post]="post()"
+  />
 </section>
