@@ -19,8 +19,10 @@ export class PostPhotoComponent {
   readonly photo = input.required<Photo>();
   /** Rendered width of the image, so the browser downloads the smallest variant that looks sharp. */
   readonly sizes = input('100vw');
+  /** Serves this exact file instead of the photo's own URL, for photos that ship with the site. */
+  readonly source = input<string | null>(null);
 
   protected readonly altText = computed(() => this.alt() ?? this.photo().alt);
-  protected readonly src = computed(() => photoUrl(this.photo()));
-  protected readonly srcset = computed(() => photoSrcset(this.photo()));
+  protected readonly src = computed(() => this.source() ?? photoUrl(this.photo()));
+  protected readonly srcset = computed(() => (this.source() === null ? photoSrcset(this.photo()) : null));
 }

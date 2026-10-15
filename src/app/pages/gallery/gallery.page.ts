@@ -2,9 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { LanguageStore } from '@core/store/language.store';
-import { PostGridComponent } from '@features/gallery/components/post-grid/post-grid.component';
+import { SetStripComponent } from '@features/gallery/components/set-strip/set-strip.component';
 import { TagFilterComponent } from '@features/gallery/components/tag-filter/tag-filter.component';
-import { isPostTag } from '@features/photo-posts/models/post-tag.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
 import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
@@ -14,8 +13,8 @@ import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     PluralKeyPipe,
-    PostGridComponent,
     ScrollRevealDirective,
+    SetStripComponent,
     TagFilterComponent,
     TranslocoDirective,
   ],
@@ -30,12 +29,14 @@ export class GalleryPageComponent {
   /** Bound from the `?tag=` query parameter by the router. */
   readonly tag = input<string | undefined>();
 
-  protected readonly availableTags = this.photoPostsStore.availableTags;
+  protected readonly availableThemes = this.photoPostsStore.availableThemes;
   protected readonly lang = this.languageStore.currentLang;
   protected readonly selectedTag = computed(() => {
     const requested = this.tag();
 
-    return isPostTag(requested) ? requested : null;
+    const known = this.photoPostsStore.themes().some((theme) => theme.id === requested);
+
+    return known && requested !== undefined ? requested : null;
   });
   protected readonly visiblePosts = computed(() =>
     this.photoPostsStore.filterByTag(this.selectedTag())

@@ -10,6 +10,183 @@
     "photoAlt": "Retrato de Santi García",
     "title": "Santi García"
   },
+  "admin": {
+    "dashboard": {},
+    "editor": {
+      "caption": "Legenda",
+      "date": "Data",
+      "description": "Descrição (opcional)",
+      "editTitle": "Editar série",
+      "errors": {
+        "caption": "Escreva uma legenda com até {{max}} caracteres em pelo menos um idioma.",
+        "date": "Escolha uma data válida.",
+        "description": "A descrição é demasiado longa (máximo {{max}} caracteres)."
+      },
+      "hashtagAdd": "Adicionar hashtag",
+      "hashtagRemove": "Remover {{tag}}",
+      "hashtags": "Hashtags (opcional)",
+      "langs": {
+        "label": "Idioma dos textos",
+        "missing": "falta o texto",
+        "names": {
+          "en": "Inglês",
+          "es": "Espanhol",
+          "pt": "Português"
+        }
+      },
+      "photos": {
+        "add": "Adicionar fotos",
+        "addShort": "Adicionar",
+        "all": "Todas as fotos, arraste para reordenar",
+        "alt": "Descrição para leitores de ecrã (opcional, por defeito a legenda)",
+        "altFor": "Descrição da foto {{n}} para leitores de ecrã",
+        "badge": "Foto {{n}}",
+        "choose": "Escolher fotos",
+        "cover": "Capa",
+        "earlier": "Mover para trás",
+        "emptyTitle": "Largue aqui as fotos desta série ou escolha-as no seu dispositivo.",
+        "hint": "A primeira foto é a capa. Arraste para reordenar, ou use os botões de seta.",
+        "later": "Mover para a frente",
+        "makeCover": "Usar como capa",
+        "missing": "Adicione pelo menos uma foto.",
+        "moveDown": "Mover a foto {{n}} para a frente",
+        "moveUp": "Mover a foto {{n}} para trás",
+        "next": "Foto seguinte",
+        "optional": "opcional",
+        "pending": "Aguarde que os envios terminem, ou remova as fotos que falharam.",
+        "previous": "Foto anterior",
+        "remove": "Remover",
+        "show": "Ver a foto {{n}}",
+        "summary": "{{count}} fotos · a primeira é a capa",
+        "title": "Fotos desta série"
+      },
+      "publish": "Publicar",
+      "saveDraft": "Guardar como rascunho",
+      "sections": {
+        "details": "Detalhes",
+        "texts": "Textos",
+        "themes": "Temas"
+      },
+      "status": {
+        "draft": "Rascunho · por guardar",
+        "failed": "Não foi possível guardar. Verifique a ligação e tente novamente.",
+        "partial": "Publicada, mas alguns idiomas não puderam ser traduzidos. Aparecem no primeiro idioma disponível.",
+        "published": "Publicada",
+        "saved": "Guardado.",
+        "saving": "A guardar…"
+      },
+      "tags": "Temas",
+      "themes": {
+        "add": "Criar tema",
+        "errors": {
+          "deleteFailed": "Não foi possível eliminar o tema. Tente novamente.",
+          "exists": "Já existe um tema com este nome.",
+          "failed": "Não foi possível criar o tema. Tente novamente.",
+          "invalidName": "Use um nome com letras ou números.",
+          "notConfigured": "A base de dados não está disponível neste momento.",
+          "protected": "É um dos temas predefinidos e não pode ser eliminado."
+        },
+        "hint": "Escreva-o em qualquer idioma; é traduzido automaticamente para os outros.",
+        "manager": {
+          "cancel": "Cancelar",
+          "confirm": "Eliminar “{{name}}”? As séries que o usam mantêm-no guardado, mas deixa de aparecer.",
+          "confirmYes": "Sim, eliminar",
+          "default": "Predefinido",
+          "delete": "Eliminar",
+          "hide": "Ocultar",
+          "manage": "Gerir temas",
+          "none": "Ainda não criou nenhum tema próprio.",
+          "unused": "Não é usado em nenhuma série",
+          "usedBy": "Usado em {{count}} séries",
+          "usedByOne": "Usado em 1 série",
+          "working": "A eliminar…"
+        },
+        "name": "Nome do tema",
+        "title": "Novo tema",
+        "working": "A criar…"
+      },
+      "title": "Nova série",
+      "translate": {
+        "button": "Traduzir",
+        "done": "Traduzido. Reveja os textos antes de guardar.",
+        "errors": {
+          "failed": "Não foi possível traduzir. Tente novamente dentro de instantes.",
+          "limit": "O limite de traduções foi atingido. Tente mais tarde.",
+          "notAllowed": "Esta conta não tem permissão para traduzir. Inicie sessão novamente."
+        },
+        "hint": "Traduz o que escreveu neste separador para os outros idiomas. O idioma é detetado automaticamente. Os textos que já existam nos outros idiomas são substituídos.",
+        "working": "A traduzir…"
+      }
+    },
+    "library": {
+      "countMany": "{{count}} séries",
+      "countOne": "1 série",
+      "draft": "Rascunho",
+      "edit": "Editar",
+      "editSet": "Editar a série: {{title}}",
+      "empty": {
+        "all": "Ainda não há nada. Crie a primeira série.",
+        "drafts": "Não há rascunhos. Tudo está publicado.",
+        "published": "Ainda não há nada publicado."
+      },
+      "filters": {
+        "all": "Todas",
+        "drafts": "Rascunhos",
+        "published": "Publicadas"
+      },
+      "filtersLabel": "Filtrar por estado",
+      "loadFailed": "Não foi possível carregar as séries. Verifique a ligação.",
+      "loading": "A carregar…",
+      "newSet": "Nova série",
+      "noTitle": "Série sem título",
+      "photosCount": "{{count}} fotos",
+      "published": "Publicada",
+      "retry": "Tentar novamente",
+      "title": "Biblioteca",
+      "toggleFailed": "Não foi possível alterar o estado. Tente novamente."
+    },
+    "login": {
+      "email": "E-mail",
+      "emailFirst": "Escreva primeiro o seu e-mail.",
+      "eyebrow": "Área privada",
+      "failed": "Não foi possível iniciar a sessão. Verifique os dados e tente novamente.",
+      "forgot": "Esqueceu-se da palavra-passe?",
+      "missing": "Introduza o seu e-mail e a palavra-passe.",
+      "password": "Palavra-passe",
+      "resetSent": "Se esse endereço puder entrar, enviámos uma ligação para repor a palavra-passe.",
+      "submit": "Entrar",
+      "submitting": "A entrar…",
+      "title": "Iniciar sessão",
+      "unavailable": "O acesso não está disponível neste momento."
+    },
+    "set": {
+      "loadFailed": "Não foi possível carregar esta série. Verifique a ligação.",
+      "notFound": "Esta série já não existe."
+    },
+    "upload": {
+      "errors": {
+        "notAllowed": "Esta conta não tem permissão para carregar. Inicie sessão novamente.",
+        "signFailed": "Não foi possível obter permissão para carregar. Tente novamente daqui a pouco.",
+        "tooLarge": "Continua acima de 10 MB depois de comprimir, tente um ficheiro mais pequeno.",
+        "unreadable": "Não foi possível ler esta imagem.",
+        "unsupportedType": "Este ficheiro não é uma imagem suportada (use JPEG, PNG ou WebP).",
+        "uploadFailed": "O carregamento falhou. Tente novamente."
+      },
+      "hint": "JPEG, PNG ou WebP. As fotos são reduzidas a {{max}} px no lado maior e 10 MB no máximo.",
+      "pick": "Escolher fotos para carregar",
+      "status": {
+        "done": "Carregada",
+        "failed": "Falhou",
+        "preparing": "A preparar…",
+        "uploading": "A carregar…"
+      },
+      "title": "Carregar fotos",
+      "warnings": {
+        "recompressed": "Comprimida para caber em {{max}} MB.",
+        "resized": "Reduzida para {{max}} px no lado maior."
+      }
+    }
+  },
   "common": {
     "instagram": "Instagram",
     "skipToContent": "Saltar para o conteúdo"
@@ -17,7 +194,8 @@
   "footer": {
     "about": "Sobre",
     "copyright": "© {{year}} Santi García · Nova Iorque",
-    "instagram": "Instagram"
+    "instagram": "Instagram",
+    "madeWith": "Feito com carinho por um amigo"
   },
   "gallery": {
     "allFilter": "Todas",
@@ -32,7 +210,8 @@
       "one": "{{count}} série",
       "other": "{{count}} séries"
     },
-    "title": "Galeria"
+    "title": "Galeria",
+    "viewSet": "Ver série completa"
   },
   "home": {
     "aboutCta": "Conhecer o Santi",
@@ -57,14 +236,16 @@
     "closeMenu": "Fechar menu",
     "gallery": "Galeria",
     "home": "Framed by Santi, início",
-    "menu": "Menu"
+    "menu": "Menu",
+    "panel": "Painel",
+    "signOut": "Terminar sessão"
   },
-  "tags": {
-    "architecture": "Arquitetura",
-    "bw": "Preto e branco",
-    "night": "Noite",
-    "sky": "Céu",
-    "street": "Rua"
+  "notFound": {
+    "eyebrow": "Erro 404",
+    "gallery": "Ver a galeria",
+    "home": "Voltar ao início",
+    "text": "A página que procura não existe ou mudou de sítio.",
+    "title": "Fora de enquadramento."
   },
   "viewer": {
     "backToGallery": "Voltar à galeria",

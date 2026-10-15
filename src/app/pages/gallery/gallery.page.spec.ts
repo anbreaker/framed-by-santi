@@ -11,7 +11,7 @@ describe('GalleryPageComponent', () => {
   let fixture: ComponentFixture<GalleryPageComponent>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const tiles = (): number => root().querySelectorAll('app-post-tile').length;
+  const tiles = (): number => root().querySelectorAll('app-set-strip').length;
   const setTag = async (tag: string | undefined): Promise<void> => {
     fixture.componentRef.setInput('tag', tag);
     await fixture.whenStable();

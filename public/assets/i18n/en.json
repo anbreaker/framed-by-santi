@@ -10,6 +10,183 @@
     "photoAlt": "Portrait of Santi García",
     "title": "Santi García"
   },
+  "admin": {
+    "dashboard": {},
+    "editor": {
+      "caption": "Caption",
+      "date": "Date",
+      "description": "Description (optional)",
+      "editTitle": "Edit set",
+      "errors": {
+        "caption": "Write a caption of up to {{max}} characters in at least one language.",
+        "date": "Choose a valid date.",
+        "description": "The description is too long (max {{max}} characters)."
+      },
+      "hashtagAdd": "Add hashtag",
+      "hashtagRemove": "Remove {{tag}}",
+      "hashtags": "Hashtags (optional)",
+      "langs": {
+        "label": "Language of the texts",
+        "missing": "text missing",
+        "names": {
+          "en": "English",
+          "es": "Spanish",
+          "pt": "Portuguese"
+        }
+      },
+      "photos": {
+        "add": "Add photos",
+        "addShort": "Add",
+        "all": "All photos, drag to reorder",
+        "alt": "Description for screen readers (optional, defaults to the caption)",
+        "altFor": "Description of photo {{n}} for screen readers",
+        "badge": "Photo {{n}}",
+        "choose": "Choose photos",
+        "cover": "Cover",
+        "earlier": "Move earlier",
+        "emptyTitle": "Drop the photos of this set here, or choose them from your device.",
+        "hint": "The first photo is the cover. Drag to reorder, or use the arrow buttons.",
+        "later": "Move later",
+        "makeCover": "Make cover",
+        "missing": "Add at least one photo.",
+        "moveDown": "Move photo {{n}} later",
+        "moveUp": "Move photo {{n}} earlier",
+        "next": "Next photo",
+        "optional": "optional",
+        "pending": "Wait for the uploads to finish, or remove the photos that failed.",
+        "previous": "Previous photo",
+        "remove": "Remove",
+        "show": "Show photo {{n}}",
+        "summary": "{{count}} photos · the first is the cover",
+        "title": "Photos in this set"
+      },
+      "publish": "Publish",
+      "saveDraft": "Save as draft",
+      "sections": {
+        "details": "Details",
+        "texts": "Texts",
+        "themes": "Themes"
+      },
+      "status": {
+        "draft": "Draft · not saved yet",
+        "failed": "Could not save. Check your connection and try again.",
+        "partial": "Published, but some languages could not be translated. They show the first language available.",
+        "published": "Published",
+        "saved": "Saved.",
+        "saving": "Saving…"
+      },
+      "tags": "Themes",
+      "themes": {
+        "add": "Create theme",
+        "errors": {
+          "deleteFailed": "Could not delete the theme. Try again.",
+          "exists": "A theme with this name already exists.",
+          "failed": "Could not create the theme. Try again.",
+          "invalidName": "Use a name with letters or numbers.",
+          "notConfigured": "The database is not available right now.",
+          "protected": "This is one of the default themes and cannot be deleted."
+        },
+        "hint": "Write it in any language; it is translated to the others automatically.",
+        "manager": {
+          "cancel": "Cancel",
+          "confirm": "Delete “{{name}}”? Sets that use it keep it saved, but it will no longer show up.",
+          "confirmYes": "Yes, delete",
+          "default": "Default",
+          "delete": "Delete",
+          "hide": "Hide",
+          "manage": "Manage themes",
+          "none": "You have not created any themes of your own yet.",
+          "unused": "Not used in any set",
+          "usedBy": "Used in {{count}} sets",
+          "usedByOne": "Used in 1 set",
+          "working": "Deleting…"
+        },
+        "name": "Theme name",
+        "title": "New theme",
+        "working": "Creating…"
+      },
+      "title": "New set",
+      "translate": {
+        "button": "Translate",
+        "done": "Translated. Review the texts before saving.",
+        "errors": {
+          "failed": "Could not translate. Try again in a moment.",
+          "limit": "The translation limit was reached. Try again later.",
+          "notAllowed": "This account is not allowed to translate. Sign in again."
+        },
+        "hint": "Translates what you wrote in this tab into the other languages. The language is detected automatically. Texts already in the other languages are replaced.",
+        "working": "Translating…"
+      }
+    },
+    "library": {
+      "countMany": "{{count}} sets",
+      "countOne": "1 set",
+      "draft": "Draft",
+      "edit": "Edit",
+      "editSet": "Edit set: {{title}}",
+      "empty": {
+        "all": "Nothing here yet. Create the first set.",
+        "drafts": "No drafts. Everything is published.",
+        "published": "Nothing is published yet."
+      },
+      "filters": {
+        "all": "All",
+        "drafts": "Drafts",
+        "published": "Published"
+      },
+      "filtersLabel": "Filter by status",
+      "loadFailed": "Could not load the sets. Check your connection.",
+      "loading": "Loading…",
+      "newSet": "New set",
+      "noTitle": "Untitled set",
+      "photosCount": "{{count}} photos",
+      "published": "Published",
+      "retry": "Try again",
+      "title": "Library",
+      "toggleFailed": "Could not change the status. Try again."
+    },
+    "login": {
+      "email": "Email",
+      "emailFirst": "Type your email first.",
+      "eyebrow": "Private area",
+      "failed": "We could not sign you in. Check your details and try again.",
+      "forgot": "Forgot your password?",
+      "missing": "Enter your email and password.",
+      "password": "Password",
+      "resetSent": "If that address can sign in, we sent a link to reset the password.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "title": "Sign in",
+      "unavailable": "Sign-in is not available right now."
+    },
+    "set": {
+      "loadFailed": "Could not load this set. Check your connection.",
+      "notFound": "This set does not exist any more."
+    },
+    "upload": {
+      "errors": {
+        "notAllowed": "This account is not allowed to upload. Sign in again.",
+        "signFailed": "Could not get permission to upload. Try again in a moment.",
+        "tooLarge": "Still above 10 MB after compressing, try a smaller file.",
+        "unreadable": "We could not read this image.",
+        "unsupportedType": "This file is not a supported image (use JPEG, PNG or WebP).",
+        "uploadFailed": "The upload failed. Try again."
+      },
+      "hint": "JPEG, PNG or WebP. Photos are resized to {{max}} px on the long edge and 10 MB at most.",
+      "pick": "Choose photos to upload",
+      "status": {
+        "done": "Uploaded",
+        "failed": "Failed",
+        "preparing": "Preparing…",
+        "uploading": "Uploading…"
+      },
+      "title": "Upload photos",
+      "warnings": {
+        "recompressed": "Compressed to fit {{max}} MB.",
+        "resized": "Resized to {{max}} px on the long edge."
+      }
+    }
+  },
   "common": {
     "instagram": "Instagram",
     "skipToContent": "Skip to content"
@@ -17,7 +194,8 @@
   "footer": {
     "about": "About",
     "copyright": "© {{year}} Santi García · New York",
-    "instagram": "Instagram"
+    "instagram": "Instagram",
+    "madeWith": "Made with love by a friend"
   },
   "gallery": {
     "allFilter": "All",
@@ -32,7 +210,8 @@
       "one": "{{count}} set",
       "other": "{{count}} sets"
     },
-    "title": "Gallery"
+    "title": "Gallery",
+    "viewSet": "View full set"
   },
   "home": {
     "aboutCta": "More about Santi",
@@ -57,14 +236,16 @@
     "closeMenu": "Close menu",
     "gallery": "Gallery",
     "home": "Framed by Santi, home",
-    "menu": "Menu"
+    "menu": "Menu",
+    "panel": "Dashboard",
+    "signOut": "Sign out"
   },
-  "tags": {
-    "architecture": "Architecture",
-    "bw": "Black & white",
-    "night": "Night",
-    "sky": "Sky",
-    "street": "Street"
+  "notFound": {
+    "eyebrow": "Error 404",
+    "gallery": "See the gallery",
+    "home": "Back to home",
+    "text": "The page you were looking for does not exist, or it has moved.",
+    "title": "Out of frame."
   },
   "viewer": {
     "backToGallery": "Back to gallery",

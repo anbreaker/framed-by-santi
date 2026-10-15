@@ -1,0 +1,18 @@
+<main class="admin-set" id="main-content" tabindex="-1" *transloco="let t">
+  <a class="admin-set__back" routerLink="/admin/dashboard">← {{ t('admin.library.title') }}</a>
+
+  @switch (state()) { @case ('loading') {
+  <p class="admin-set__notice" role="status">{{ t('admin.library.loading') }}</p>
+  } @case ('missing') {
+  <p class="admin-set__notice" role="alert">{{ t('admin.set.notFound') }}</p>
+  } @case ('failed') {
+  <div class="admin-set__notice" role="alert">
+    <p>{{ t('admin.set.loadFailed') }}</p>
+    <button class="btn btn--ghost" type="button" (click)="load()">
+      {{ t('admin.library.retry') }}
+    </button>
+  </div>
+  } @default { @for (key of editorKeys(); track key) {
+  <app-post-editor [initial]="entry()" (saved)="onSaved()" />
+  } } }
+</main>

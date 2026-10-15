@@ -15,6 +15,7 @@
     "@angular/platform-browser": "^22.1.7",
     "@angular/router": "^22.1.7",
     "@jsverse/transloco": "^8.2.1",
+    "firebase": "^13.0.0",
     "rxjs": "~7.8.2",
     "tslib": "^2.3.0"
   },
@@ -52,8 +53,8 @@
     "commit:validate": "node -e \"const msg = process.argv[1]; const ok = /^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\\(.+\\))?: .{1,50}$/.test(msg); process.exit(ok ? 0 : 1);\" --",
     "dev": "vite --mode dev --open",
     "format": "prettier --write \"src/**/*.{ts,html,css}\" \"*.json\"",
-    "lint": "eslint \"src/**/*.{ts,html}\" && eslint \"*.json\"",
-    "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix && eslint \"*.json\" --fix",
+    "lint": "eslint \"src/**/*.{ts,html}\" && eslint \"*.json\" \"public/assets/i18n/*.json\"",
+    "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix && eslint \"*.json\" \"public/assets/i18n/*.json\" --fix",
     "ng": "ng",
     "preview": "vite preview",
     "start": "vite --mode dev --open",

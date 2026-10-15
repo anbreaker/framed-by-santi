@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.theme-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.theme-manager__toggle {
+  align-self: flex-start;
+  background: transparent;
+  border: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-height: var(--touch-target);
+  padding-inline: 0;
+
+  /* The label carries the site's grow-on-hover underline (.link-grow), so the button draws none of its own. */
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+.theme-manager__list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.theme-manager__item {
+  align-items: center;
+  border-top: 1px solid var(--color-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  min-height: 3.5rem;
+  padding-block: var(--space-2);
+}
+
+.theme-manager__name {
+  flex: 1 1 8rem;
+  font-weight: 500;
+}
+
+.theme-manager__meta {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.theme-manager__confirm {
+  flex: 1 1 100%;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.theme-manager__actions {
+  display: flex;
+  flex: 1 1 100%;
+  gap: var(--space-2);
+}
+
+.theme-manager__button,
+.theme-manager__danger {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+
+  &:hover {
+    border-color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+.theme-manager__danger {
+  border-color: var(--color-error);
+  color: var(--color-error);
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.6;
+  }
+}
+
+.theme-manager__error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin: 0;
+}

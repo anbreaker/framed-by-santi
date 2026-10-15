@@ -1,0 +1,256 @@
+<section class="post-editor" *transloco="let t">
+  <div class="post-editor__head">
+    <h1 class="post-editor__title">
+      {{ editing() ? t('admin.editor.editTitle') : t('admin.editor.title') }}
+    </h1>
+
+    <div class="post-editor__bar">
+      <p class="post-editor__status" aria-live="polite" role="status">
+        @switch (status()) {
+          @case ('saving') {
+            {{ t('admin.editor.status.saving') }}
+          }
+          @case ('saved') {
+            {{ t('admin.editor.status.saved') }}
+          }
+          @case ('partial') {
+            <span class="post-editor__error">{{ t('admin.editor.status.partial') }}</span>
+          }
+          @case ('failed') {
+            <span class="post-editor__error">{{ t('admin.editor.status.failed') }}</span>
+          }
+          @default {
+            <span class="post-editor__dot" aria-hidden="true"></span>
+            {{
+              savedAsPublished()
+                ? t('admin.editor.status.published')
+                : t('admin.editor.status.draft')
+            }}
+          }
+        }
+      </p>
+      <button class="btn btn--ghost" type="button" [disabled]="!canSave()" (click)="save(true)">
+        {{ t('admin.editor.saveDraft') }}
+      </button>
+      <button class="btn btn--primary" type="button" [disabled]="!canSave()" (click)="save(false)">
+        {{ t('admin.editor.publish') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="post-editor__layout">
+    <section
+      class="post-editor__section post-editor__photos"
+      [attr.aria-label]="t('admin.editor.photos.title')"
+    >
+      <header class="post-editor__section-head">
+        <h2 class="post-editor__subtitle">{{ t('admin.editor.photos.title') }}</h2>
+        <span class="post-editor__meta">
+          {{ t('admin.editor.photos.summary', { count: photos().length }) }}
+        </span>
+      </header>
+
+      @if (photosProblem(); as problem) {
+        <p class="post-editor__error" role="alert">{{ t('admin.editor.photos.' + problem) }}</p>
+      }
+
+      <app-photo-stage
+        [photos]="photos()"
+        (addRequested)="openPicker()"
+        (altChanged)="onAltChanged($event)"
+        (coverChosen)="onCoverChosen($event)"
+        (filesDropped)="uploads().addFiles($event)"
+        (moved)="onMoved($event)"
+        (removed)="onRemoved($event)"
+      />
+
+      <app-upload-panel
+        (finished)="onFinished($event)"
+        (previewReady)="onPreviewReady($event)"
+        (queued)="onQueued($event)"
+      />
+    </section>
+
+    <form class="post-editor__form" novalidate (submit)="$event.preventDefault()">
+      <section class="post-editor__section" [attr.aria-label]="t('admin.editor.sections.texts')">
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.texts') }}</h2>
+        </header>
+
+        <div class="post-editor__langbar">
+          <app-lang-tabs [(active)]="activeLang" [missing]="missingLangs()" />
+          <button
+            class="btn btn--ghost"
+            type="button"
+            [disabled]="!canTranslate()"
+            (click)="translate()"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+              width="18"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path
+                d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"
+              />
+            </svg>
+            @if (translateStatus() === 'working') {
+              {{ t('admin.editor.translate.working') }}
+            } @else {
+              {{ t('admin.editor.translate.button') }}
+            }
+          </button>
+        </div>
+
+        <p class="post-editor__hint" aria-live="polite" role="status">
+          @if (translateErrorKey(); as key) {
+            <span class="post-editor__error">{{ t(key) }}</span>
+          } @else if (translateStatus() === 'done') {
+            {{ t('admin.editor.translate.done') }}
+          } @else {
+            {{ t('admin.editor.translate.hint') }}
+          }
+        </p>
+
+        @for (code of langs; track code) {
+          @if (activeLang() === code) {
+            <label class="post-editor__field">
+              <span class="post-editor__label">{{ t('admin.editor.caption') }}</span>
+              <input class="post-editor__input" type="text" [formField]="postForm.caption[code]" />
+            </label>
+            @if (postForm.caption().touched() && postForm.caption().invalid()) {
+              <span class="post-editor__error" role="alert">
+                {{ t('admin.editor.errors.caption', { max: maxCaption }) }}
+              </span>
+            }
+
+            <label class="post-editor__field">
+              <span class="post-editor__label">{{ t('admin.editor.description') }}</span>
+              <textarea
+                class="post-editor__input"
+                rows="4"
+                [formField]="postForm.description[code]"
+              ></textarea>
+            </label>
+            @if (postForm.description[code]().invalid()) {
+              <span class="post-editor__error" role="alert">
+                {{ t('admin.editor.errors.description', { max: maxDescription }) }}
+              </span>
+            }
+          }
+        }
+      </section>
+
+      <section
+        class="post-editor__section post-editor__details"
+        [attr.aria-label]="t('admin.editor.sections.details')"
+      >
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.details') }}</h2>
+        </header>
+
+        <div class="post-editor__field">
+          <span class="post-editor__label" id="hashtags-label">
+            {{ t('admin.editor.hashtags') }}
+          </span>
+
+          @if (hashtags().length > 0) {
+            <div class="post-editor__hashtags" aria-labelledby="hashtags-label" role="group">
+              @for (tag of hashtags(); track tag) {
+                <span class="post-editor__hashtag">
+                  #{{ tag }}
+                  <button
+                    type="button"
+                    [attr.aria-label]="t('admin.editor.hashtagRemove', { tag: '#' + tag })"
+                    (click)="removeHashtag(tag)"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                    >
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="post-editor__hashtag-add">
+            <input
+              class="post-editor__input post-editor__hashtag-input"
+              aria-labelledby="hashtags-label"
+              placeholder="#street #nyc"
+              type="text"
+              [value]="hashtagDraft()"
+              (input)="hashtagDraft.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); addHashtags()"
+            />
+            <button
+              class="btn btn--ghost"
+              type="button"
+              [attr.aria-label]="t('admin.editor.hashtagAdd')"
+              (click)="addHashtags()"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <label class="post-editor__field">
+          <span class="post-editor__label">{{ t('admin.editor.date') }}</span>
+          <input class="post-editor__input" type="date" [formField]="postForm.takenAt" />
+          @if (postForm.takenAt().invalid()) {
+            <span class="post-editor__error" role="alert">{{ t('admin.editor.errors.date') }}</span>
+          }
+        </label>
+      </section>
+
+      <section class="post-editor__section" [attr.aria-label]="t('admin.editor.sections.themes')">
+        <header class="post-editor__section-head">
+          <h2 class="post-editor__subtitle">{{ t('admin.editor.sections.themes') }}</h2>
+        </header>
+
+        <div class="post-editor__themes" role="group" [attr.aria-label]="t('admin.editor.tags')">
+          @for (theme of allThemes(); track theme.id) {
+            <button
+              class="post-editor__chip"
+              type="button"
+              [attr.aria-pressed]="selectedTags().includes(theme.id)"
+              (click)="toggleTheme(theme.id)"
+            >
+              {{ theme.label | localizedText: lang() }}
+            </button>
+          }
+        </div>
+
+        <app-theme-creator (created)="selectNewTheme($event)" />
+        <app-theme-manager (removed)="onThemeRemoved($event)" />
+      </section>
+    </form>
+  </div>
+</section>

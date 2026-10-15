@@ -6,7 +6,7 @@ import { LanguageStore } from '@core/store/language.store';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
-import { LANDING_HERO_POST_ID } from '../../const/landing.const';
+import { LANDING_HERO_SOURCE } from '../../const/landing.const';
 import { LandingHeroComponent } from './landing-hero.component';
 
 describe('LandingHeroComponent', () => {
@@ -31,13 +31,20 @@ describe('LandingHeroComponent', () => {
     expect(root().textContent).toContain('I just press buttons.');
   });
 
-  it('should use the cover photo of the configured post as an eager hero image', () => {
-    const cover = TestBed.inject(PhotoPostsStore).findById(LANDING_HERO_POST_ID)?.photos[0];
+  it('should show the bundled hero photo as an eager image', () => {
     const image = root().querySelector('img') as HTMLImageElement;
 
-    expect(cover).toBeDefined();
-    expect(image.getAttribute('src')).toBe(`/local-photos/${cover?.id}.webp`);
+    expect(image.getAttribute('src')).toBe(LANDING_HERO_SOURCE);
     expect(image.getAttribute('loading')).toBe('eager');
+  });
+
+  it('should keep the hero photo when the post is not among the published ones', async () => {
+    const store = TestBed.inject(PhotoPostsStore);
+    vi.spyOn(store, 'findById').mockReturnValue(undefined);
+    fixture = TestBed.createComponent(LandingHeroComponent);
+    await fixture.whenStable();
+
+    expect(root().querySelector('img')?.getAttribute('src')).toBe(LANDING_HERO_SOURCE);
   });
 
   it('should link to the gallery and to Instagram without exposing a sign-in', () => {

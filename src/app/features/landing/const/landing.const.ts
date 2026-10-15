@@ -1,5 +1,5 @@
 /** Post whose cover photo opens the home page. */
 export const LANDING_HERO_POST_ID = 'post-2';
 
-/** Photos of the latest set shown as a preview on the home page. */
-export const LATEST_SET_PREVIEW_COUNT = 6;
+/** The hero photo ships with the site, so hiding or deleting the set in the dashboard never removes it. */
+export const LANDING_HERO_SOURCE = '/assets/hero/flatiron.webp';

@@ -31,11 +31,24 @@
   list-style: none;
   margin: 0;
   overflow-x: auto;
+  /* Vertical wheel movement over the photos must keep scrolling the page. */
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   padding: 0 var(--gutter);
   scroll-padding-inline: var(--gutter);
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
+  user-select: none;
+
+  @media (hover: hover) and (pointer: fine) {
+    cursor: grab;
+  }
+}
+
+/* Snapping would fight the pointer while dragging; it settles again on release. */
+.latest-set__strip--dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
 }
 
 .latest-set__item {
@@ -43,7 +56,8 @@
   --post-photo-width: auto;
 
   flex: none;
-  height: min(62svh, 30rem);
+  /* Leaves room for the heading and the buttons so the whole section fits on short screens. */
+  height: clamp(15rem, calc(100svh - 26rem), 30rem);
   position: relative;
   scroll-snap-align: start;
 }
@@ -56,13 +70,49 @@
   position: absolute;
 }
 
-.latest-set__cta {
-  align-self: flex-start;
-  margin-inline: var(--gutter);
+.latest-set__footer {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding-inline: var(--gutter);
 }
 
-@media (min-width: 1024px) {
-  .latest-set__item {
-    height: min(68svh, 36rem);
+.latest-set__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.latest-set__arrows {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.latest-set__arrow {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.25rem;
+  height: var(--touch-target);
+  justify-content: center;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease,
+    opacity 200ms ease;
+  width: var(--touch-target);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
   }
 }

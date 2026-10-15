@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { LanguageStore } from '@core/store/language.store';
-import { PostTag } from '@features/photo-posts/models/post-tag.model';
+import { DEFAULT_THEMES } from '@features/photo-posts/models/theme.model';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { TagFilterComponent } from './tag-filter.component';
@@ -13,7 +13,7 @@ describe('TagFilterComponent', () => {
   const links = (): HTMLAnchorElement[] =>
     Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('a'));
   const labels = (): string[] => links().map((link) => link.textContent?.trim() ?? '');
-  const render = async (selected: PostTag | null): Promise<void> => {
+  const render = async (selected: string | null): Promise<void> => {
     fixture.componentRef.setInput('selected', selected);
     await fixture.whenStable();
   };
@@ -27,7 +27,10 @@ describe('TagFilterComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TagFilterComponent);
-    fixture.componentRef.setInput('tags', ['bw', 'night']);
+    fixture.componentRef.setInput(
+      'themes',
+      DEFAULT_THEMES.filter((theme) => ['bw', 'night'].includes(theme.id))
+    );
   });
 
   it('should offer "All" plus one chip per tag with translated names', async () => {

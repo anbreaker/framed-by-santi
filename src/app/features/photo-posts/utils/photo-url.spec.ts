@@ -121,4 +121,21 @@ describe('photo URLs', () => {
       });
     });
   });
+
+  describe('photos uploaded from the dashboard', () => {
+    const uploaded: Photo = { ...photo, id: 'abc123', publicId: 'framed-by-santi/posts/abc123' };
+
+    it('should deliver the full public id without the configured prefix', () => {
+      expect(photoUrl(uploaded, 800, cloudinary)).toBe(
+        `${base}/c_limit,f_auto,q_auto,w_800/framed-by-santi/posts/abc123`
+      );
+      expect(photoSrcset(uploaded, cloudinary)).toContain(
+        `${base}/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/abc123 480w`
+      );
+    });
+
+    it('should still serve it from local files when Cloudinary is not configured', () => {
+      expect(photoUrl(uploaded, 800, unconfigured)).toBe('/local-photos/abc123.webp');
+    });
+  });
 });

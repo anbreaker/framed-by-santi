@@ -1,0 +1,81 @@
+<div class="theme-manager" *transloco="let t">
+  <button
+    class="theme-manager__toggle"
+    type="button"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <span class="link-grow">
+      {{ open() ? t('admin.editor.themes.manager.hide') : t('admin.editor.themes.manager.manage') }}
+    </span>
+  </button>
+
+  @if (open()) {
+    <ul class="theme-manager__list" role="list">
+      @for (item of items(); track item.theme.id) {
+        <li class="theme-manager__item">
+          <span class="theme-manager__name">{{ item.theme.label | localizedText: lang() }}</span>
+
+          @if (item.isDefault) {
+            <span class="theme-manager__meta">{{ t('admin.editor.themes.manager.default') }}</span>
+          } @else {
+            @if (usage(); as counts) {
+              <span class="theme-manager__meta">
+                @switch (counts.get(item.theme.id) ?? 0) {
+                  @case (0) {
+                    {{ t('admin.editor.themes.manager.unused') }}
+                  }
+                  @case (1) {
+                    {{ t('admin.editor.themes.manager.usedByOne') }}
+                  }
+                  @default {
+                    {{
+                      t('admin.editor.themes.manager.usedBy', {
+                        count: counts.get(item.theme.id),
+                      })
+                    }}
+                  }
+                }
+              </span>
+            }
+
+            @if (confirming() === item.theme.id) {
+              <p class="theme-manager__confirm" role="alert">
+                {{
+                  t('admin.editor.themes.manager.confirm', {
+                    name: item.theme.label | localizedText: lang(),
+                  })
+                }}
+              </p>
+              <span class="theme-manager__actions">
+                <button
+                  class="theme-manager__danger"
+                  type="button"
+                  [disabled]="working()"
+                  (click)="confirm(item.theme.id)"
+                >
+                  {{
+                    working()
+                      ? t('admin.editor.themes.manager.working')
+                      : t('admin.editor.themes.manager.confirmYes')
+                  }}
+                </button>
+                <button class="theme-manager__button" type="button" (click)="cancel()">
+                  {{ t('admin.editor.themes.manager.cancel') }}
+                </button>
+              </span>
+            } @else {
+              <button class="theme-manager__button" type="button" (click)="ask(item.theme.id)">
+                {{ t('admin.editor.themes.manager.delete') }}
+              </button>
+            }
+          }
+        </li>
+      }
+    </ul>
+
+    @if (errorKey(); as key) {
+      <p class="theme-manager__error" role="alert">{{ t(key) }}</p>
+    }
+  }
+</div>

@@ -14,24 +14,11 @@
     type="button"
     [attr.aria-expanded]="menuOpen()"
     [attr.aria-label]="menuOpen() ? t('nav.closeMenu') : t('nav.menu')"
+    [class.site-header__menu-button--open]="menuOpen()"
     (click)="toggleMenu()"
   >
-    <svg
-      aria-hidden="true"
-      fill="none"
-      height="22"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-width="1.6"
-      viewBox="0 0 24 24"
-      width="22"
-    >
-      @if (menuOpen()) {
-        <path d="M6 6l12 12M18 6L6 18" />
-      } @else {
-        <path d="M4 8h16M4 16h16" />
-      }
-    </svg>
+    <span class="site-header__menu-bar" aria-hidden="true"></span>
+    <span class="site-header__menu-bar" aria-hidden="true"></span>
   </button>
 
   <div class="site-header__panel" id="site-menu" [class.site-header__panel--open]="menuOpen()">
@@ -52,6 +39,19 @@
       >
         <span class="link-grow">{{ t('nav.about') }}</span>
       </a>
+      @if (isAdmin()) {
+        <a
+          class="site-header__link"
+          routerLink="/admin/dashboard"
+          routerLinkActive="site-header__link--active"
+          (click)="closeMenu()"
+        >
+          <span class="link-grow">{{ t('nav.panel') }}</span>
+        </a>
+        <button class="site-header__link site-header__signout" type="button" (click)="signOut()">
+          <span class="link-grow">{{ t('nav.signOut') }}</span>
+        </button>
+      }
     </nav>
 
     <app-lang-selector />

@@ -3,6 +3,8 @@ import angular from '@analogjs/vite-plugin-angular';
 
 import { defineConfig } from 'vite';
 
+import { stagingRobots } from './build-plugins/staging-robots';
+
 const environmentFileByMode: Record<string, string> = {
   prod: 'environment.prod.ts',
   production: 'environment.prod.ts',
@@ -31,6 +33,7 @@ export default defineConfig(({ mode }) => {
       angular({
         tsconfig: '../tsconfig.json',
       }),
+      stagingRobots(process.env['VERCEL_ENV']),
     ],
 
     resolve: {
