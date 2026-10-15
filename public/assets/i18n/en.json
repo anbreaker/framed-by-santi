@@ -28,7 +28,6 @@
     "dashboard": {
       "eyebrow": "Private area",
       "title": "Dashboard",
-      "soon": "Your photo sets will be managed from here soon.",
       "signOut": "Sign out"
     },
     "upload": {
@@ -62,8 +61,8 @@
         "missing": "Add at least one photo.",
         "cover": "Cover",
         "alt": "Description for screen readers (optional, defaults to the caption)",
-        "moveUp": "Move photo {{n}} up",
-        "moveDown": "Move photo {{n}} down",
+        "moveUp": "Move photo {{n}} earlier",
+        "moveDown": "Move photo {{n}} later",
         "makeCover": "Make cover",
         "remove": "Remove"
       },
@@ -116,6 +115,11 @@
           "failed": "Could not create the theme. Try again.",
           "notConfigured": "The database is not available right now."
         }
+      },
+      "sections": {
+        "texts": "Texts",
+        "details": "Details",
+        "themes": "Themes"
       }
     }
   },

@@ -124,7 +124,7 @@ describe('PostEditorComponent', () => {
       );
     expect(ids()[0]).toContain('Cover');
 
-    (root().querySelector('[aria-label="Move photo 1 down"]') as HTMLButtonElement).click();
+    (root().querySelector('[aria-label="Move photo 1 later"]') as HTMLButtonElement).click();
     await fixture.whenStable();
     root().querySelectorAll('.post-editor__item')[2].querySelectorAll('button')[2].click();
     await fixture.whenStable();

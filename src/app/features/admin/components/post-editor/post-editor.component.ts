@@ -11,6 +11,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { SUPPORTED_LANGS, SupportedLang } from '@core/const/lang.const';
 import { LanguageStore } from '@core/store/language.store';
+import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
@@ -49,6 +50,7 @@ const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
     FormField,
     LangTabsComponent,
     LocalizedTextPipe,
+    PostPhotoComponent,
     ThemeCreatorComponent,
     TranslocoDirective,
     UploadPanelComponent,

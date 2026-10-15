@@ -28,7 +28,6 @@
     "dashboard": {
       "eyebrow": "Área privada",
       "title": "Painel",
-      "soon": "Em breve vai gerir os seus conjuntos de fotos a partir daqui.",
       "signOut": "Terminar sessão"
     },
     "upload": {
@@ -62,8 +61,8 @@
         "missing": "Adicione pelo menos uma foto.",
         "cover": "Capa",
         "alt": "Descrição para leitores de ecrã (opcional, por defeito a legenda)",
-        "moveUp": "Subir a foto {{n}}",
-        "moveDown": "Descer a foto {{n}}",
+        "moveUp": "Mover a foto {{n}} para trás",
+        "moveDown": "Mover a foto {{n}} para a frente",
         "makeCover": "Usar como capa",
         "remove": "Remover"
       },
@@ -116,6 +115,11 @@
           "failed": "Não foi possível criar o tema. Tente novamente.",
           "notConfigured": "A base de dados não está disponível neste momento."
         }
+      },
+      "sections": {
+        "texts": "Textos",
+        "details": "Detalhes",
+        "themes": "Temas"
       }
     }
   },

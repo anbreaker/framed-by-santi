@@ -3,25 +3,28 @@
 }
 
 .admin-dashboard {
-  align-items: stretch;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   margin-inline: auto;
-  max-width: 40rem;
-  padding: var(--space-6) var(--gutter);
+  max-width: 90rem;
+  padding: var(--space-5) var(--gutter) var(--space-6);
 
   &:focus {
     outline: none;
   }
 }
 
-.admin-dashboard__title {
-  font-size: clamp(2.5rem, 9vw, 4rem);
-  line-height: 0.95;
+.admin-dashboard__header {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
 }
 
-.admin-dashboard__soon {
-  color: var(--color-text-muted);
+.admin-dashboard__title {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 0.95;
   margin: 0;
 }

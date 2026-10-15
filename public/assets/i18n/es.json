@@ -28,7 +28,6 @@
     "dashboard": {
       "eyebrow": "Zona privada",
       "title": "Panel",
-      "soon": "Pronto gestionarás tus series de fotos desde aquí.",
       "signOut": "Cerrar sesión"
     },
     "upload": {
@@ -62,8 +61,8 @@
         "missing": "Agrega al menos una foto.",
         "cover": "Portada",
         "alt": "Descripción para lectores de pantalla (opcional, por defecto el pie de foto)",
-        "moveUp": "Subir la foto {{n}}",
-        "moveDown": "Bajar la foto {{n}}",
+        "moveUp": "Mover la foto {{n}} antes",
+        "moveDown": "Mover la foto {{n}} después",
         "makeCover": "Usar de portada",
         "remove": "Quitar"
       },
@@ -116,6 +115,11 @@
           "failed": "No se pudo crear el tema. Inténtalo de nuevo.",
           "notConfigured": "La base de datos no está disponible ahora."
         }
+      },
+      "sections": {
+        "texts": "Textos",
+        "details": "Detalles",
+        "themes": "Temas"
       }
     }
   },
