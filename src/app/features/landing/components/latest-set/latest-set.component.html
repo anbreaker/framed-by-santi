@@ -15,58 +15,11 @@
       </p>
     </header>
 
-    <ul
-      class="latest-set__strip"
-      #strip
-      role="list"
-      tabindex="0"
-      [attr.aria-label]="t('home.latest.title')"
-      [class.latest-set__strip--dragging]="dragging()"
-      (dragstart)="$event.preventDefault()"
-      (pointercancel)="dragEnd()"
-      (pointerdown)="dragStart($event, strip)"
-      (pointermove)="dragMove($event, strip)"
-      (pointerup)="dragEnd()"
-      (scroll)="updateEdges(strip)"
-    >
-      @for (photo of latest.photos; track photo.id; let index = $index) {
-        <li class="latest-set__item" appScrollReveal [style.--reveal-delay.ms]="index * 80">
-          <app-post-photo sizes="(min-width: 1024px) 40vw, 75vw" [photo]="photo" />
-          <span class="meta latest-set__counter">
-            {{ counter(index + 1, latest.photos.length) }}
-          </span>
-        </li>
-      }
-    </ul>
-
-    <div class="latest-set__footer">
-      <div class="latest-set__actions">
-        <a class="btn btn--primary" routerLink="/gallery">{{ t('home.ctaGallery') }}</a>
-        <a class="btn btn--ghost" [routerLink]="['/gallery', latest.id]">
-          {{ t('home.latest.cta') }}
-        </a>
-      </div>
-
-      <div class="latest-set__arrows">
-        <button
-          class="latest-set__arrow"
-          type="button"
-          [attr.aria-label]="t('viewer.previous')"
-          [disabled]="atStart()"
-          (click)="scrollBy(strip, -1)"
-        >
-          <span aria-hidden="true">←</span>
-        </button>
-        <button
-          class="latest-set__arrow"
-          type="button"
-          [attr.aria-label]="t('viewer.next')"
-          [disabled]="atEnd()"
-          (click)="scrollBy(strip, 1)"
-        >
-          <span aria-hidden="true">→</span>
-        </button>
-      </div>
-    </div>
+    <app-photo-carousel [label]="t('home.latest.title')" [post]="latest">
+      <a class="btn btn--primary" routerLink="/gallery">{{ t('home.ctaGallery') }}</a>
+      <a class="btn btn--ghost" [routerLink]="['/gallery', latest.id]">
+        {{ t('home.latest.cta') }}
+      </a>
+    </app-photo-carousel>
   }
 </section>

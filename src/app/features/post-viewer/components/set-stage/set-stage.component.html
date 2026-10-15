@@ -6,11 +6,16 @@
   (pointerup)="onPointerUp($event)"
 >
   <div class="set-stage__frame" [style.view-transition-name]="transitionName()">
-    @for (shown of shownPhotos(); track shown.id) {
+    @for (item of photos(); track item.id) {
       <app-zoomable-photo
         class="set-stage__photo"
-        [photo]="shown"
-        (zoomedChange)="isZoomed.set($event)"
+        [attr.aria-hidden]="item.id === incoming()?.id ? 'true' : null"
+        [attr.inert]="item.id === incoming()?.id ? '' : null"
+        [class.set-stage__photo--enter]="entering() && item.id === shown().id"
+        [class.set-stage__photo--incoming]="item.id === incoming()?.id"
+        [class.set-stage__photo--revealing]="revealing() && item.id === incoming()?.id"
+        [photo]="item"
+        (zoomedChange)="onZoomedChange(item, $event)"
       />
     }
   </div>

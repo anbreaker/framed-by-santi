@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   linkedSignal,
@@ -15,6 +16,7 @@ import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { formatSetCounter } from '@features/photo-posts/utils/set-counter';
 import { SetStageComponent } from '@features/post-viewer/components/set-stage/set-stage.component';
 import { SetThumbnailsComponent } from '@features/post-viewer/components/set-thumbnails/set-thumbnails.component';
+import { preloadPhoto } from '@features/post-viewer/utils/preload-photo';
 import { stepIndex } from '@features/post-viewer/utils/step-index';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
 import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
@@ -67,6 +69,17 @@ export class PostViewerPageComponent {
   );
   protected readonly isFirst = computed(() => this.activeIndex() === 0);
   protected readonly isLast = computed(() => this.activeIndex() === this.photos().length - 1);
+
+  constructor() {
+    // The photos on either side are fetched ahead, so stepping to them never waits.
+    effect(() => {
+      const index = this.activeIndex();
+      const photos = this.photos();
+
+      preloadPhoto(photos[index - 1]);
+      preloadPhoto(photos[index + 1]);
+    });
+  }
 
   protected onArrowKey(direction: -1 | 1): void {
     if (this.isZoomed()) return;

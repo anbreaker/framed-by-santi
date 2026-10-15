@@ -1,0 +1,58 @@
+<ng-container *transloco="let t">
+  <ul
+    appDragScroll
+    class="photo-carousel__strip"
+    #strip
+    role="list"
+    tabindex="0"
+    [attr.aria-label]="label()"
+    (scroll)="updateEdges(strip)"
+  >
+    @for (photo of post().photos; track photo.id; let index = $index) {
+      <li class="photo-carousel__item" appScrollReveal [style.--reveal-delay.ms]="index * 80">
+        <a
+          class="photo-carousel__link"
+          [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
+          [queryParams]="{ photo: index + 1 }"
+          [routerLink]="['/gallery', post().id]"
+          (focus)="press(index)"
+          (pointerdown)="press(index)"
+        >
+          <app-post-photo
+            sizes="(min-width: 1024px) 40vw, 75vw"
+            [photo]="photo"
+            [style.view-transition-name]="pressedIndex() === index ? 'cover-' + post().id : null"
+          />
+        </a>
+        <span class="meta photo-carousel__counter">
+          {{ counter(index + 1, post().photos.length) }}
+        </span>
+      </li>
+    }
+  </ul>
+
+  <div class="photo-carousel__footer">
+    <div class="photo-carousel__extra"><ng-content /></div>
+
+    <div class="photo-carousel__arrows">
+      <button
+        class="photo-carousel__arrow"
+        type="button"
+        [attr.aria-label]="t('viewer.previous')"
+        [disabled]="atStart()"
+        (click)="scrollBy(strip, -1)"
+      >
+        <span aria-hidden="true">←</span>
+      </button>
+      <button
+        class="photo-carousel__arrow"
+        type="button"
+        [attr.aria-label]="t('viewer.next')"
+        [disabled]="atEnd()"
+        (click)="scrollBy(strip, 1)"
+      >
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</ng-container>

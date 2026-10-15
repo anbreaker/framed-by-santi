@@ -12,11 +12,22 @@
 
 .set-stage__frame {
   height: 100%;
+  /* The photos slide a little while changing; whatever leaves the frame must not widen the page. */
+  overflow: hidden;
+  position: relative;
 }
 
 .set-stage__photo {
   --post-photo-fit: contain;
   --post-photo-height: 100%;
+}
+
+/* The photo that is loading sits behind the one on screen, invisible, until it can take over. */
+.set-stage__photo--incoming {
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 .set-stage__arrow {
@@ -65,20 +76,33 @@
   }
 }
 
+/* The first photo fades in when the page opens. A later one dissolves in over the old one (REVEAL_MS). */
 @media (prefers-reduced-motion: no-preference) {
-  .set-stage__photo {
-    animation: set-stage-in var(--duration-base) var(--ease-out) both;
+  .set-stage__photo--enter {
+    animation: set-stage-enter 400ms var(--ease-out) both;
+  }
+
+  .set-stage__photo--revealing {
+    animation: set-stage-reveal 550ms ease-in-out both;
   }
 }
 
-@keyframes set-stage-in {
+@keyframes set-stage-enter {
   from {
     opacity: 0;
-    transform: scale(1.015);
   }
 
   to {
     opacity: 1;
-    transform: none;
+  }
+}
+
+@keyframes set-stage-reveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

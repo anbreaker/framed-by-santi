@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { settlePhotoChange } from '@shared/testing/photo-swap';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PostViewerPageComponent } from './post-viewer.page';
@@ -56,6 +57,7 @@ describe('PostViewerPageComponent with zoom', () => {
     expect(level()).toBe('150%');
 
     await click('Next photo');
+    await settlePhotoChange(fixture);
 
     expect(counter()).toBe('02 / 10');
     expect(level()).toBe('100%');

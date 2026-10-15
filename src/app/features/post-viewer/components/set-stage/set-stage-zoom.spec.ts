@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Photo } from '@features/photo-posts/models/photo.model';
+import { settlePhotoChange } from '@shared/testing/photo-swap';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { SetStageComponent } from './set-stage.component';
@@ -87,6 +88,7 @@ describe('SetStageComponent with zoom', () => {
 
     fixture.componentRef.setInput('photo', { ...photo, id: 'post-test/02' });
     await fixture.whenStable();
+    await settlePhotoChange(fixture);
 
     expect(zoomedStates.at(-1)).toBe(false);
     expect(root().querySelector('.zoomable__level')?.textContent?.trim()).toBe('100%');

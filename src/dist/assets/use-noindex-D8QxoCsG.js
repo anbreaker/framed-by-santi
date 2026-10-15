@@ -1,0 +1,1 @@
+import{W as e,or as t,zn as n}from"./decorate-XYXpMs2Z.js";function r(){let r=t(e),i=r.addTag({content:`noindex, nofollow`,name:`robots`});t(n).onDestroy(()=>{i&&r.removeTagElement(i)})}export{r as t};

@@ -1,0 +1,1 @@
+function e(e,t){let n=e=>String(e).padStart(2,`0`);return`${n(e)} / ${n(t)}`}export{e as t};
