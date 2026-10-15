@@ -3,12 +3,13 @@ import { Meta } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
+import { UploadPanelComponent } from '@features/admin/components/upload-panel/upload-panel.component';
 import { AuthStore } from '@features/auth/store/auth.store';
 
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslocoDirective],
+  imports: [TranslocoDirective, UploadPanelComponent],
   selector: 'app-admin-dashboard-page',
   styleUrl: './admin-dashboard.page.css',
   templateUrl: './admin-dashboard.page.html',

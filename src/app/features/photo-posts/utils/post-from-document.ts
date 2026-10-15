@@ -17,7 +17,7 @@ function isPositiveNumber(value: unknown): value is number {
 function toPhoto(value: unknown): Photo | null {
   if (!isFields(value)) return null;
 
-  const { alt, description, height, id, title, width } = value;
+  const { alt, description, height, id, publicId, title, width } = value;
 
   if (typeof alt !== 'string' || typeof id !== 'string' || id === '') return null;
   if (!isPositiveNumber(height) || !isPositiveNumber(width)) return null;
@@ -27,6 +27,7 @@ function toPhoto(value: unknown): Photo | null {
     ...(typeof description === 'string' && { description }),
     height,
     id,
+    ...(typeof publicId === 'string' && publicId !== '' && { publicId }),
     ...(typeof title === 'string' && { title }),
     width,
   };

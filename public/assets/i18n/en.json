@@ -30,6 +30,29 @@
       "title": "Dashboard",
       "soon": "Your photo sets will be managed from here soon.",
       "signOut": "Sign out"
+    },
+    "upload": {
+      "title": "Upload photos",
+      "hint": "JPEG, PNG or WebP. Photos are resized to {{max}} px on the long edge and 10 MB at most.",
+      "pick": "Choose photos to upload",
+      "status": {
+        "preparing": "Preparing…",
+        "uploading": "Uploading…",
+        "done": "Uploaded",
+        "failed": "Failed"
+      },
+      "warnings": {
+        "resized": "Resized to {{max}} px on the long edge.",
+        "recompressed": "Compressed to fit {{max}} MB."
+      },
+      "errors": {
+        "unsupportedType": "This file is not a supported image (use JPEG, PNG or WebP).",
+        "unreadable": "We could not read this image.",
+        "tooLarge": "Still above 10 MB after compressing, try a smaller file.",
+        "notAllowed": "This account is not allowed to upload. Sign in again.",
+        "signFailed": "Could not get permission to upload. Try again in a moment.",
+        "uploadFailed": "The upload failed. Try again."
+      }
     }
   },
   "common": {

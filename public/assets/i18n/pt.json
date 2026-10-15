@@ -30,6 +30,29 @@
       "title": "Painel",
       "soon": "Em breve vai gerir os seus conjuntos de fotos a partir daqui.",
       "signOut": "Terminar sessão"
+    },
+    "upload": {
+      "title": "Carregar fotos",
+      "hint": "JPEG, PNG ou WebP. As fotos são reduzidas a {{max}} px no lado maior e 10 MB no máximo.",
+      "pick": "Escolher fotos para carregar",
+      "status": {
+        "preparing": "A preparar…",
+        "uploading": "A carregar…",
+        "done": "Carregada",
+        "failed": "Falhou"
+      },
+      "warnings": {
+        "resized": "Reduzida para {{max}} px no lado maior.",
+        "recompressed": "Comprimida para caber em {{max}} MB."
+      },
+      "errors": {
+        "unsupportedType": "Este ficheiro não é uma imagem suportada (use JPEG, PNG ou WebP).",
+        "unreadable": "Não foi possível ler esta imagem.",
+        "tooLarge": "Continua acima de 10 MB depois de comprimir, tente um ficheiro mais pequeno.",
+        "notAllowed": "Esta conta não tem permissão para carregar. Inicie sessão novamente.",
+        "signFailed": "Não foi possível obter permissão para carregar. Tente novamente daqui a pouco.",
+        "uploadFailed": "O carregamento falhou. Tente novamente."
+      }
     }
   },
   "common": {
