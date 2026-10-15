@@ -1,7 +1,7 @@
 <section class="landing-hero" *transloco="let t">
-  @if (heroPost(); as post) {
+  @if (heroPost; as post) {
     <div class="landing-hero__media" appScrollReveal="frame">
-      <app-post-photo class="landing-hero__photo" [eager]="true" [photo]="post.photos[0]" />
+      <app-post-photo class="landing-hero__photo" [eager]="true" [photo]="post.photos[0]" [source]="heroSource" />
     </div>
     <div class="landing-hero__shade" aria-hidden="true"></div>
 

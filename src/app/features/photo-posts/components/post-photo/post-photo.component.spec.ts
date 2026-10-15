@@ -25,6 +25,14 @@ describe('PostPhotoComponent', () => {
     expect(image().height).toBe(1876);
   });
 
+  it('should serve a fixed source as it is, without variants', async () => {
+    fixture.componentRef.setInput('source', '/assets/hero/flatiron.webp');
+    await fixture.whenStable();
+
+    expect(image().getAttribute('src')).toBe('/assets/hero/flatiron.webp');
+    expect(image().getAttribute('srcset')).toBeNull();
+  });
+
   it('should use the alt text of the photo unless an override is given', async () => {
     expect(image().alt).toBe('Flatiron, warm light');
 
