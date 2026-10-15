@@ -9,7 +9,11 @@
   <app-tag-filter [selected]="selectedTag()" [themes]="availableThemes()" />
 
   @if (postCount() > 0) {
-  <app-post-grid [posts]="visiblePosts()" />
+  <div class="gallery-page__sets">
+    @for (post of visiblePosts(); track post.id) {
+    <app-set-strip [post]="post" />
+    }
+  </div>
   } @else {
   <p class="gallery-page__empty">{{ t('gallery.emptyFilter') }}</p>
   }

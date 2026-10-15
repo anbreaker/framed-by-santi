@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { LanguageStore } from '@core/store/language.store';
-import { PostGridComponent } from '@features/gallery/components/post-grid/post-grid.component';
+import { SetStripComponent } from '@features/gallery/components/set-strip/set-strip.component';
 import { TagFilterComponent } from '@features/gallery/components/tag-filter/tag-filter.component';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
@@ -13,8 +13,8 @@ import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     PluralKeyPipe,
-    PostGridComponent,
     ScrollRevealDirective,
+    SetStripComponent,
     TagFilterComponent,
     TranslocoDirective,
   ],

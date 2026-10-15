@@ -210,7 +210,8 @@
       "one": "{{count}} set",
       "other": "{{count}} sets"
     },
-    "title": "Gallery"
+    "title": "Gallery",
+    "viewSet": "View full set"
   },
   "home": {
     "aboutCta": "More about Santi",

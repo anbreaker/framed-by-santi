@@ -1,0 +1,50 @@
+<section class="set-strip" *transloco="let t" appScrollReveal>
+  <header class="set-strip__header">
+    <div class="set-strip__heading">
+      <h2 class="set-strip__title">
+        <a [routerLink]="['/gallery', post().id]">{{ post().caption | localizedText: lang() }}</a>
+      </h2>
+      <p class="meta set-strip__meta">
+        {{ post().takenAt | localizedDate: lang() }} ·
+        {{
+          t(post().photos.length | pluralKey: 'gallery.photoCount' : lang(), {
+            count: post().photos.length,
+          })
+        }}
+      </p>
+    </div>
+    <a class="btn btn--ghost set-strip__open" [routerLink]="['/gallery', post().id]">
+      {{ t('gallery.viewSet') }}
+    </a>
+  </header>
+
+  <ul class="set-strip__photos" role="list">
+    @for (photo of preview(); track photo.id; let index = $index) {
+      <li class="set-strip__item" [style.--ratio]="photo.width / photo.height">
+        <a
+          class="set-strip__link"
+          [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
+          [routerLink]="['/gallery', post().id]"
+        >
+          <app-post-photo
+            alt=""
+            sizes="(min-width: 1280px) 20vw, (min-width: 768px) 25vw, 60vw"
+            [photo]="photo"
+            [style.view-transition-name]="index === 0 ? viewTransitionName() : null"
+          />
+        </a>
+      </li>
+    }
+    @if (left() > 0) {
+      <li class="set-strip__item set-strip__item--more">
+        <a
+          class="set-strip__more-tile"
+          [attr.aria-label]="t('gallery.openSet', { title: post().caption | localizedText: lang() })"
+          [routerLink]="['/gallery', post().id]"
+        >
+          +{{ left() }}
+        </a>
+      </li>
+    }
+  </ul>
+</section>

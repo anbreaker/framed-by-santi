@@ -1,0 +1,110 @@
+:host {
+  display: block;
+}
+
+.set-strip {
+  padding: var(--space-4) 0;
+}
+
+.set-strip__header {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: 0 var(--gutter) var(--space-3);
+}
+
+.set-strip__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.set-strip__title {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  line-height: 1;
+
+  & a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+}
+
+/* On phones the row scrolls sideways; from tablets up it fills the width with one shared height. */
+.set-strip__photos {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 var(--gutter);
+  scroll-padding-inline: var(--gutter);
+  scroll-snap-type: x proximity;
+}
+
+.set-strip__item {
+  flex: 0 0 auto;
+  height: 14rem;
+  scroll-snap-align: start;
+  width: calc(14rem * var(--ratio));
+}
+
+.set-strip__link,
+.set-strip__more-tile {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.set-strip__link {
+  overflow: hidden;
+
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+}
+
+.set-strip__item--more {
+  --ratio: 0.6;
+}
+
+.set-strip__more-tile {
+  align-items: center;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 1.5rem;
+  justify-content: center;
+  text-decoration: none;
+  transition: color var(--duration-base) var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
+  }
+}
+
+@media (min-width: 768px) {
+  .set-strip__photos {
+    overflow: visible;
+  }
+
+  .set-strip__item {
+    flex: var(--ratio) 1 0;
+    height: auto;
+    /* A set with few photos keeps a sensible height instead of stretching them across the screen. */
+    max-width: calc(22rem * var(--ratio));
+    min-width: 0;
+    width: auto;
+  }
+
+  .set-strip__link {
+    aspect-ratio: var(--ratio);
+  }
+
+  .set-strip__more-tile {
+    aspect-ratio: var(--ratio);
+    height: auto;
+  }
+}

@@ -210,7 +210,8 @@
       "one": "{{count}} série",
       "other": "{{count}} séries"
     },
-    "title": "Galeria"
+    "title": "Galeria",
+    "viewSet": "Ver série completa"
   },
   "home": {
     "aboutCta": "Conhecer o Santi",
