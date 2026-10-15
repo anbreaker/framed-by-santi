@@ -31,7 +31,20 @@
     >
       @for (photo of latest.photos; track photo.id; let index = $index) {
         <li class="latest-set__item" appScrollReveal [style.--reveal-delay.ms]="index * 80">
-          <app-post-photo sizes="(min-width: 1024px) 40vw, 75vw" [photo]="photo" />
+          <a
+            class="latest-set__link"
+            [attr.aria-label]="t('gallery.openSet', { title: latest.caption | localizedText: lang() })"
+            [queryParams]="{ photo: index + 1 }"
+            [routerLink]="['/gallery', latest.id]"
+            (focus)="press(index)"
+            (pointerdown)="press(index)"
+          >
+            <app-post-photo
+              sizes="(min-width: 1024px) 40vw, 75vw"
+              [photo]="photo"
+              [style.view-transition-name]="pressedIndex() === index ? 'cover-' + latest.id : null"
+            />
+          </a>
           <span class="meta latest-set__counter">
             {{ counter(index + 1, latest.photos.length) }}
           </span>

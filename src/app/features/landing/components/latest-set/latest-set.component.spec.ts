@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 
 import { LanguageStore } from '@core/store/language.store';
 import { PhotoPost } from '@features/photo-posts/models/photo-post.model';
@@ -96,6 +96,81 @@ describe('LatestSetComponent', () => {
     window.matchMedia = vi.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
     next.click();
     expect(scrollBy).toHaveBeenLastCalledWith(expect.objectContaining({ behavior: 'auto' }));
+  });
+
+  describe('opening a photo', () => {
+    const strip = (): HTMLElement => root().querySelector('.latest-set__strip') as HTMLElement;
+    const links = (): HTMLAnchorElement[] =>
+      Array.from(root().querySelectorAll('.latest-set__link')) as HTMLAnchorElement[];
+    const pointer = (target: EventTarget, type: string, clientX: number): void => {
+      const event = new MouseEvent(type, { bubbles: true, button: 0, clientX });
+      Object.assign(event, { pointerId: 1, pointerType: 'mouse' });
+      target.dispatchEvent(event);
+    };
+    const click = (link: HTMLAnchorElement): MouseEvent => {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      link.dispatchEvent(event);
+      return event;
+    };
+
+    it('should link every photo to the viewer, opened on that very photo', () => {
+      const post = latest();
+
+      expect(links().map((link) => link.getAttribute('href'))).toEqual(
+        post.photos.map((_, index) => `/gallery/${post.id}?photo=${index + 1}`)
+      );
+    });
+
+    it('should name each link for assistive technology', () => {
+      expect(links()[0].getAttribute('aria-label')).toContain('Open set:');
+    });
+
+    it('should open the photo on a plain click', () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+      click(links()[2]);
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(String(navigate.mock.calls[0][0])).toContain('photo=3');
+    });
+
+    it('should not open the photo when the click ends a mouse drag', () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+      pointer(strip(), 'pointerdown', 300);
+      pointer(strip(), 'pointermove', 200);
+      pointer(strip(), 'pointerup', 200);
+      click(links()[2]);
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('should open a photo again after a drag, with a fresh press', () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+      pointer(strip(), 'pointerdown', 300);
+      pointer(strip(), 'pointermove', 200);
+      pointer(strip(), 'pointerup', 200);
+      pointer(strip(), 'pointerdown', 150);
+      pointer(strip(), 'pointerup', 150);
+      click(links()[2]);
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('should give only the pressed photo the name its transition to the viewer needs', async () => {
+      const post = latest();
+      const named = (): (string | null)[] =>
+        Array.from(root().querySelectorAll('app-post-photo')).map(
+          (photo) => (photo as HTMLElement).style.getPropertyValue('view-transition-name') || null
+        );
+
+      pointer(links()[3], 'pointerdown', 100);
+      await fixture.whenStable();
+
+      expect(named().filter((name) => name !== null)).toEqual([`cover-${post.id}`]);
+      expect(named()[3]).toBe(`cover-${post.id}`);
+    });
   });
 
   describe('dragging with the mouse', () => {

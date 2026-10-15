@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -15,6 +22,8 @@ import { PluralKeyPipe } from '@shared/pipes/plural-key.pipe';
 const SCROLL_STEP = 0.8;
 /** Sub-pixel slack when deciding the strip reached an edge. */
 const EDGE_TOLERANCE = 2;
+/** Pixels the mouse must travel before a press counts as a drag, so a plain click still opens the photo. */
+const DRAG_THRESHOLD = 5;
 
 @Component({
   standalone: true,
@@ -34,6 +43,7 @@ const EDGE_TOLERANCE = 2;
   host: { '[class.latest-set--loading]': '!ready()' },
 })
 export class LatestSetComponent {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly languageStore = inject(LanguageStore);
   private readonly photoPostsStore = inject(PhotoPostsStore);
 
@@ -47,24 +57,63 @@ export class LatestSetComponent {
   protected readonly dragging = signal(false);
 
   private dragOrigin = { left: 0, x: 0 };
+  private moved = false;
+  private pressed = false;
+
+  /** Index of the photo being pressed, the only one that gets the name its transition to the viewer needs. */
+  protected readonly pressedIndex = signal<number | null>(null);
+
+  constructor() {
+    // A drag must not end as a click on the photo under the pointer. The click is stopped in the capture
+    // phase, before it reaches the link.
+    afterNextRender(() =>
+      this.host.nativeElement.addEventListener(
+        'click',
+        (event) => {
+          if (!this.moved) return;
+
+          event.preventDefault();
+          event.stopPropagation();
+          this.moved = false;
+        },
+        true
+      )
+    );
+  }
 
   /** Lets a mouse drag the strip like a finger does; touch already scrolls natively. */
   protected dragStart(event: PointerEvent, strip: HTMLElement): void {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
 
     this.dragOrigin = { left: strip.scrollLeft, x: event.clientX };
-    this.dragging.set(true);
-    strip.setPointerCapture?.(event.pointerId);
+    this.moved = false;
+    this.pressed = true;
   }
 
   protected dragMove(event: PointerEvent, strip: HTMLElement): void {
-    if (!this.dragging()) return;
+    if (!this.pressed) return;
 
-    strip.scrollLeft = this.dragOrigin.left - (event.clientX - this.dragOrigin.x);
+    const distance = event.clientX - this.dragOrigin.x;
+
+    if (!this.dragging()) {
+      if (Math.abs(distance) < DRAG_THRESHOLD) return;
+
+      this.dragging.set(true);
+      this.moved = true;
+      strip.setPointerCapture?.(event.pointerId);
+    }
+
+    strip.scrollLeft = this.dragOrigin.left - distance;
   }
 
   protected dragEnd(): void {
+    this.pressed = false;
     this.dragging.set(false);
+  }
+
+  /** Remembers which photo is about to open, so only that one carries the view transition name. */
+  protected press(index: number): void {
+    this.pressedIndex.set(index);
   }
 
   protected scrollBy(strip: HTMLElement, direction: -1 | 1): void {

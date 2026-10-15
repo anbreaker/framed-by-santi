@@ -73,7 +73,19 @@
   scroll-snap-align: start;
 }
 
+.latest-set__link {
+  color: inherit;
+  cursor: inherit;
+  display: block;
+  height: 100%;
+
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+}
+
 .latest-set__counter {
+  pointer-events: none;
   background: rgb(14 13 12 / 0.8);
   bottom: var(--space-2);
   left: var(--space-2);
