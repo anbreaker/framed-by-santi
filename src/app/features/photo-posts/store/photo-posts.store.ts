@@ -11,12 +11,20 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class PhotoPostsStore {
-  private readonly _posts = signal<readonly PhotoPost[]>(LOCAL_PHOTO_POSTS);
+  /** Without Firebase the bundled posts are all there is; with it they only wait there if it cannot be read. */
+  private readonly firebaseConfigured = getFirebaseDb() !== null;
+  private readonly _posts = signal<readonly PhotoPost[]>(
+    this.firebaseConfigured ? [] : LOCAL_PHOTO_POSTS
+  );
+  private readonly _ready = signal(!this.firebaseConfigured);
   private latestRequest = 0;
 
   readonly posts = this._posts.asReadonly();
 
-  readonly latestPost = computed(() => this._posts()[0]);
+  /** False until the published posts have been read (or failed to), so pages can wait instead of showing "nothing". */
+  readonly ready = this._ready.asReadonly();
+
+  readonly latestPost = computed<PhotoPost | undefined>(() => this._posts()[0]);
 
   private readonly _themes = signal<readonly Theme[]>(DEFAULT_THEMES);
 
@@ -66,30 +74,41 @@ export class PhotoPostsStore {
 
   /**
    * Reads the published posts again, so a set that was just published, changed or hidden in the dashboard
-   * shows on the site without reloading it. If none is visible any more the local data is used, like at start.
+   * shows on the site without reloading it. If none is visible any more, nothing is shown: hiding everything
+   * is a choice, not a failure.
    */
   async refresh(): Promise<void> {
-    const posts = await this.fetchPublished();
-
-    if (posts !== null) this._posts.set(posts.length > 0 ? posts : LOCAL_PHOTO_POSTS);
+    this.apply(await this.fetchPublished());
   }
 
-  /**
-   * Replaces the local posts with the published ones from Firestore. The local data stays when
-   * Firebase is not configured, the request fails or nothing valid comes back, so the site is never empty.
-   */
+  /** Reads the published posts from Firestore at start. */
   private async loadFromFirestore(): Promise<void> {
-    const posts = await this.fetchPublished();
-
-    if (posts !== null && posts.length > 0) this._posts.set(posts);
+    this.apply(await this.fetchPublished());
   }
 
   /**
-   * The published posts, newest first, or null when they cannot be read or a newer request has been made
-   * meanwhile (its answer is the one to use). The `hidden == false` filter is required: the security rules
-   * only allow queries that cannot return hidden posts.
+   * An answer replaces what is shown, even when it is empty. A failed read keeps what is shown, and if
+   * nothing was shown yet it falls back to the bundled posts so the site is never broken by an outage.
+   * `undefined` means a newer request took over and will apply its own answer.
    */
-  private async fetchPublished(): Promise<PhotoPost[] | null> {
+  private apply(result: PhotoPost[] | null | undefined): void {
+    if (result === undefined) return;
+
+    if (result !== null) {
+      this._posts.set(result);
+    } else if (!this._ready()) {
+      this._posts.set(LOCAL_PHOTO_POSTS);
+    }
+
+    this._ready.set(true);
+  }
+
+  /**
+   * The published posts, newest first; null when they cannot be read; undefined when a newer request has
+   * been made meanwhile. The `hidden == false` filter is required: the security rules only allow queries
+   * that cannot return hidden posts.
+   */
+  private async fetchPublished(): Promise<PhotoPost[] | null | undefined> {
     const db = getFirebaseDb();
     if (db === null) return null;
 
@@ -97,14 +116,14 @@ export class PhotoPostsStore {
 
     try {
       const snapshot = await getDocs(query(collection(db, 'posts'), where('hidden', '==', false)));
-      if (request !== this.latestRequest) return null;
+      if (request !== this.latestRequest) return undefined;
 
       return snapshot.docs
         .map((item) => toPhotoPost(item.id, item.data()))
         .filter((post): post is PhotoPost => post !== null)
         .sort((a, b) => b.takenAt.localeCompare(a.takenAt));
     } catch {
-      return null;
+      return request === this.latestRequest ? null : undefined;
     }
   }
 

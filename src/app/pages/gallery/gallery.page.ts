@@ -42,4 +42,5 @@ export class GalleryPageComponent {
     this.photoPostsStore.filterByTag(this.selectedTag())
   );
   protected readonly postCount = computed(() => this.visiblePosts().length);
+  protected readonly ready = this.photoPostsStore.ready;
 }

@@ -1,7 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { LanguageStore } from '@core/store/language.store';
+import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PostViewerPageComponent } from './post-viewer.page';
@@ -140,5 +142,29 @@ describe('PostViewerPageComponent', () => {
 
     expect(main.id).toBe('main-content');
     expect(main.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('should not claim the set is missing while the sets are still loading', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [PostViewerPageComponent, realTranslations()],
+      providers: [
+        provideRouter([]),
+        { provide: PhotoPostsStore, useValue: { findById: () => undefined, ready: signal(false) } },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(PostViewerPageComponent);
+
+    await open('unknown-set');
+
+    expect(root().querySelector('.viewer__missing')).toBeNull();
+  });
+
+  it('should say the set is missing once the sets have loaded and it is not there', async () => {
+    await open('unknown-set');
+
+    expect(root().querySelector('.viewer__missing')?.textContent).toContain(
+      'We could not find this set.',
+    );
   });
 });

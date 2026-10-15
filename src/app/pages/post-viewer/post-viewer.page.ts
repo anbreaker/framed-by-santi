@@ -51,6 +51,7 @@ export class PostViewerPageComponent {
   /** While the photo is zoomed in, the arrow keys move the photo instead of changing it. */
   protected readonly isZoomed = signal(false);
   protected readonly lang = this.languageStore.currentLang;
+  protected readonly ready = this.photoPostsStore.ready;
   protected readonly post = computed(() => this.photoPostsStore.findById(this.postId()));
   protected readonly photos = computed(() => this.post()?.photos ?? []);
   /** Starts on the requested photo, or on the first one when the request is missing or out of range. */

@@ -119,8 +119,13 @@
       }
     },
     "library": {
+      "cancel": "Cancel",
       "countMany": "{{count}} sets",
       "countOne": "1 set",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this set for good? This cannot be undone. Its photos are cleared from Cloudinary automatically after a week.",
+      "deleteFailed": "Could not delete the set. Try again.",
+      "deleteForever": "Delete for good",
       "draft": "Draft",
       "edit": "Edit",
       "editSet": "Edit set: {{title}}",
@@ -199,6 +204,7 @@
   },
   "gallery": {
     "allFilter": "All",
+    "empty": "Nothing has been published yet.",
     "emptyFilter": "No sets match this filter yet.",
     "filtersLabel": "Filter by theme",
     "openSet": "Open set: {{title}}",
