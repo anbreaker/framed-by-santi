@@ -29,7 +29,7 @@ describe('AboutProfileComponent', () => {
   });
 
   it('should show the portrait as the first image on the page, with a translated alt text', async () => {
-    expect(portrait().getAttribute('src')).toBe('/local-photos/profile.webp');
+    expect(portrait().getAttribute('src')).toBe('/assets/images/profile.webp');
     expect(portrait().getAttribute('loading')).toBe('eager');
     expect(portrait().alt).toBe('Portrait of Santi García');
 

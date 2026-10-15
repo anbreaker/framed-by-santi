@@ -4,7 +4,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
 
-import { PROFILE_PHOTO } from '../../const/profile-photo.const';
+import { PROFILE_PHOTO, PROFILE_PHOTO_SOURCE } from '../../const/profile-photo.const';
 
 /** Portrait, name and a few words about Santi. */
 @Component({
@@ -17,4 +17,5 @@ import { PROFILE_PHOTO } from '../../const/profile-photo.const';
 })
 export class AboutProfileComponent {
   protected readonly profilePhoto = PROFILE_PHOTO;
+  protected readonly profileSource = PROFILE_PHOTO_SOURCE;
 }
