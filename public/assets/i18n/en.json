@@ -126,7 +126,23 @@
           "exists": "A theme with this name already exists.",
           "invalidName": "Use a name with letters or numbers.",
           "failed": "Could not create the theme. Try again.",
-          "notConfigured": "The database is not available right now."
+          "notConfigured": "The database is not available right now.",
+          "protected": "This is one of the default themes and cannot be deleted.",
+          "deleteFailed": "Could not delete the theme. Try again."
+        },
+        "manager": {
+          "manage": "Manage themes",
+          "hide": "Hide",
+          "default": "Default",
+          "usedByOne": "Used in 1 set",
+          "usedBy": "Used in {{count}} sets",
+          "unused": "Not used in any set",
+          "delete": "Delete",
+          "confirm": "Delete “{{name}}”? Sets that use it keep it saved, but it will no longer show up.",
+          "confirmYes": "Yes, delete",
+          "cancel": "Cancel",
+          "working": "Deleting…",
+          "none": "You have not created any themes of your own yet."
         }
       },
       "sections": {

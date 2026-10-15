@@ -40,6 +40,13 @@ export class PhotoPostsStore {
     this._themes.update((themes) => [...themes.filter((item) => item.id !== theme.id), theme]);
   }
 
+  /** Forgets a theme that was deleted; the default themes live in the code and stay. */
+  removeTheme(id: string): void {
+    if (DEFAULT_THEMES.some((theme) => theme.id === id)) return;
+
+    this._themes.update((themes) => themes.filter((theme) => theme.id !== id));
+  }
+
   /** Adds the themes created in Firestore to the default ones; a failure leaves the defaults. */
   private async loadThemes(): Promise<void> {
     const db = getFirebaseDb();

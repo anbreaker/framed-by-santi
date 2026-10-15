@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ThemesAdminService } from './themes-admin.service';
 
 const mocks = vi.hoisted(() => ({
+  deleteDoc: vi.fn(),
   getDb: vi.fn(),
   getDoc: vi.fn(),
   setDoc: vi.fn(),
@@ -10,6 +11,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@features/auth/services/firebase-client', () => ({ getFirebaseDb: mocks.getDb }));
 vi.mock('firebase/firestore', () => ({
+  deleteDoc: mocks.deleteDoc,
   doc: (_db: unknown, name: string, id: string) => ({ id, name }),
   getDoc: mocks.getDoc,
   setDoc: mocks.setDoc,
@@ -23,6 +25,7 @@ describe('ThemesAdminService', () => {
     mocks.getDb.mockReturnValue({});
     mocks.getDoc.mockResolvedValue({ exists: () => false });
     mocks.setDoc.mockResolvedValue(undefined);
+    mocks.deleteDoc.mockResolvedValue(undefined);
   });
 
   it('should create the theme with an id built from the English name', async () => {
@@ -82,6 +85,34 @@ describe('ThemesAdminService', () => {
     mocks.setDoc.mockRejectedValue(new Error('permission-denied'));
     await expect(TestBed.inject(ThemesAdminService).create(label)).rejects.toMatchObject({
       reason: 'request-failed',
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete the theme document', async () => {
+      await TestBed.inject(ThemesAdminService).remove('sunset');
+
+      expect(mocks.deleteDoc).toHaveBeenCalledWith({ id: 'sunset', name: 'themes' });
+    });
+
+    it('should never delete one of the default themes, which live in the code', async () => {
+      const failure = TestBed.inject(ThemesAdminService).remove('night');
+
+      await expect(failure).rejects.toMatchObject({ reason: 'protected' });
+      expect(mocks.deleteDoc).not.toHaveBeenCalled();
+    });
+
+    it('should fail with a typed error when Firebase is missing or the delete fails', async () => {
+      mocks.getDb.mockReturnValue(null);
+      await expect(TestBed.inject(ThemesAdminService).remove('sunset')).rejects.toMatchObject({
+        reason: 'not-configured',
+      });
+
+      mocks.getDb.mockReturnValue({});
+      mocks.deleteDoc.mockRejectedValue(new Error('permission-denied'));
+      await expect(TestBed.inject(ThemesAdminService).remove('sunset')).rejects.toMatchObject({
+        reason: 'request-failed',
+      });
     });
   });
 });

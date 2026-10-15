@@ -20,6 +20,7 @@ const THEME_ERRORS: Record<ThemesAdminError['reason'], string> = {
   exists: 'admin.editor.themes.errors.exists',
   'invalid-name': 'admin.editor.themes.errors.invalidName',
   'not-configured': 'admin.editor.themes.errors.notConfigured',
+  protected: 'admin.editor.themes.errors.protected',
   'request-failed': 'admin.editor.themes.errors.failed',
 };
 

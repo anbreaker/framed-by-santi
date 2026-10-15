@@ -45,6 +45,17 @@ describe('PhotoPostsStore', () => {
     expect(ids.every((id) => store.posts().some((post) => post.tags.includes(id)))).toBe(true);
   });
 
+  it('should forget a theme that was created, and never drop a default one', () => {
+    store.addTheme({ id: 'sunset', label: { en: 'Sunset', es: 'Atardecer', pt: 'Pôr do sol' } });
+    expect(store.themes().some((theme) => theme.id === 'sunset')).toBe(true);
+
+    store.removeTheme('sunset');
+    store.removeTheme('street');
+
+    expect(store.themes().some((theme) => theme.id === 'sunset')).toBe(false);
+    expect(store.themes().some((theme) => theme.id === 'street')).toBe(true);
+  });
+
   it('should keep every photo id unique and backed by a local file when photos exist', () => {
     const photos = store.posts().flatMap((post) => post.photos);
     const hasLocalPhotos = existsSync(resolve(process.cwd(), 'public/local-photos'));

@@ -126,7 +126,23 @@
           "exists": "Já existe um tema com este nome.",
           "invalidName": "Use um nome com letras ou números.",
           "failed": "Não foi possível criar o tema. Tente novamente.",
-          "notConfigured": "A base de dados não está disponível neste momento."
+          "notConfigured": "A base de dados não está disponível neste momento.",
+          "protected": "É um dos temas predefinidos e não pode ser eliminado.",
+          "deleteFailed": "Não foi possível eliminar o tema. Tente novamente."
+        },
+        "manager": {
+          "manage": "Gerir temas",
+          "hide": "Ocultar",
+          "default": "Predefinido",
+          "usedByOne": "Usado em 1 série",
+          "usedBy": "Usado em {{count}} séries",
+          "unused": "Não é usado em nenhuma série",
+          "delete": "Eliminar",
+          "confirm": "Eliminar “{{name}}”? As séries que o usam mantêm-no guardado, mas deixa de aparecer.",
+          "confirmYes": "Sim, eliminar",
+          "cancel": "Cancelar",
+          "working": "A eliminar…",
+          "none": "Ainda não criou nenhum tema próprio."
         }
       },
       "sections": {

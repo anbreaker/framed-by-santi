@@ -29,6 +29,7 @@ import {
   StagePhoto,
 } from '../photo-stage/photo-stage.component';
 import { ThemeCreatorComponent } from '../theme-creator/theme-creator.component';
+import { ThemeManagerComponent } from '../theme-manager/theme-manager.component';
 import {
   FinishedPhoto,
   QueuedPhoto,
@@ -62,6 +63,7 @@ const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
     LocalizedTextPipe,
     PhotoStageComponent,
     ThemeCreatorComponent,
+    ThemeManagerComponent,
     TranslocoDirective,
     UploadPanelComponent,
   ],
@@ -226,6 +228,10 @@ export class PostEditorComponent {
         TRANSLATE_ERRORS[error instanceof TranslationError ? error.reason : 'failed']
       );
     }
+  }
+
+  protected onThemeRemoved(id: string): void {
+    this.selectedTags.update((current) => current.filter((item) => item !== id));
   }
 
   protected selectNewTheme(theme: Theme): void {

@@ -6,6 +6,7 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 import { PostsAdminError, PostsAdminService } from '../../services/posts-admin.service';
 import { ThemesAdminService } from '../../services/themes-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
+import { ThemeManagerComponent } from '../theme-manager/theme-manager.component';
 import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
 import { PostEditorComponent } from './post-editor.component';
 
@@ -167,6 +168,22 @@ describe('PostEditorComponent', () => {
 
     expect(addFiles).toHaveBeenCalledWith([file]);
     expect(openPicker).toHaveBeenCalledTimes(1);
+  });
+
+  it('should drop a theme from the set when that theme is deleted', async () => {
+    await upload('a');
+    await type('input[name$=".caption.en"]', 'Cyclist');
+    (root().querySelector('.post-editor__chip') as HTMLButtonElement).click(); // architecture
+    await fixture.whenStable();
+    const manager = fixture.debugElement.query(By.directive(ThemeManagerComponent))
+      .componentInstance as ThemeManagerComponent;
+
+    manager.removed.emit('architecture');
+    await fixture.whenStable();
+    button('Publish').click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+    expect(create.mock.calls[0][0].tags).toEqual([]);
   });
 
   it('should publish the alt text written for a photo in the viewer', async () => {

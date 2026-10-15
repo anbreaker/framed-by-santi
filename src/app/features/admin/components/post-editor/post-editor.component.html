@@ -184,6 +184,7 @@
         </div>
 
         <app-theme-creator (created)="selectNewTheme($event)" />
+        <app-theme-manager (removed)="onThemeRemoved($event)" />
       </section>
     </form>
   </div>
