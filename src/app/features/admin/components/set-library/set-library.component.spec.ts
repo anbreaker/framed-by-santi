@@ -210,6 +210,28 @@ describe('SetLibraryComponent', () => {
     await vi.waitFor(() => expect(titles().length).toBe(3));
   });
 
+  describe('the label of the switch', () => {
+    const label = (card: number): string | undefined =>
+      cards()[card].querySelector('.set-library__switch')?.textContent?.trim();
+
+    it('should say whether the set is published or a draft, and follow the switch', async () => {
+      await create();
+
+      expect(label(0)).toBe('Published');
+      expect(label(1)).toBe('Draft');
+
+      toggle(1).click(); // Cyclist: draft -> published
+      await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('b', false));
+      await fixture.whenStable();
+      expect(label(1)).toBe('Published');
+
+      toggle(0).click(); // Flatiron: published -> hidden
+      await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('a', true));
+      await fixture.whenStable();
+      expect(label(0)).toBe('Draft');
+    });
+  });
+
   describe('deleting a set', () => {
     const button = (card: number, selector: string): HTMLButtonElement =>
       cards()[card].querySelector(selector) as HTMLButtonElement;
