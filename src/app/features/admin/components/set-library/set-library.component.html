@@ -137,7 +137,7 @@
                   [checked]="!entry.hidden"
                   (change)="setPublished(entry.post.id, published)"
                 />
-                {{ t('admin.library.published') }}
+                {{ entry.hidden ? t('admin.library.draft') : t('admin.library.published') }}
               </label>
               <button class="set-library__delete" type="button" (click)="askToDelete(entry.post.id)">
                 {{ t('admin.library.delete') }}
