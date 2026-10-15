@@ -83,17 +83,22 @@ export class PhotoStageComponent {
     this.altChanged.emit({ alt: (event.target as HTMLInputElement).value, index: this.index() });
   }
 
-  protected acceptFiles(event: DragEvent): void {
+  /** Files are being dragged in (a reordered thumbnail drags no files); accepted anywhere on the viewer. */
+  protected overStage(event: DragEvent): void {
+    if (!event.dataTransfer?.types?.includes('Files')) return;
+
     event.preventDefault();
     this.receiving.set(true);
   }
 
-  protected dropFiles(event: DragEvent): void {
-    event.preventDefault();
-    this.receiving.set(false);
-
+  protected dropOnStage(event: DragEvent): void {
     const files = Array.from(event.dataTransfer?.files ?? []);
-    if (files.length > 0) this.filesDropped.emit(files);
+
+    this.receiving.set(false);
+    if (files.length === 0) return;
+
+    event.preventDefault();
+    this.filesDropped.emit(files);
   }
 
   protected startDrag(position: number): void {

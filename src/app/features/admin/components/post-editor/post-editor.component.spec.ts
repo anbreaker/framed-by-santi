@@ -171,14 +171,27 @@ describe('PostEditorComponent', () => {
     const openPicker = vi.spyOn(panel, 'openPicker').mockImplementation(() => undefined);
     const zone = root().querySelector('.photo-stage__empty') as HTMLElement;
     const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
-    const drop = new Event('drop', { cancelable: true });
-    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file] } });
+    const drop = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file], types: ['Files'] } });
 
     zone.dispatchEvent(drop);
     zone.click();
 
     expect(addFiles).toHaveBeenCalledWith([file]);
     expect(openPicker).toHaveBeenCalledTimes(1);
+  });
+
+  it('should stop the browser from opening a file dropped outside the viewer, which would leave the editor', () => {
+    const outside = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(outside, 'dataTransfer', { value: { files: [], types: ['Files'] } });
+    const reorder = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(reorder, 'dataTransfer', { value: { files: [], types: [] } });
+
+    window.dispatchEvent(outside);
+    window.dispatchEvent(reorder);
+
+    expect(outside.defaultPrevented).toBe(true);
+    expect(reorder.defaultPrevented).toBe(false);
   });
 
   it('should drop a theme from the set when that theme is deleted', async () => {

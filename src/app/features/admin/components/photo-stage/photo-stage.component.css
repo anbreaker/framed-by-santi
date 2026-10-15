@@ -381,3 +381,10 @@
   height: 100%;
   width: 100%;
 }
+
+/* Files are being dragged over the viewer: say it is ready to take them. */
+.photo-stage--receiving .photo-stage__frame,
+.photo-stage--receiving .photo-stage__strip {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 4px;
+}

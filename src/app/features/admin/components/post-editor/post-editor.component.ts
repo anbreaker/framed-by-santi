@@ -82,6 +82,10 @@ const toLanguageTexts = (text: PostText | undefined): LanguageTexts =>
   selector: 'app-post-editor',
   styleUrl: './post-editor.component.css',
   templateUrl: './post-editor.component.html',
+  host: {
+    '(window:dragover)': 'keepFilesFromOpening($event)',
+    '(window:drop)': 'keepFilesFromOpening($event)',
+  },
 })
 export class PostEditorComponent implements OnInit {
   private readonly posts = inject(PostsAdminService);
@@ -221,6 +225,14 @@ export class PostEditorComponent implements OnInit {
         };
       })
     );
+  }
+
+  /**
+   * A file dropped outside the viewer would be opened by the browser, which leaves the editor and loses
+   * what was written. Dragging a thumbnail carries no files, so reordering is left alone.
+   */
+  protected keepFilesFromOpening(event: DragEvent): void {
+    if (event.dataTransfer?.types?.includes('Files')) event.preventDefault();
   }
 
   protected onMoved({ from, to }: PhotoMove): void {

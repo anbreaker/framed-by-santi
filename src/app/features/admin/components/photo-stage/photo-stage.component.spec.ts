@@ -227,13 +227,19 @@ describe('PhotoStageComponent', () => {
     expect(added).toBe(2);
   });
 
+  /** A real drag event bubbles; `types` tells whether files are being dragged, `files` is only filled on drop. */
+  const fileDrag = (type: 'dragover' | 'drop', files: File[] = []): Event => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'dataTransfer', { value: { files, types: ['Files'] } });
+    return event;
+  };
+  const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
+
   it('should accept files dropped on the empty zone and show it is ready to receive them', async () => {
     await show([]);
     const zone = root().querySelector('.photo-stage__empty') as HTMLElement;
-    const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
-    const dragOver = new Event('dragover', { cancelable: true });
-    const drop = new Event('drop', { cancelable: true });
-    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file] } });
+    const dragOver = fileDrag('dragover');
+    const drop = fileDrag('drop', [file]);
 
     zone.dispatchEvent(dragOver);
     await fixture.whenStable();
@@ -248,10 +254,45 @@ describe('PhotoStageComponent', () => {
     expect(zone.classList).not.toContain('photo-stage__empty--over');
   });
 
+  it('should keep accepting dropped files once there are photos: on the viewer and on the strip', async () => {
+    const frame = root().querySelector('.photo-stage__frame') as HTMLElement;
+    const strip = root().querySelector('.photo-stage__strip') as HTMLElement;
+
+    frame.dispatchEvent(fileDrag('drop', [file]));
+    strip.dispatchEvent(fileDrag('drop', [file]));
+
+    expect(dropped).toEqual([[file], [file]]);
+  });
+
+  it('should show it is ready to receive files while they are dragged over, and stop when they leave', async () => {
+    const stage = root().querySelector('.photo-stage') as HTMLElement;
+    const dragOver = fileDrag('dragover');
+
+    stage.dispatchEvent(dragOver);
+    await fixture.whenStable();
+    expect(dragOver.defaultPrevented).toBe(true);
+    expect(stage.classList).toContain('photo-stage--receiving');
+
+    stage.dispatchEvent(new Event('dragleave', { bubbles: true }));
+    await fixture.whenStable();
+    expect(stage.classList).not.toContain('photo-stage--receiving');
+  });
+
+  it('should not mistake reordering a thumbnail for dropping files', async () => {
+    thumbs()[0].dispatchEvent(new Event('dragstart', { bubbles: true }));
+    const drop = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [], types: [] } });
+
+    thumbs()[2].dispatchEvent(drop);
+
+    expect(moved).toEqual([{ from: 0, to: 2 }]);
+    expect(dropped).toEqual([]);
+  });
+
   it('should ignore a drop that carries no files', async () => {
     await show([]);
-    const drop = new Event('drop', { cancelable: true });
-    Object.defineProperty(drop, 'dataTransfer', { value: { files: [] } });
+    const drop = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [], types: ['Files'] } });
 
     (root().querySelector('.photo-stage__empty') as HTMLElement).dispatchEvent(drop);
 

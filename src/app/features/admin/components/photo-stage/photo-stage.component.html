@@ -1,4 +1,11 @@
-<div class="photo-stage" *transloco="let t">
+<div
+  class="photo-stage"
+  *transloco="let t"
+  [class.photo-stage--receiving]="receiving()"
+  (dragleave)="receiving.set(false)"
+  (dragover)="overStage($event)"
+  (drop)="dropOnStage($event)"
+>
   @if (current(); as photo) {
     <div
       class="photo-stage__frame"
@@ -180,9 +187,6 @@
       type="button"
       [class.photo-stage__empty--over]="receiving()"
       (click)="addRequested.emit()"
-      (dragleave)="receiving.set(false)"
-      (dragover)="acceptFiles($event)"
-      (drop)="dropFiles($event)"
     >
       <svg
         aria-hidden="true"
