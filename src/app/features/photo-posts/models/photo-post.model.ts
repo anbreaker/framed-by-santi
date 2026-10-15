@@ -6,8 +6,6 @@ export interface PhotoPost {
   caption: PostText;
   /** Optional text for the whole set, like an Instagram caption. */
   description?: PostText;
-  /** Free-form hashtags as typed by the author, without the leading `#`. Not the filter tags. */
-  hashtags?: readonly string[];
   id: string;
   /** Ordered set; the first photo is the cover. */
   photos: readonly Photo[];

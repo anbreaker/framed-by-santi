@@ -7,6 +7,7 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PhotoCleanupService } from '../../services/photo-cleanup.service';
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
+import { TranslationService } from '../../services/translation.service';
 import { SetLibraryComponent } from './set-library.component';
 
 const photo = (id: string): PhotoPost['photos'][number] => ({
@@ -34,7 +35,7 @@ const entry = (
 
 const ENTRIES = [
   entry('a', { en: 'Flatiron', es: 'Flatiron ES', pt: 'Flatiron PT' }, false, 6),
-  entry('b', 'Cyclist', true, 1),
+  entry('b', { en: 'Cyclist', es: 'Ciclista', pt: 'Ciclista PT' }, true, 1),
   entry('c', 'Fireworks', false, 10),
 ];
 
@@ -43,6 +44,8 @@ describe('SetLibraryComponent', () => {
   let list: ReturnType<typeof vi.fn>;
   let setHidden: ReturnType<typeof vi.fn>;
   let remove: ReturnType<typeof vi.fn>;
+  let save: ReturnType<typeof vi.fn>;
+  let translate: ReturnType<typeof vi.fn>;
   let runIfDue: ReturnType<typeof vi.fn>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
@@ -67,13 +70,20 @@ describe('SetLibraryComponent', () => {
     list = vi.fn().mockResolvedValue(ENTRIES);
     setHidden = vi.fn().mockResolvedValue(undefined);
     remove = vi.fn().mockResolvedValue(undefined);
+    save = vi.fn().mockResolvedValue(undefined);
+    translate = vi.fn().mockImplementation(async (_source: string, items: readonly string[]) => ({
+      en: items,
+      es: items.map((item) => `${item} ES`),
+      pt: items.map((item) => `${item} PT`),
+    }));
     runIfDue = vi.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [SetLibraryComponent, realTranslations()],
       providers: [
         provideRouter([]),
-        { provide: PostsAdminService, useValue: { list, remove, setHidden } },
+        { provide: PostsAdminService, useValue: { list, remove, save, setHidden } },
+        { provide: TranslationService, useValue: { translate } },
         { provide: PhotoCleanupService, useValue: { runIfDue } },
       ],
     }).compileComponents();
@@ -254,6 +264,66 @@ describe('SetLibraryComponent', () => {
 
       expect(titles()).toEqual(['Flatiron', 'Cyclist', 'Fireworks']);
       expect(root().querySelector('[role="alert"]')?.textContent).toContain('Could not delete');
+    });
+  });
+
+  describe('publishing with the switch', () => {
+    const draft = (id: string, caption: PostEntry['post']['caption']): PostEntry =>
+      entry(id, caption, true, 2);
+
+    it('should translate the languages left blank and publish the set in one save', async () => {
+      list.mockResolvedValue([draft('d', 'Hello October')]);
+      const refresh = vi.spyOn(TestBed.inject(PhotoPostsStore), 'refresh').mockResolvedValue();
+      await create();
+
+      toggle(0).click();
+      await vi.waitFor(() => expect(save).toHaveBeenCalled());
+      await fixture.whenStable();
+
+      expect(translate).toHaveBeenCalledWith('auto', ['Hello October']);
+      expect(save.mock.calls[0][0].caption).toEqual({
+        en: 'Hello October',
+        es: 'Hello October ES',
+        pt: 'Hello October PT',
+      });
+      expect(save.mock.calls[0][1]).toEqual({ hidden: false });
+      expect(setHidden).not.toHaveBeenCalled();
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it('should not call the translation when every language is already written', async () => {
+      list.mockResolvedValue([draft('d', { en: 'A', es: 'B', pt: 'C' })]);
+      await create();
+
+      toggle(0).click();
+      await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('d', false));
+
+      expect(translate).not.toHaveBeenCalled();
+      expect(save).not.toHaveBeenCalled();
+    });
+
+    it('should not translate when hiding a set', async () => {
+      await create();
+
+      toggle(0).click(); // Flatiron: published -> hidden
+      await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('a', true));
+
+      expect(translate).not.toHaveBeenCalled();
+    });
+
+    it('should publish anyway and say so when the translation fails', async () => {
+      translate.mockRejectedValue(new Error('down'));
+      list.mockResolvedValue([draft('d', 'Hello October')]);
+      await create();
+
+      toggle(0).click();
+      await vi.waitFor(() => expect(setHidden).toHaveBeenCalledWith('d', false));
+      await fixture.whenStable();
+
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain(
+        'some languages could not be translated'
+      );
+      expect(cards()[0].querySelector('.set-library__badge')?.textContent).toContain('Published');
     });
   });
 });

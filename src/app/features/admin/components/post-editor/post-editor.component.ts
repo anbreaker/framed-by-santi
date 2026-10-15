@@ -14,7 +14,6 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { SUPPORTED_LANGS, SupportedLang } from '@core/const/lang.const';
 import { LanguageStore } from '@core/store/language.store';
-import { PostText } from '@features/photo-posts/models/localized-text.model';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
@@ -23,7 +22,8 @@ import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
 import { PostEntry, PostsAdminService } from '../../services/posts-admin.service';
 import { TranslationError, TranslationService } from '../../services/translation.service';
-import { buildPost, LanguageTexts, parseHashtags, todayIso } from '../../utils/post-draft';
+import { fillMissingLanguages, toLanguageTexts } from '../../utils/fill-languages';
+import { buildPost, LanguageTexts, todayIso } from '../../utils/post-draft';
 import { LangTabsComponent } from '../lang-tabs/lang-tabs.component';
 import {
   AltChange,
@@ -56,14 +56,6 @@ const TRANSLATE_ERRORS: Record<TranslationError['reason'], string> = {
 };
 
 const emptyTexts = (): LanguageTexts => ({ en: '', es: '', pt: '' });
-
-/** A text from before translations is one string; it goes in English, so publishing can translate the rest. */
-const toLanguageTexts = (text: PostText | undefined): LanguageTexts =>
-  text === undefined
-    ? emptyTexts()
-    : typeof text === 'string'
-      ? { ...emptyTexts(), en: text }
-      : { ...text };
 
 /** Creates a post: upload photos, order them (the first is the cover), write the texts, save as draft or publish. */
 @Component({
@@ -105,12 +97,9 @@ export class PostEditorComponent implements OnInit {
   /** The language being written; it is also the source when translating. */
   protected readonly activeLang = signal<SupportedLang>('en');
 
-  protected readonly hashtagDraft = signal('');
-
   private readonly model = signal({
     caption: emptyTexts(),
     description: emptyTexts(),
-    hashtags: '',
     takenAt: todayIso(),
   });
   protected readonly postForm = form(this.model, (path) => {
@@ -138,8 +127,6 @@ export class PostEditorComponent implements OnInit {
   protected readonly translateErrorKey = signal<string | null>(null);
   protected readonly translateStatus = signal<TranslateStatus>('idle');
 
-  /** The hashtags as chips; the text kept in the model is what gets saved. */
-  protected readonly hashtags = computed(() => parseHashtags(this.model().hashtags));
   protected readonly canSave = computed(() => this.status() !== 'saving');
   protected readonly editing = computed(() => this.initial() !== null);
   protected readonly savedAsPublished = computed(() => this.initial()?.hidden === false);
@@ -168,7 +155,6 @@ export class PostEditorComponent implements OnInit {
     this.model.set({
       caption: toLanguageTexts(post.caption),
       description: toLanguageTexts(post.description),
-      hashtags: (post.hashtags ?? []).map((tag) => `#${tag}`).join(' '),
       takenAt: post.takenAt,
     });
     this.photos.set(post.photos.map((photo) => ({ ...photo })));
@@ -293,21 +279,6 @@ export class PostEditorComponent implements OnInit {
     }
   }
 
-  /** Adds what was typed, one chip per word, ignoring the # and repeats (the first spelling stays). */
-  protected addHashtags(): void {
-    const added = parseHashtags(this.hashtagDraft());
-
-    if (added.length > 0) {
-      this.setHashtags(parseHashtags([...this.hashtags(), ...added].join(' ')));
-    }
-
-    this.hashtagDraft.set('');
-  }
-
-  protected removeHashtag(tag: string): void {
-    this.setHashtags(this.hashtags().filter((item) => item !== tag));
-  }
-
   protected onThemeRemoved(id: string): void {
     this.selectedTags.update((current) => current.filter((item) => item !== id));
   }
@@ -328,44 +299,17 @@ export class PostEditorComponent implements OnInit {
    * Translates what the author left empty, so a published set has its texts in every language. It fills
    * only blank languages and never replaces what was written; returns false when the translation failed.
    */
-  private setHashtags(tags: readonly string[]): void {
-    this.model.update((current) => ({
-      ...current,
-      hashtags: tags.map((tag) => `#${tag}`).join(' '),
-    }));
-  }
-
   private async fillMissingLanguages(): Promise<boolean> {
-    const model = this.model();
-    const items = (['caption', 'description'] as const).flatMap((field) => {
-      const texts = model[field];
-      const written = [this.activeLang(), ...SUPPORTED_LANGS]
-        .map((lang) => texts[lang])
-        .find((text) => text.trim() !== '');
-      const someEmpty = SUPPORTED_LANGS.some((lang) => texts[lang].trim() === '');
-
-      return written !== undefined && someEmpty ? [{ field, text: written }] : [];
-    });
-
-    if (items.length === 0) return true;
+    const { caption, description } = this.model();
 
     try {
-      const result = await this.translation.translate(
-        'auto',
-        items.map((item) => item.text)
+      const filled = await fillMissingLanguages(
+        { caption, description },
+        (source, texts) => this.translation.translate(source, texts),
+        this.activeLang()
       );
 
-      this.model.update((current) => {
-        const next = { caption: { ...current.caption }, description: { ...current.description } };
-
-        items.forEach(({ field }, index) => {
-          SUPPORTED_LANGS.filter((lang) => next[field][lang].trim() === '').forEach((lang) => {
-            next[field][lang] = result[lang][index];
-          });
-        });
-
-        return { ...current, ...next };
-      });
+      this.model.update((current) => ({ ...current, ...filled }));
 
       return true;
     } catch {

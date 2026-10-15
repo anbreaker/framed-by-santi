@@ -8,27 +8,9 @@ export type LanguageTexts = Record<SupportedLang, string>;
 export interface PostDraft {
   caption: LanguageTexts;
   description: LanguageTexts;
-  /** Free text as typed, for example `#street nyc`. */
-  hashtags: string;
   photos: readonly Photo[];
   tags: readonly string[];
   takenAt: string;
-}
-
-/** Hashtags typed as free text: split on spaces and commas, without `#` and without repeats (ignoring case, the first spelling wins). */
-export function parseHashtags(text: string): string[] {
-  const words = text
-    .split(/[\s,]+/)
-    .map((word) => word.replace(/^#+/, ''))
-    .filter((word) => word !== '');
-
-  const seen = new Set<string>();
-  return words.filter((word) => {
-    const key = word.toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }
 
 /** Local date as `YYYY-MM-DD`, the format posts store in `takenAt`. */
@@ -48,13 +30,11 @@ const trimTexts = (texts: LanguageTexts): LanguageTexts => ({
 export function buildPost(draft: PostDraft, id = ''): PhotoPost {
   const caption = trimTexts(draft.caption);
   const description = trimTexts(draft.description);
-  const hashtags = parseHashtags(draft.hashtags);
   const altText = caption.en || caption.es || caption.pt;
 
   return {
     caption,
     ...(Object.values(description).some((text) => text !== '') && { description }),
-    ...(hashtags.length > 0 && { hashtags }),
     id,
     photos: draft.photos.map((photo) =>
       photo.alt.trim() === '' ? { ...photo, alt: altText } : photo
