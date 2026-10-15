@@ -51,7 +51,8 @@ describe('PostEditorComponent', () => {
 
   beforeEach(async () => {
     create = vi.fn().mockResolvedValue('new-1');
-    translate = vi.fn();
+    // Publishing translates what is missing; by default that fails, and publishing must go on anyway.
+    translate = vi.fn().mockRejectedValue(new TranslationError('failed'));
     createTheme = vi.fn();
     saved = [];
 
@@ -261,10 +262,10 @@ describe('PostEditorComponent', () => {
     await type('input[name$=".caption.en"]', 'Cyclist');
     await type('textarea[name$=".description.en"]', 'Set text');
 
-    button('Translate from EN').click();
+    button('Translate').click();
     await vi.waitFor(() => expect(root().textContent).toContain('Translated.'));
 
-    expect(translate).toHaveBeenCalledWith('en', ['Cyclist', 'Set text']);
+    expect(translate).toHaveBeenCalledWith('auto', ['Cyclist', 'Set text']);
     (Array.from(root().querySelectorAll('.lang-tabs__button'))[2] as HTMLButtonElement).click();
     await fixture.whenStable();
     expect((root().querySelector('input[name$=".caption.pt"]') as HTMLInputElement).value).toBe(
@@ -275,18 +276,115 @@ describe('PostEditorComponent', () => {
     ).toBe('Texto PT');
   });
 
+  describe('publishing translates what is missing', () => {
+    const missing = (cap: string[], desc: string[] = []): Record<string, string[]> => ({
+      en: [cap[0], ...desc.slice(0, 1)],
+      es: [cap[1], ...desc.slice(1, 2)],
+      pt: [cap[2], ...desc.slice(2, 3)],
+    });
+    const tab = async (index: number): Promise<void> => {
+      (root().querySelectorAll('.lang-tabs__button')[index] as HTMLButtonElement).click();
+      await fixture.whenStable();
+    };
+
+    it('should fill only the empty languages and never replace what the author wrote', async () => {
+      translate.mockResolvedValue(missing(['Cyclist', 'AUTO ES', 'Ciclista PT']));
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+      await tab(1);
+      await type('input[name$=".caption.es"]', 'Ciclista');
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(create.mock.calls[0][0].caption).toEqual({
+        en: 'Cyclist',
+        es: 'Ciclista',
+        pt: 'Ciclista PT',
+      });
+    });
+
+    it('should translate the description too, from whichever language has one', async () => {
+      translate.mockResolvedValue(
+        missing(['Cyclist', 'Ciclista', 'Ciclista PT'], ['Set text', 'Serie', 'Série'])
+      );
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+      await type('textarea[name$=".description.en"]', 'Set text');
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(translate).toHaveBeenCalledWith('auto', ['Cyclist', 'Set text']);
+      expect(create.mock.calls[0][0].description).toEqual({
+        en: 'Set text',
+        es: 'Serie',
+        pt: 'Série',
+      });
+    });
+
+    it('should send only the texts that exist, using the language the author wrote in', async () => {
+      translate.mockResolvedValue(missing(['Cyclist', 'Ciclista', 'Ciclista PT']));
+      await upload('a');
+      await tab(1);
+      await type('input[name$=".caption.es"]', 'Ciclista');
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(translate).toHaveBeenCalledWith('auto', ['Ciclista']);
+    });
+
+    it('should not translate when saving a draft, to keep the quota for what gets published', async () => {
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+
+      button('Save as draft').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(translate).not.toHaveBeenCalled();
+    });
+
+    it('should not translate when every language already has its text', async () => {
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+      await tab(1);
+      await type('input[name$=".caption.es"]', 'Ciclista');
+      await tab(2);
+      await type('input[name$=".caption.pt"]', 'Ciclista PT');
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+
+      expect(translate).not.toHaveBeenCalled();
+    });
+
+    it('should publish anyway when the translation fails, and say which languages were left out', async () => {
+      translate.mockRejectedValue(new TranslationError('limit'));
+      await upload('a');
+      await type('input[name$=".caption.en"]', 'Cyclist');
+
+      button('Publish').click();
+      await vi.waitFor(() => expect(create).toHaveBeenCalled());
+      await vi.waitFor(() => expect(root().textContent).toContain('could not be translated'));
+
+      expect(create.mock.calls[0][1]).toEqual({ hidden: false });
+      expect(create.mock.calls[0][0].caption).toEqual({ en: 'Cyclist', es: '', pt: '' });
+    });
+  });
+
   it('should not offer to translate without a caption in the active language', () => {
-    expect(button('Translate from EN').disabled).toBe(true);
+    expect(button('Translate').disabled).toBe(true);
   });
 
   it('should say why a translation failed and leave the texts alone', async () => {
     translate.mockRejectedValue(new TranslationError('limit'));
     await type('input[name$=".caption.en"]', 'Cyclist');
 
-    button('Translate from EN').click();
+    button('Translate').click();
     await vi.waitFor(() => expect(root().textContent).toContain('limit was reached'));
 
-    expect(button('Translate from EN').disabled).toBe(false);
+    expect(button('Translate').disabled).toBe(false);
   });
 
   it('should select a theme right after creating it', async () => {

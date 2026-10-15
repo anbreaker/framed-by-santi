@@ -19,13 +19,17 @@ const request = (
 };
 
 interface DeepLCall {
-  body: { source_lang: string; target_lang: string; text: string[] };
+  body: { source_lang?: string; target_lang: string; text: string[] };
   headers: Record<string, string>;
 }
 
 /** A fake network: Firestore answers the admin check, DeepL answers translations. */
 const network = (
-  options: { admin?: number; deepl?: (call: DeepLCall) => Response | Promise<Response> } = {}
+  options: {
+    admin?: number;
+    deepl?: (call: DeepLCall) => Response | Promise<Response>;
+    detect?: (text: string) => string;
+  } = {}
 ) => {
   const deeplCalls: DeepLCall[] = [];
   const fetchFn = vi.fn(async (url: string, init?: RequestInit): Promise<Response> => {
@@ -42,7 +46,10 @@ const network = (
     return (
       options.deepl?.(call) ??
       Response.json({
-        translations: call.body.text.map((text) => ({ text: `${call.body.target_lang}:${text}` })),
+        translations: call.body.text.map((text) => ({
+          detected_source_language: options.detect?.(text) ?? call.body.source_lang ?? 'EN',
+          text: `${call.body.target_lang}:${text}`,
+        })),
       })
     );
   });
@@ -144,6 +151,55 @@ describe('translate', () => {
       ['ES', 'EN-US'],
       ['ES', 'PT-PT'],
     ]);
+  });
+
+  describe('without a source language (detected automatically)', () => {
+    const detectByWord = (text: string): string => (text === 'Campo' ? 'ES' : 'EN');
+
+    it('should leave source_lang out so DeepL detects it, and translate into all three languages', async () => {
+      const { deeplCalls, fetchFn } = network({ detect: detectByWord });
+
+      const response = await handleTranslate(request({ texts: ['Campo'] }), ENV, fetchFn);
+
+      expect(response.status).toBe(200);
+      expect(deeplCalls.map((call) => call.body.target_lang)).toEqual(['EN-US', 'ES', 'PT-PT']);
+      expect(deeplCalls.every((call) => !('source_lang' in call.body))).toBe(true);
+    });
+
+    it('should keep what was written in the language DeepL detected and translate the rest', async () => {
+      const { fetchFn } = network({ detect: detectByWord });
+
+      const response = await handleTranslate(request({ texts: ['Campo', 'Field'] }), ENV, fetchFn);
+
+      expect(await response.json()).toEqual({
+        translations: {
+          en: ['EN-US:Campo', 'Field'],
+          es: ['Campo', 'ES:Field'],
+          pt: ['PT-PT:Campo', 'PT-PT:Field'],
+        },
+      });
+    });
+
+    it('should translate into all three when the detected language is not one of the site languages', async () => {
+      const { fetchFn } = network({ detect: () => 'FR' });
+
+      const response = await handleTranslate(request({ texts: ['Champ'] }), ENV, fetchFn);
+
+      expect(await response.json()).toEqual({
+        translations: { en: ['EN-US:Champ'], es: ['ES:Champ'], pt: ['PT-PT:Champ'] },
+      });
+    });
+
+    it('should keep blanks as they are and still reject an unknown source', async () => {
+      const { deeplCalls, fetchFn } = network();
+
+      const blank = await handleTranslate(request({ texts: [' '] }), ENV, fetchFn);
+      const unknown = await handleTranslate(request({ source: 'xx', texts: ['Hi'] }), ENV, fetchFn);
+
+      expect(blank.status).toBe(200);
+      expect(unknown.status).toBe(400);
+      expect(deeplCalls).toEqual([]);
+    });
   });
 
   it('should not call DeepL when every text is blank', async () => {

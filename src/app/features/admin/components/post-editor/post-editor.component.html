@@ -11,6 +11,9 @@
           @case ('saved') {
             {{ t('admin.editor.status.saved') }}
           }
+          @case ('partial') {
+            <span class="post-editor__error">{{ t('admin.editor.status.partial') }}</span>
+          }
           @case ('failed') {
             <span class="post-editor__error">{{ t('admin.editor.status.failed') }}</span>
           }
@@ -91,7 +94,7 @@
             @if (translateStatus() === 'working') {
               {{ t('admin.editor.translate.working') }}
             } @else {
-              {{ t('admin.editor.translate.button', { lang: activeLang().toUpperCase() }) }}
+              {{ t('admin.editor.translate.button') }}
             }
           </button>
         </div>
@@ -102,11 +105,7 @@
           } @else if (translateStatus() === 'done') {
             {{ t('admin.editor.translate.done') }}
           } @else {
-            {{
-              t('admin.editor.translate.hint', {
-                lang: t('admin.editor.langs.names.' + activeLang()),
-              })
-            }}
+            {{ t('admin.editor.translate.hint') }}
           }
         </p>
 
@@ -184,7 +183,7 @@
           }
         </div>
 
-        <app-theme-creator [sourceLang]="activeLang()" (created)="selectNewTheme($event)" />
+        <app-theme-creator (created)="selectNewTheme($event)" />
       </section>
     </form>
   </div>

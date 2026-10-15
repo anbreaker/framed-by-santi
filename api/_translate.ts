@@ -19,7 +19,8 @@ export interface TranslateEnv {
 }
 
 interface TranslateRequest {
-  source: Lang;
+  /** Left out, DeepL detects the language of each text. */
+  source?: Lang;
   texts: string[];
 }
 
@@ -40,12 +41,12 @@ const readRequest = async (request: Request): Promise<TranslateRequest | null> =
   const { source, texts } = (body ?? {}) as { source?: unknown; texts?: unknown };
 
   const valid =
-    isLang(source) &&
+    (source === undefined || isLang(source)) &&
     Array.isArray(texts) &&
     texts.length <= MAX_TEXTS &&
     texts.every((text) => typeof text === 'string' && text.length <= MAX_TEXT_LENGTH);
 
-  return valid ? { source, texts: texts as string[] } : null;
+  return valid ? { source: source as Lang | undefined, texts: texts as string[] } : null;
 };
 
 class DeepLError extends Error {
@@ -54,18 +55,24 @@ class DeepLError extends Error {
   }
 }
 
+interface Translated {
+  /** The language DeepL detected for each text, when it was asked to detect (blank texts have none). */
+  detected: (string | undefined)[];
+  texts: string[];
+}
+
 /** Translates only the non-blank texts in one DeepL call, and puts blanks back in their place. */
 const translateAll = async (
   fetchFn: FetchFn,
   apiKey: string,
-  source: Lang,
+  source: Lang | undefined,
   target: Lang,
   texts: string[]
-): Promise<string[]> => {
+): Promise<Translated> => {
   const filled = texts.flatMap((text, index) => (text.trim() === '' ? [] : [index]));
 
   if (filled.length === 0) {
-    return texts;
+    return { detected: texts.map(() => undefined), texts };
   }
 
   const controller = new AbortController();
@@ -74,7 +81,7 @@ const translateAll = async (
   try {
     const response = await fetchFn(DEEPL_URL, {
       body: JSON.stringify({
-        source_lang: SOURCE_CODE[source],
+        ...(source !== undefined && { source_lang: SOURCE_CODE[source] }),
         target_lang: TARGET_CODE[target],
         text: filled.map((index) => texts[index]),
       }),
@@ -87,24 +94,29 @@ const translateAll = async (
       throw new DeepLError(response.status);
     }
 
-    const { translations } = (await response.json()) as { translations?: { text?: unknown }[] };
+    const { translations } = (await response.json()) as {
+      translations?: { detected_source_language?: unknown; text?: unknown }[];
+    };
 
     if (!Array.isArray(translations) || translations.length !== filled.length) {
       throw new DeepLError(502);
     }
 
     const result = [...texts];
+    const detected: (string | undefined)[] = texts.map(() => undefined);
+
     filled.forEach((index, position) => {
-      const text = translations[position]?.text;
+      const { detected_source_language: language, text } = translations[position] ?? {};
 
       if (typeof text !== 'string') {
         throw new DeepLError(502);
       }
 
       result[index] = text;
+      detected[index] = typeof language === 'string' ? language : undefined;
     });
 
-    return result;
+    return { detected, texts: result };
   } finally {
     clearTimeout(timeout);
   }
@@ -137,18 +149,34 @@ export const handleTranslate = async (
     return json(400, { error: 'invalid-request' });
   }
 
-  const targets = LANGS.filter((lang) => lang !== input.source);
+  // With a known source only the other two languages are needed; otherwise all three, to tell which one it was.
+  const targets =
+    input.source === undefined ? LANGS : LANGS.filter((lang) => lang !== input.source);
 
   try {
-    const translated = await Promise.all(
+    const results = await Promise.all(
       targets.map((target) => translateAll(fetchFn, deeplApiKey, input.source, target, input.texts))
     );
     const translations: Record<Lang, string[]> = { en: [], es: [], pt: [] };
 
-    translations[input.source] = input.texts;
-    targets.forEach((target, position) => {
-      translations[target] = translated[position];
-    });
+    if (input.source !== undefined) {
+      translations[input.source] = input.texts;
+      targets.forEach((target, position) => {
+        translations[target] = results[position].texts;
+      });
+    } else {
+      const detectedLang = (index: number): Lang | undefined =>
+        LANGS.find((lang) => SOURCE_CODE[lang] === results[0].detected[index]);
+
+      // What was written in a site language stays as written; blanks and the rest come from the translation.
+      LANGS.forEach((lang, position) => {
+        translations[lang] = input.texts.map((text, index) =>
+          results[position].detected[index] === undefined || detectedLang(index) === lang
+            ? text
+            : results[position].texts[index]
+        );
+      });
+    }
 
     return json(200, { translations });
   } catch (error) {

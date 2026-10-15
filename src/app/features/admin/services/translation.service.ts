@@ -34,7 +34,11 @@ const isTranslatedTexts = (value: unknown, count: number): value is TranslatedTe
 export class TranslationService {
   private readonly authStore = inject(AuthStore);
 
-  async translate(source: SupportedLang, texts: readonly string[]): Promise<TranslatedTexts> {
+  /** `auto` lets DeepL detect the language, so a text can be written in any of the site languages. */
+  async translate(
+    source: SupportedLang | 'auto',
+    texts: readonly string[]
+  ): Promise<TranslatedTexts> {
     if (texts.length === 0) return { en: [], es: [], pt: [] };
 
     const idToken = await this.authStore.getIdToken();
@@ -42,7 +46,7 @@ export class TranslationService {
 
     try {
       const response = await fetch('/api/translate', {
-        body: JSON.stringify({ source, texts }),
+        body: JSON.stringify(source === 'auto' ? { texts } : { source, texts }),
         headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' },
         method: 'POST',
       });

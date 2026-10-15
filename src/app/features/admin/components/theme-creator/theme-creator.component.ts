@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { form, FormField, maxLength, required } from '@angular/forms/signals';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { SupportedLang } from '@core/const/lang.const';
 import { Theme } from '@features/photo-posts/models/theme.model';
 import { PhotoPostsStore } from '@features/photo-posts/store/photo-posts.store';
 
@@ -24,7 +23,7 @@ const THEME_ERRORS: Record<ThemesAdminError['reason'], string> = {
   'request-failed': 'admin.editor.themes.errors.failed',
 };
 
-/** Creates a gallery theme from one name: it is translated into the other languages, saved and offered right away. */
+/** Creates a gallery theme from one name, written in any language: it is translated into the others, saved and offered right away. */
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,8 +37,6 @@ export class ThemeCreatorComponent {
   private readonly themes = inject(ThemesAdminService);
   private readonly translation = inject(TranslationService);
 
-  /** Language the name is written in; the other two are translated. */
-  readonly sourceLang = input.required<SupportedLang>();
   readonly created = output<Theme>();
 
   protected readonly errorKey = signal<string | null>(null);
@@ -61,7 +58,7 @@ export class ThemeCreatorComponent {
     this.errorKey.set(null);
 
     try {
-      const translated = await this.translation.translate(this.sourceLang(), [name]);
+      const translated = await this.translation.translate('auto', [name]);
       const theme = await this.themes.create({
         en: translated.en[0],
         es: translated.es[0],

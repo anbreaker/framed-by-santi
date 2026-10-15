@@ -88,7 +88,8 @@
         "saving": "Guardando…",
         "saved": "Guardado.",
         "failed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
-        "draft": "Borrador · sin guardar"
+        "draft": "Borrador · sin guardar",
+        "partial": "Publicada, pero algunos idiomas no se pudieron traducir. Se muestran en el primer idioma disponible."
       },
       "errors": {
         "caption": "Escribe un pie de foto de hasta {{max}} caracteres en al menos un idioma.",
@@ -105,8 +106,8 @@
         }
       },
       "translate": {
-        "button": "Traducir desde {{lang}}",
-        "hint": "Traduce el pie de foto y la descripción que escribiste en {{lang}} a los otros dos idiomas. Los textos que ya haya en esos idiomas se reemplazan.",
+        "button": "Traducir",
+        "hint": "Traduce lo que escribiste en esta pestaña a los demás idiomas. El idioma se detecta solo. Los textos que ya haya en los otros idiomas se reemplazan.",
         "working": "Traduciendo…",
         "done": "Traducido. Revisa los textos antes de guardar.",
         "errors": {
@@ -118,7 +119,7 @@
       "themes": {
         "title": "Nuevo tema",
         "name": "Nombre del tema",
-        "hint": "Escríbelo en {{lang}}; se traduce a los otros dos idiomas.",
+        "hint": "Escríbelo en cualquier idioma; se traduce solo a los demás.",
         "add": "Crear tema",
         "working": "Creando…",
         "errors": {

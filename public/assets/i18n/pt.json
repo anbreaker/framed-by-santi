@@ -88,7 +88,8 @@
         "saving": "A guardar…",
         "saved": "Guardado.",
         "failed": "Não foi possível guardar. Verifique a ligação e tente novamente.",
-        "draft": "Rascunho · por guardar"
+        "draft": "Rascunho · por guardar",
+        "partial": "Publicada, mas alguns idiomas não puderam ser traduzidos. Aparecem no primeiro idioma disponível."
       },
       "errors": {
         "caption": "Escreva uma legenda com até {{max}} caracteres em pelo menos um idioma.",
@@ -105,8 +106,8 @@
         }
       },
       "translate": {
-        "button": "Traduzir a partir de {{lang}}",
-        "hint": "Traduz a legenda e a descrição que escreveu em {{lang}} para os outros dois idiomas. Os textos que já existam nesses idiomas são substituídos.",
+        "button": "Traduzir",
+        "hint": "Traduz o que escreveu neste separador para os outros idiomas. O idioma é detetado automaticamente. Os textos que já existam nos outros idiomas são substituídos.",
         "working": "A traduzir…",
         "done": "Traduzido. Reveja os textos antes de guardar.",
         "errors": {
@@ -118,7 +119,7 @@
       "themes": {
         "title": "Novo tema",
         "name": "Nome do tema",
-        "hint": "Escreva-o em {{lang}}; é traduzido para os outros dois idiomas.",
+        "hint": "Escreva-o em qualquer idioma; é traduzido automaticamente para os outros.",
         "add": "Criar tema",
         "working": "A criar…",
         "errors": {

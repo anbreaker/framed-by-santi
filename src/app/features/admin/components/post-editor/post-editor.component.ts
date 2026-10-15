@@ -41,7 +41,7 @@ export const MAX_CAPTION = 150;
 export const MAX_DESCRIPTION = 2200;
 
 type PhotosProblem = 'missing' | 'pending';
-type SaveStatus = 'idle' | 'saved' | 'saving' | 'failed';
+type SaveStatus = 'idle' | 'partial' | 'saved' | 'saving' | 'failed';
 type TranslateStatus = 'done' | 'idle' | 'working';
 
 const TRANSLATE_ERRORS: Record<TranslationError['reason'], string> = {
@@ -203,7 +203,8 @@ export class PostEditorComponent {
     this.translateErrorKey.set(null);
 
     try {
-      const result = await this.translation.translate(source, [
+      // The language is detected, so text typed in the wrong tab still comes out right in all three.
+      const result = await this.translation.translate('auto', [
         caption[source],
         description[source],
       ]);
@@ -211,7 +212,7 @@ export class PostEditorComponent {
       this.model.update((current) => {
         const next = { caption: { ...current.caption }, description: { ...current.description } };
 
-        SUPPORTED_LANGS.filter((lang) => lang !== source).forEach((lang) => {
+        SUPPORTED_LANGS.forEach((lang) => {
           next.caption[lang] = result[lang][0];
           next.description[lang] = result[lang][1];
         });
@@ -239,6 +240,48 @@ export class PostEditorComponent {
     );
   }
 
+  /**
+   * Translates what the author left empty, so a published set has its texts in every language. It fills
+   * only blank languages and never replaces what was written; returns false when the translation failed.
+   */
+  private async fillMissingLanguages(): Promise<boolean> {
+    const model = this.model();
+    const items = (['caption', 'description'] as const).flatMap((field) => {
+      const texts = model[field];
+      const written = [this.activeLang(), ...SUPPORTED_LANGS]
+        .map((lang) => texts[lang])
+        .find((text) => text.trim() !== '');
+      const someEmpty = SUPPORTED_LANGS.some((lang) => texts[lang].trim() === '');
+
+      return written !== undefined && someEmpty ? [{ field, text: written }] : [];
+    });
+
+    if (items.length === 0) return true;
+
+    try {
+      const result = await this.translation.translate(
+        'auto',
+        items.map((item) => item.text)
+      );
+
+      this.model.update((current) => {
+        const next = { caption: { ...current.caption }, description: { ...current.description } };
+
+        items.forEach(({ field }, index) => {
+          SUPPORTED_LANGS.filter((lang) => next[field][lang].trim() === '').forEach((lang) => {
+            next[field][lang] = result[lang][index];
+          });
+        });
+
+        return { ...current, ...next };
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   /** Saves the post; `hidden` true keeps it as a draft only admins can see, false publishes it. */
   protected async save(hidden: boolean): Promise<void> {
     const photos = this.photos();
@@ -251,6 +294,8 @@ export class PostEditorComponent {
     await submit(this.postForm, async () => {
       this.status.set('saving');
 
+      // Drafts are not translated, to keep the quota for what is actually published.
+      const translated = hidden ? true : await this.fillMissingLanguages();
       const value = this.model();
       const post = buildPost({
         ...value,
@@ -262,7 +307,7 @@ export class PostEditorComponent {
 
       try {
         const id = await this.posts.create(post, { hidden });
-        this.status.set('saved');
+        this.status.set(translated ? 'saved' : 'partial');
         this.saved.emit(id);
       } catch {
         this.status.set('failed');

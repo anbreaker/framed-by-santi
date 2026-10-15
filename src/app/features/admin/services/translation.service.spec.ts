@@ -38,6 +38,14 @@ describe('TranslationService', () => {
     expect(JSON.parse(init.body)).toEqual({ source: 'en', texts: ['Hello'] });
   });
 
+  it('should not send a source language when asked to detect it', async () => {
+    fetchFn.mockResolvedValue(json(200, { translations: TRANSLATIONS }));
+
+    await service.translate('auto', ['Hello']);
+
+    expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toEqual({ texts: ['Hello'] });
+  });
+
   it('should not call the API when there is nothing to translate', async () => {
     const result = await service.translate('es', []);
 

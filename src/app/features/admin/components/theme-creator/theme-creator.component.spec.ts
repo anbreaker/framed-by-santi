@@ -40,7 +40,6 @@ describe('ThemeCreatorComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ThemeCreatorComponent);
-    fixture.componentRef.setInput('sourceLang', 'en');
     fixture.componentInstance.created.subscribe((theme) => created.push(theme));
     await fixture.whenStable();
   });
@@ -59,7 +58,7 @@ describe('ThemeCreatorComponent', () => {
     button().click();
     await vi.waitFor(() => expect(created).toHaveLength(1));
 
-    expect(translate).toHaveBeenCalledWith('en', ['Sunset']);
+    expect(translate).toHaveBeenCalledWith('auto', ['Sunset']);
     expect(create).toHaveBeenCalledWith(LABEL);
     expect(
       TestBed.inject(PhotoPostsStore)
