@@ -15,11 +15,11 @@ describe('the hero photo preload in index.html', () => {
     expect(html).toMatch(/location\.pathname === '\/'/);
   });
 
-  it('should run before the Google Fonts stylesheet, which holds back every script that follows it', () => {
+  it('should run before any stylesheet, which holds back every script that follows it', () => {
     const script = html.indexOf("hero.rel = 'preload'");
-    const fonts = html.indexOf('fonts.googleapis.com/css2');
+    const stylesheet = html.search(/<link[^>]*rel="stylesheet"/);
 
     expect(script).toBeGreaterThan(-1);
-    expect(script).toBeLessThan(fonts);
+    expect(stylesheet === -1 || script < stylesheet).toBe(true);
   });
 });
