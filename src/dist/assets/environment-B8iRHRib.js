@@ -1,1 +1,0 @@
-var e={cloudinary:{cloudName:``,publicIdPrefix:``},env:`development`,firebase:{apiKey:``,appId:``,authDomain:``,messagingSenderId:``,projectId:``,storageBucket:``},production:!1};export{e as t};
