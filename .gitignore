@@ -1,5 +1,6 @@
 # Compiled output
-/dist
+# Build output, at any level: a build run from a subfolder must not end up in git.
+**/dist/
 /tmp
 /out-tsc
 *.tsbuildinfo
