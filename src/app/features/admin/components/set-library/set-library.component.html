@@ -124,29 +124,25 @@
                 </div>
               </div>
             } @else {
-              <div class="set-library__foot">
-                <a class="btn btn--ghost" [routerLink]="['/admin/sets', entry.post.id]">
-                  {{ t('admin.library.edit') }}
-                </a>
-                <label class="set-library__switch">
-                  <input
-                    class="set-library__input"
-                    #published
-                    role="switch"
-                    type="checkbox"
-                    [checked]="!entry.hidden"
-                    (change)="setPublished(entry.post.id, published)"
-                  />
-                  {{ entry.hidden ? t('admin.library.draft') : t('admin.library.published') }}
-                </label>
-                <button
-                  class="set-library__delete"
-                  type="button"
-                  (click)="askToDelete(entry.post.id)"
-                >
-                  {{ t('admin.library.delete') }}
-                </button>
-              </div>
+            <div class="set-library__foot">
+              <a class="btn btn--ghost" [routerLink]="['/admin/sets', entry.post.id]">
+                {{ t('admin.library.edit') }}
+              </a>
+              <label class="set-library__switch">
+                <input
+                  class="set-library__input"
+                  #published
+                  role="switch"
+                  type="checkbox"
+                  [checked]="!entry.hidden"
+                  (change)="setPublished(entry.post.id, published)"
+                />
+                {{ entry.hidden ? t('admin.library.draft') : t('admin.library.published') }}
+              </label>
+              <button class="set-library__delete" type="button" (click)="askToDelete(entry.post.id)">
+                {{ t('admin.library.delete') }}
+              </button>
+            </div>
             }
           </div>
         </li>

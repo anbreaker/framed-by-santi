@@ -73,9 +73,7 @@ export class PostsAdminService {
 
   /** Replaces the whole document of an existing post. */
   async save(post: PhotoPost, visibility: PostVisibility): Promise<void> {
-    await this.run((db) =>
-      setDoc(doc(db, 'posts', post.id), toPostDocument(stamped(post), visibility))
-    );
+    await this.run((db) => setDoc(doc(db, 'posts', post.id), toPostDocument(stamped(post), visibility)));
   }
 
   /** Hides or publishes a post without touching anything else in it. */
