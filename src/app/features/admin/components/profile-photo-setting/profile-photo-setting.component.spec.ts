@@ -8,8 +8,11 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
 import { ImageCodec } from '../../utils/prepare-photo';
-import { IMAGE_CODEC } from '../upload-panel/upload-panel.component';
-import { ProfilePhotoSettingComponent } from './profile-photo-setting.component';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../upload-panel/upload-panel.component';
+import {
+  PROFILE_PHOTO_TIMEOUTS,
+  ProfilePhotoSettingComponent,
+} from './profile-photo-setting.component';
 
 describe('ProfilePhotoSettingComponent', () => {
   let fixture: ComponentFixture<ProfilePhotoSettingComponent>;
@@ -32,6 +35,11 @@ describe('ProfilePhotoSettingComponent', () => {
     await fixture.whenStable();
   };
   const jpeg = (): File => new File(['x'], 'me.jpg', { type: 'image/jpeg' });
+  const makePreview = vi.fn();
+  const timeouts = { save: 1000, upload: 1000 };
+  const status = (): string => root().querySelector('[role="status"]')?.textContent?.trim() ?? '';
+  const shownImage = (): string | null =>
+    root().querySelector('.profile-photo-setting__photo img')?.getAttribute('src') ?? null;
 
   beforeEach(async () => {
     localStorage.clear();
@@ -41,11 +49,17 @@ describe('ProfilePhotoSettingComponent', () => {
       .mockReset()
       .mockResolvedValue({ height: 900, publicId: 'framed-by-santi/posts/me', width: 600 });
     saveProfilePhoto.mockReset().mockResolvedValue(undefined);
+    makePreview.mockReset().mockResolvedValue('blob:preview');
+    timeouts.save = 1000;
+    timeouts.upload = 1000;
+    URL.revokeObjectURL = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ProfilePhotoSettingComponent, realTranslations()],
       providers: [
         { provide: IMAGE_CODEC, useValue: codec },
+        { provide: PREVIEW_MAKER, useValue: makePreview },
+        { provide: PROFILE_PHOTO_TIMEOUTS, useValue: timeouts },
         { provide: PhotoUploadService, useValue: { upload } },
         { provide: SiteSettingsAdminService, useValue: { saveProfilePhoto } },
         {
@@ -112,6 +126,61 @@ describe('ProfilePhotoSettingComponent', () => {
     );
 
     expect(setProfilePhoto).not.toHaveBeenCalled();
+  });
+
+  it('should show the chosen photo at once, while it uploads', async () => {
+    upload.mockReturnValue(new Promise(() => undefined));
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(shownImage()).toBe('blob:preview'));
+
+    expect(status()).toBe('Uploading photo…');
+  });
+
+  it('should say when it is uploading and when it is saving', async () => {
+    let finishSave: () => void = () => undefined;
+    saveProfilePhoto.mockReturnValue(new Promise<void>((resolve) => (finishSave = resolve)));
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(status()).toBe('Saving…'));
+
+    finishSave();
+    await vi.waitFor(() => expect(status()).toContain('Saved'));
+    expect(shownImage()).toContain('framed-by-santi/posts/me');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:preview');
+  });
+
+  it('should give up with a clear message when the upload takes too long', async () => {
+    timeouts.upload = 20;
+    upload.mockReturnValue(new Promise(() => undefined));
+
+    await choose(jpeg());
+    await vi.waitFor(() =>
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('taking too long')
+    );
+
+    expect(saveProfilePhoto).not.toHaveBeenCalled();
+    expect(input().disabled).toBe(false);
+    expect(shownImage()).toBe('/assets/images/profile.webp');
+  });
+
+  it('should give up with a clear message when the save takes too long', async () => {
+    timeouts.save = 20;
+    saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
+
+    await choose(jpeg());
+    await vi.waitFor(() =>
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('taking too long')
+    );
+
+    expect(setProfilePhoto).not.toHaveBeenCalled();
+  });
+
+  it('should still upload when a preview cannot be made', async () => {
+    makePreview.mockRejectedValue(new Error('no decoder'));
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(setProfilePhoto).toHaveBeenCalled());
   });
 
   it('should not let a second photo be chosen while one is being saved', async () => {

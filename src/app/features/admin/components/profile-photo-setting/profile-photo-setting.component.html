@@ -1,11 +1,15 @@
 <section class="profile-photo-setting" *transloco="let t">
   <div class="profile-photo-setting__photo">
-    <app-post-photo
-      sizes="224px"
-      [alt]="t('about.photoAlt')"
-      [photo]="photo()"
-      [source]="source()"
-    />
+    @if (preview(); as url) {
+      <img class="profile-photo-setting__preview" [alt]="t('about.photoAlt')" [src]="url" />
+    } @else {
+      <app-post-photo
+        sizes="224px"
+        [alt]="t('about.photoAlt')"
+        [photo]="photo()"
+        [source]="source()"
+      />
+    }
   </div>
 
   <div class="profile-photo-setting__body">
@@ -18,21 +22,18 @@
       hidden
       type="file"
       [attr.aria-label]="t('admin.settings.profilePhoto.change')"
-      [disabled]="status() === 'working'"
+      [disabled]="busy()"
       (change)="onFileChosen($event)"
     />
-    <button
-      class="btn btn--ghost"
-      type="button"
-      [disabled]="status() === 'working'"
-      (click)="picker.click()"
-    >
+    <button class="btn btn--ghost" type="button" [disabled]="busy()" (click)="picker.click()">
       {{ t('admin.settings.profilePhoto.change') }}
     </button>
 
     <p class="profile-photo-setting__status" role="status">
-      @if (status() === 'working') {
-        {{ t('admin.settings.profilePhoto.working') }}
+      @if (status() === 'uploading') {
+        {{ t('admin.settings.profilePhoto.uploading') }}
+      } @else if (status() === 'saving') {
+        {{ t('admin.settings.profilePhoto.saving') }}
       } @else if (status() === 'saved') {
         {{ t('admin.settings.profilePhoto.saved') }}
       }

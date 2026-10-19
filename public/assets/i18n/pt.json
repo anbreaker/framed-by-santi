@@ -177,8 +177,10 @@
         "hint": "O retrato da página Sobre.",
         "saveFailed": "A foto foi carregada mas não foi possível guardá-la. Tente novamente.",
         "saved": "Guardada. Já aparece em Sobre.",
+        "saving": "A guardar…",
+        "timeout": "Está a demorar demasiado. Verifique a ligação, recarregue para ver se foi guardada e tente novamente.",
         "title": "Foto de perfil",
-        "working": "A carregar e guardar…"
+        "uploading": "A carregar a foto…"
       },
       "title": "Definições"
     },

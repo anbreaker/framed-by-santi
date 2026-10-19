@@ -177,8 +177,10 @@
         "hint": "El retrato de la página Sobre mí.",
         "saveFailed": "La foto se subió pero no se pudo guardar. Inténtalo de nuevo.",
         "saved": "Guardada. Ya se ve en Sobre mí.",
+        "saving": "Guardando…",
+        "timeout": "Está tardando demasiado. Revisa la conexión, recarga para ver si se guardó e inténtalo de nuevo.",
         "title": "Foto de perfil",
-        "working": "Subiendo y guardando…"
+        "uploading": "Subiendo foto…"
       },
       "title": "Ajustes"
     },
