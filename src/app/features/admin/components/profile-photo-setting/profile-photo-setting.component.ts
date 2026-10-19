@@ -91,7 +91,11 @@ export class ProfilePhotoSettingComponent {
     } catch (error) {
       // A slow save may still have gone through: ask the server before calling it a failure.
       const savedAnyway =
-        error instanceof TimeoutError && (await this.settingsAdmin.isProfilePhotoSaved(photo.id));
+        error instanceof TimeoutError &&
+        (await withTimeout(
+          this.settingsAdmin.isProfilePhotoSaved(photo.id),
+          this.timeouts.save
+        ).catch(() => false));
       if (!savedAnyway) {
         this.fail(
           error instanceof TimeoutError ? TIMEOUT_KEY : 'admin.settings.profilePhoto.saveFailed'

@@ -191,6 +191,19 @@ describe('ProfilePhotoSettingComponent', () => {
     expect(root().querySelector('[role="alert"]')).toBeNull();
   });
 
+  it('should give up when the server does not answer whether a slow save went through', async () => {
+    timeouts.save = 20;
+    saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
+    isProfilePhotoSaved.mockReturnValue(new Promise(() => undefined));
+
+    await choose(jpeg());
+    await vi.waitFor(() =>
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('taking too long')
+    );
+
+    expect(input().disabled).toBe(false);
+  });
+
   it('should show only the preview of the last photo chosen', async () => {
     // The first upload fails at once, before its slow preview is ready; then another photo is chosen.
     upload.mockRejectedValueOnce(new PhotoUploadError('upload-failed'));
