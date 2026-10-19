@@ -8,10 +8,11 @@ import {
 } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { PROFILE_PHOTO, PROFILE_PHOTO_SOURCE } from '@features/about/const/profile-photo.const';
+import { PROFILE_PHOTO } from '@features/about/const/profile-photo.const';
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { SiteSettingsStore } from '@features/site-settings/store/site-settings.store';
+import { portraitFor } from '@features/site-settings/utils/portrait';
 
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
@@ -58,10 +59,7 @@ export class ProfilePhotoSettingComponent {
   protected readonly busy = computed(
     () => this.status() === 'uploading' || this.status() === 'saving'
   );
-  protected readonly photo = computed(() => this.settings.profilePhoto() ?? PROFILE_PHOTO);
-  protected readonly source = computed(() =>
-    this.settings.profilePhoto() === null ? PROFILE_PHOTO_SOURCE : null
-  );
+  protected readonly portrait = computed(() => portraitFor(this.settings.profilePhoto()));
 
   protected async onFileChosen(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

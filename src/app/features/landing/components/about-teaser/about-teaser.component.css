@@ -41,3 +41,9 @@
     max-width: 30rem;
   }
 }
+
+/* Holds the portrait's place while the settings are read, so nothing jumps when it appears. */
+.about-teaser__placeholder {
+  aspect-ratio: 600 / 794;
+  background: var(--color-surface);
+}

@@ -1,11 +1,15 @@
 <section class="about-teaser" *transloco="let t">
   <div class="about-teaser__photo" appScrollReveal="frame">
-    <app-post-photo
-      sizes="(min-width: 768px) 480px, 320px"
-      [alt]="t('about.photoAlt')"
-      [photo]="profilePhoto"
-      [source]="profileSource"
-    />
+    @if (ready()) {
+      <app-post-photo
+        sizes="(min-width: 768px) 480px, 320px"
+        [alt]="t('about.photoAlt')"
+        [photo]="portrait().photo"
+        [source]="portrait().source"
+      />
+    } @else {
+      <div class="about-teaser__placeholder"></div>
+    }
   </div>
 
   <div class="about-teaser__text" appScrollReveal>

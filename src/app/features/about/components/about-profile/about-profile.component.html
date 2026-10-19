@@ -5,8 +5,8 @@
         sizes="(min-width: 768px) 480px, 384px"
         [alt]="t('about.photoAlt')"
         [eager]="true"
-        [photo]="profilePhoto()"
-        [source]="profileSource()"
+        [photo]="portrait().photo"
+        [source]="portrait().source"
       />
     } @else {
       <div class="about-profile__placeholder"></div>
