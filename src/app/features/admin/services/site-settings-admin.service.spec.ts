@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
+import { SAVED_PROFILE_PHOTO, SAVED_SITE_SETTINGS } from '@shared/testing/settings-site.fixture';
+
 import { SiteSettingsAdminError, SiteSettingsAdminService } from './site-settings-admin.service';
 
 const mocks = vi.hoisted(() => ({ getDb: vi.fn(), getDocFromServer: vi.fn(), setDoc: vi.fn() }));
@@ -20,9 +22,10 @@ describe('SiteSettingsAdminService', () => {
   });
 
   it('should save the profile photo as the only field of settings/site', async () => {
-    await TestBed.inject(SiteSettingsAdminService).saveProfilePhoto(photo);
+    await TestBed.inject(SiteSettingsAdminService).saveProfilePhoto(SAVED_PROFILE_PHOTO);
 
-    expect(mocks.setDoc).toHaveBeenCalledWith({ path: 'settings/site' }, { profilePhoto: photo });
+    // The shape the photo cleanup reads; see settings-site.fixture.ts.
+    expect(mocks.setDoc).toHaveBeenCalledWith({ path: 'settings/site' }, SAVED_SITE_SETTINGS);
   });
 
   it('should fail clearly when Firebase is not configured or the write is refused', async () => {

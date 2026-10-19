@@ -233,10 +233,19 @@ describe('ProfilePhotoSettingComponent', () => {
     await vi.waitFor(() => expect(setProfilePhoto).toHaveBeenCalled());
   });
 
-  it('should not let a second photo be chosen while one is being saved', async () => {
+  it('should not let another photo be chosen while one uploads', async () => {
     upload.mockReturnValue(new Promise(() => undefined));
 
     await choose(jpeg());
+
+    expect(input().disabled).toBe(true);
+  });
+
+  it('should not let another photo be chosen while one is being saved', async () => {
+    saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(status()).toBe('Saving…'));
 
     expect(input().disabled).toBe(true);
   });
