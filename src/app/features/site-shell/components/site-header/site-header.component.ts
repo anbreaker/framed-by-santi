@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { AuthStore } from '@features/auth/store/auth.store';
+import { AdminSessionStore } from '@features/auth/store/admin-session.store';
 import { LangSelectorComponent } from '@shared/components/lang-selector/lang-selector.component';
 
 @Component({
@@ -15,11 +15,11 @@ import { LangSelectorComponent } from '@shared/components/lang-selector/lang-sel
   host: { '(keydown.escape)': 'closeMenu()' },
 })
 export class SiteHeaderComponent {
-  private readonly authStore = inject(AuthStore);
+  private readonly adminSession = inject(AdminSessionStore);
   private readonly router = inject(Router);
 
   /** Only a signed-in admin sees the sign out button; visitors never see anything about accounts. */
-  protected readonly isAdmin = this.authStore.isAdmin;
+  protected readonly isAdmin = this.adminSession.isAdmin;
   protected readonly menuOpen = signal(false);
 
   protected closeMenu(): void {
@@ -28,7 +28,7 @@ export class SiteHeaderComponent {
 
   protected async signOut(): Promise<void> {
     this.closeMenu();
-    await this.authStore.signOut();
+    await this.adminSession.signOut();
     await this.router.navigateByUrl('/');
   }
 
