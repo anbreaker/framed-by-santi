@@ -27,6 +27,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Site settings the public pages show (the About portrait); only admins change them,
+    // and only the fields the dashboard edits.
+    match /settings/site {
+      allow read: if true;
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['profilePhoto']);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

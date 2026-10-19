@@ -1,6 +1,6 @@
 import { FirebaseEnvironment } from '@environments/environment.model';
 
-import { queryCollection } from './firestore-rest';
+import { getDocument, queryCollection } from './firestore-rest';
 
 const CONFIG: FirebaseEnvironment = {
   apiKey: 'key',
@@ -93,5 +93,49 @@ describe('queryCollection', () => {
     fetchMock.mockResolvedValue(answer({ error: { status: 'PERMISSION_DENIED' } }, false));
 
     await expect(queryCollection('posts', undefined, CONFIG)).rejects.toThrow('403');
+  });
+});
+
+describe('getDocument', () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('should read one document of the project and return its plain data', async () => {
+    fetchMock.mockResolvedValue(
+      answer({
+        fields: { name: { stringValue: 'Santi' } },
+        name: 'projects/project/databases/(default)/documents/settings/site',
+      })
+    );
+
+    await expect(getDocument('settings', 'site', CONFIG)).resolves.toEqual({
+      data: { name: 'Santi' },
+      id: 'site',
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://firestore.googleapis.com/v1/projects/project/databases/(default)/documents/settings/site?key=key'
+    );
+  });
+
+  it('should return null for a document that does not exist', async () => {
+    fetchMock.mockResolvedValue({
+      json: () => Promise.resolve({}),
+      ok: false,
+      status: 404,
+    } as Response);
+
+    await expect(getDocument('settings', 'site', CONFIG)).resolves.toBeNull();
+  });
+
+  it('should fail when Firestore refuses the read', async () => {
+    fetchMock.mockResolvedValue(answer({}, false));
+
+    await expect(getDocument('settings', 'site', CONFIG)).rejects.toThrow('403');
   });
 });

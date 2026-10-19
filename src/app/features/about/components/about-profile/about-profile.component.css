@@ -12,6 +12,12 @@
   max-width: 24rem;
 }
 
+/* Holds the portrait's place while the settings are read, so nothing jumps when it appears. */
+.about-profile__placeholder {
+  aspect-ratio: 600 / 794;
+  background: var(--color-surface);
+}
+
 .about-profile__text {
   align-items: flex-start;
   display: flex;

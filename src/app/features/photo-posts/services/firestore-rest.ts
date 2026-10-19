@@ -13,9 +13,22 @@ export interface FieldEquals {
   field: string;
 }
 
-interface RunQueryRow {
-  document?: { fields?: Record<string, FirestoreValue>; name: string };
+interface RestDocument {
+  fields?: Record<string, FirestoreValue>;
+  name: string;
 }
+
+interface RunQueryRow {
+  document?: RestDocument;
+}
+
+const documentsUrl = (config: FirebaseEnvironment): string =>
+  `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents`;
+
+const toDocument = (document: RestDocument): FirestoreDocument => ({
+  data: fromFirestoreFields(document.fields ?? {}),
+  id: document.name.split('/').pop() ?? '',
+});
 
 /**
  * Reads a collection through the Firestore REST API, so the public pages do not need the Firebase SDK.
@@ -37,20 +50,26 @@ export async function queryCollection(
     };
   }
 
-  const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents:runQuery?key=${config.apiKey}`;
+  const url = `${documentsUrl(config)}:runQuery?key=${config.apiKey}`;
   // A string body goes as text/plain, which Firestore accepts and the browser sends without a CORS preflight.
   const response = await fetch(url, { body: JSON.stringify({ structuredQuery }), method: 'POST' });
   if (!response.ok) throw new Error(`Firestore query failed with ${response.status}`);
 
   const rows = (await response.json()) as RunQueryRow[];
-  return rows.flatMap(({ document }) =>
-    document === undefined
-      ? []
-      : [
-          {
-            data: fromFirestoreFields(document.fields ?? {}),
-            id: document.name.split('/').pop() ?? '',
-          },
-        ]
+  return rows.flatMap(({ document }) => (document === undefined ? [] : [toDocument(document)]));
+}
+
+/** Reads one document through the Firestore REST API; null when it does not exist. */
+export async function getDocument(
+  collectionId: string,
+  id: string,
+  config: FirebaseEnvironment = environment.firebase
+): Promise<FirestoreDocument | null> {
+  const response = await fetch(
+    `${documentsUrl(config)}/${collectionId}/${id}?key=${config.apiKey}`
   );
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Firestore read failed with ${response.status}`);
+
+  return toDocument((await response.json()) as RestDocument);
 }
