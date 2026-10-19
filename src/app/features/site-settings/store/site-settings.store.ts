@@ -9,7 +9,7 @@ import { toSiteSettings } from '../models/site-settings.model';
 
 /** How long the portrait waits for the settings before showing the one that ships with the site. */
 export const SETTINGS_READ_TIMEOUT = new InjectionToken<number>('SETTINGS_READ_TIMEOUT', {
-  factory: (): number => 3_000,
+  factory: (): number => 3000,
 });
 
 /** The site settings for the public pages, read without the Firebase SDK. */

@@ -35,7 +35,7 @@ interface ProfilePhotoTimeouts {
 /** How long each step may take before the admin is told something is wrong. */
 export const PROFILE_PHOTO_TIMEOUTS = new InjectionToken<ProfilePhotoTimeouts>(
   'PROFILE_PHOTO_TIMEOUTS',
-  { factory: (): ProfilePhotoTimeouts => ({ save: 20_000, upload: 120_000, verify: 5_000 }) }
+  { factory: (): ProfilePhotoTimeouts => ({ save: 20000, upload: 120000, verify: 5000 }) }
 );
 
 const TIMEOUT_KEY = 'admin.settings.profilePhoto.timeout';

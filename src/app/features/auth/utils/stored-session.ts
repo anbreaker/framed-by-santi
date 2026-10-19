@@ -4,7 +4,7 @@ const DATABASE = 'firebaseLocalStorageDb';
 const STORE = 'firebaseLocalStorage';
 const USER_KEY_PREFIX = 'firebase:authUser:';
 /** Some browsers never answer an IndexedDB request; past this, it counts as no session. */
-const CHECK_TIMEOUT_MS = 2_000;
+const CHECK_TIMEOUT_MS = 2000;
 
 const settle = <T>(request: IDBRequest<T>): Promise<T> =>
   new Promise((resolve, reject) => {

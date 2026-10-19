@@ -3,7 +3,7 @@ import { withNavigationErrorHandler } from '@angular/router';
 
 const LAST_RELOAD_KEY = 'framed-chunk-reload';
 /** A second failure on the same page this soon after reloading is a real outage, not an old build. */
-const RETRY_WINDOW_MS = 10_000;
+const RETRY_WINDOW_MS = 10000;
 
 /** Messages browsers and Vite give when a lazy part of the app cannot be downloaded. */
 const CHUNK_LOAD_ERROR =

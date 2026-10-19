@@ -212,7 +212,7 @@ describe('ProfilePhotoSettingComponent', () => {
     saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
     // Once the check starts, a reused save limit would be far too long to see the error in time.
     isProfilePhotoSaved.mockImplementation(() => {
-      timeouts.save = 60_000;
+      timeouts.save = 60000;
       return new Promise(() => undefined);
     });
 
