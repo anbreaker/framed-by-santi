@@ -11,8 +11,9 @@ export const STORED_SESSION_CHECK = new InjectionToken<() => Promise<boolean>>(
 );
 
 /**
- * What the public pages know about the admin, without the Firebase SDK. Auth is loaded only when the hint
- * says someone signed in on this browser, or when something asks for it (the admin guard, the sign out).
+ * What the public pages know about the admin, without the Firebase SDK. Auth is loaded when the hint says
+ * an admin signed in on this browser, when Firebase kept a signed-in user from before the hint existed,
+ * or when something asks for it (the admin guard, the sign out).
  */
 @Injectable({ providedIn: 'root' })
 export class AdminSessionStore {

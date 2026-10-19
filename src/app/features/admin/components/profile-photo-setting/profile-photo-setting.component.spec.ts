@@ -37,7 +37,7 @@ describe('ProfilePhotoSettingComponent', () => {
   };
   const jpeg = (): File => new File(['x'], 'me.jpg', { type: 'image/jpeg' });
   const makePreview = vi.fn();
-  const timeouts = { save: 1000, upload: 1000 };
+  const timeouts = { save: 1000, upload: 1000, verify: 1000 };
   const status = (): string => root().querySelector('[role="status"]')?.textContent?.trim() ?? '';
   const shownImage = (): string | null =>
     root().querySelector('.profile-photo-setting__photo img')?.getAttribute('src') ?? null;
@@ -54,6 +54,7 @@ describe('ProfilePhotoSettingComponent', () => {
     makePreview.mockReset().mockResolvedValue('blob:preview');
     timeouts.save = 1000;
     timeouts.upload = 1000;
+    timeouts.verify = 1000;
     URL.revokeObjectURL = vi.fn();
 
     await TestBed.configureTestingModule({
@@ -193,6 +194,7 @@ describe('ProfilePhotoSettingComponent', () => {
 
   it('should give up when the server does not answer whether a slow save went through', async () => {
     timeouts.save = 20;
+    timeouts.verify = 20;
     saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
     isProfilePhotoSaved.mockReturnValue(new Promise(() => undefined));
 
@@ -202,6 +204,23 @@ describe('ProfilePhotoSettingComponent', () => {
     );
 
     expect(input().disabled).toBe(false);
+  });
+
+  it('should ask the server with its own, shorter time limit, not the save one again', async () => {
+    timeouts.save = 20;
+    timeouts.verify = 20;
+    saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
+    // Once the check starts, a reused save limit would be far too long to see the error in time.
+    isProfilePhotoSaved.mockImplementation(() => {
+      timeouts.save = 60_000;
+      return new Promise(() => undefined);
+    });
+
+    await choose(jpeg());
+
+    await vi.waitFor(() =>
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('taking too long')
+    );
   });
 
   it('should show only the preview of the last photo chosen', async () => {

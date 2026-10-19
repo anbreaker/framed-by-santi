@@ -1,6 +1,6 @@
 import { PhotoUploadError } from '../services/photo-upload.service';
-import { uploadErrorKey } from './photo-upload-tokens';
 import { PhotoRejectedError } from './prepare-photo';
+import { uploadErrorKey } from './upload-error-key';
 
 describe('uploadErrorKey', () => {
   it('should explain why a photo was rejected or could not upload', () => {

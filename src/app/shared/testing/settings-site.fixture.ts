@@ -1,4 +1,4 @@
-import { Photo } from '@features/photo-posts/models/photo.model';
+import type { Photo } from '@features/photo-posts/models/photo.model';
 
 /**
  * The `settings/site` document exactly as the dashboard saves it. The save test and the photo cleanup

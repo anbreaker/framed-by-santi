@@ -79,4 +79,13 @@ describe('hasStoredFirebaseUser', () => {
   it('should find nothing without IndexedDB at all', async () => {
     await expect(hasStoredFirebaseUser(undefined)).resolves.toBe(false);
   });
+
+  it('should give up, finding nothing, when IndexedDB never answers', async () => {
+    const factory = {
+      databases: () => new Promise(() => undefined),
+      open: vi.fn(),
+    } as unknown as IDBFactory;
+
+    await expect(hasStoredFirebaseUser(factory, 20)).resolves.toBe(false);
+  });
 });

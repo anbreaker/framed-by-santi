@@ -28,6 +28,7 @@ describe('AdminSessionStore', () => {
 
   it('should not load auth for a visitor, who never signed in on this browser', async () => {
     const session = TestBed.inject(AdminSessionStore);
+    await vi.waitFor(() => expect(storedSession).toHaveBeenCalledTimes(1));
     await new Promise((resolve) => setTimeout(resolve));
 
     expect(createAuth).not.toHaveBeenCalled();

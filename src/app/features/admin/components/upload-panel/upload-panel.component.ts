@@ -10,8 +10,9 @@ import {
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { PhotoUploadService, UploadedPhoto } from '../../services/photo-upload.service';
-import { IMAGE_CODEC, PREVIEW_MAKER, uploadErrorKey } from '../../utils/photo-upload-tokens';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../../utils/photo-upload-tokens';
 import { MAX_LONG_EDGE, PhotoWarning, preparePhoto } from '../../utils/prepare-photo';
+import { uploadErrorKey } from '../../utils/upload-error-key';
 
 type UploadStatus = 'done' | 'failed' | 'preparing' | 'uploading';
 

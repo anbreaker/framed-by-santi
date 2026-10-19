@@ -17,16 +17,25 @@ import { TimeoutError, withTimeout } from '@shared/utils/with-timeout';
 
 import { PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
-import { IMAGE_CODEC, PREVIEW_MAKER, uploadErrorKey } from '../../utils/photo-upload-tokens';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../../utils/photo-upload-tokens';
 import { preparePhoto } from '../../utils/prepare-photo';
+import { uploadErrorKey } from '../../utils/upload-error-key';
 
 type Status = 'idle' | 'saved' | 'saving' | 'uploading';
 
-/** How long the upload and the save may take before the admin is told something is wrong. */
-export const PROFILE_PHOTO_TIMEOUTS = new InjectionToken<{ save: number; upload: number }>(
+interface ProfilePhotoTimeouts {
+  /** One small write. */
+  save: number;
+  /** A large photo on a slow connection can take a while. */
+  upload: number;
+  /** Asking the server whether a save that timed out went through anyway. */
+  verify: number;
+}
+
+/** How long each step may take before the admin is told something is wrong. */
+export const PROFILE_PHOTO_TIMEOUTS = new InjectionToken<ProfilePhotoTimeouts>(
   'PROFILE_PHOTO_TIMEOUTS',
-  // A large photo on a slow connection can take a while to upload; a save is one small write.
-  { factory: (): { save: number; upload: number } => ({ save: 20_000, upload: 120_000 }) }
+  { factory: (): ProfilePhotoTimeouts => ({ save: 20_000, upload: 120_000, verify: 5_000 }) }
 );
 
 const TIMEOUT_KEY = 'admin.settings.profilePhoto.timeout';
@@ -94,7 +103,7 @@ export class ProfilePhotoSettingComponent {
         error instanceof TimeoutError &&
         (await withTimeout(
           this.settingsAdmin.isProfilePhotoSaved(photo.id),
-          this.timeouts.save
+          this.timeouts.verify
         ).catch(() => false));
       if (!savedAnyway) {
         this.fail(
