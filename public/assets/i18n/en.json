@@ -161,11 +161,17 @@
       "title": "Sign in",
       "unavailable": "Sign-in is not available right now."
     },
+    "nav": {
+      "ariaLabel": "Admin sections",
+      "sets": "Sets",
+      "settings": "Settings"
+    },
     "set": {
       "loadFailed": "Could not load this set. Check your connection.",
       "notFound": "This set does not exist any more."
     },
     "settings": {
+      "intro": "What the site shows about Santi.",
       "profilePhoto": {
         "change": "Change photo",
         "hint": "The portrait on the About page.",
@@ -173,7 +179,8 @@
         "saved": "Saved. The About page shows it now.",
         "title": "Profile photo",
         "working": "Uploading and saving…"
-      }
+      },
+      "title": "Settings"
     },
     "upload": {
       "errors": {

@@ -16,6 +16,6 @@
   }
 }
 
-.admin-library__settings {
-  margin-top: var(--space-6);
+.admin-library__nav {
+  margin-bottom: var(--space-5);
 }

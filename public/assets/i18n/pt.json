@@ -161,11 +161,17 @@
       "title": "Iniciar sessão",
       "unavailable": "O acesso não está disponível neste momento."
     },
+    "nav": {
+      "ariaLabel": "Secções do painel",
+      "sets": "Séries",
+      "settings": "Definições"
+    },
     "set": {
       "loadFailed": "Não foi possível carregar esta série. Verifique a ligação.",
       "notFound": "Esta série já não existe."
     },
     "settings": {
+      "intro": "O que o site mostra sobre o Santi.",
       "profilePhoto": {
         "change": "Mudar foto",
         "hint": "O retrato da página Sobre.",
@@ -173,7 +179,8 @@
         "saved": "Guardada. Já aparece em Sobre.",
         "title": "Foto de perfil",
         "working": "A carregar e guardar…"
-      }
+      },
+      "title": "Definições"
     },
     "upload": {
       "errors": {

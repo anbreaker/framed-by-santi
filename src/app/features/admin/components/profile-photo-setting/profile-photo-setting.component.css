@@ -2,16 +2,25 @@
   display: block;
 }
 
+/* One card per setting, so more settings can sit next to this one later. */
 .profile-photo-setting {
-  align-items: center;
-  border-top: 1px solid var(--color-hairline);
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: 6rem minmax(0, 1fr);
-  padding-top: var(--space-5);
+  max-width: 48rem;
+  padding: var(--space-4);
+
+  @media (min-width: 700px) {
+    align-items: center;
+    gap: var(--space-5);
+    grid-template-columns: 14rem minmax(0, 1fr);
+    padding: var(--space-5);
+  }
 }
 
 .profile-photo-setting__photo {
+  max-width: 14rem;
   overflow: hidden;
 }
 
@@ -23,24 +32,26 @@
 }
 
 .profile-photo-setting__title {
-  font-size: 1.25rem;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  margin: 0;
 }
 
-.profile-photo-setting__hint,
+.profile-photo-setting__hint {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
 .profile-photo-setting__status {
   color: var(--color-text-muted);
-}
+  margin: 0;
 
-.profile-photo-setting__status:empty {
-  display: none;
+  &:empty {
+    display: none;
+  }
 }
 
 .profile-photo-setting__error {
   color: var(--color-error);
-}
-
-@media (min-width: 768px) {
-  .profile-photo-setting {
-    grid-template-columns: 10rem minmax(0, 1fr);
-  }
+  margin: 0;
 }
