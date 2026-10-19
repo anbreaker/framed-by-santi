@@ -1,14 +1,21 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 
 import { isFirebaseConfigured } from '@features/auth/services/firebase-config';
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { getDocument } from '@features/photo-posts/services/firestore-rest';
+import { withTimeout } from '@shared/utils/with-timeout';
 
 import { toSiteSettings } from '../models/site-settings.model';
+
+/** How long the portrait waits for the settings before showing the one that ships with the site. */
+export const SETTINGS_READ_TIMEOUT = new InjectionToken<number>('SETTINGS_READ_TIMEOUT', {
+  factory: (): number => 3_000,
+});
 
 /** The site settings for the public pages, read without the Firebase SDK. */
 @Injectable({ providedIn: 'root' })
 export class SiteSettingsStore {
+  private readonly timeout = inject(SETTINGS_READ_TIMEOUT);
   private readonly configured = isFirebaseConfigured();
   private readonly _profilePhoto = signal<Photo | null>(null);
   private readonly _ready = signal(!this.configured);
@@ -17,7 +24,7 @@ export class SiteSettingsStore {
   /** The About portrait chosen in the dashboard; null means the one that ships with the site. */
   readonly profilePhoto = this._profilePhoto.asReadonly();
 
-  /** False until the settings have been read (or failed to), so the page can wait instead of flashing. */
+  /** False until the settings have been read (or failed, or took too long), so the page can wait instead of flashing. */
   readonly ready = this._ready.asReadonly();
 
   constructor() {
@@ -32,13 +39,19 @@ export class SiteSettingsStore {
   }
 
   private async load(): Promise<void> {
+    const read = getDocument('settings', 'site');
+    // A late answer still applies, so the chosen portrait replaces the bundled one once it arrives.
+    read.then((document) => this.apply(document?.data)).catch(() => undefined);
+
     try {
-      const document = await getDocument('settings', 'site');
-      if (!this.changedMeanwhile)
-        this._profilePhoto.set(toSiteSettings(document?.data).profilePhoto);
+      await withTimeout(read, this.timeout);
     } catch {
-      // Keep the portrait that ships with the site.
+      // Failed or too slow: show the portrait that ships with the site.
     }
     this._ready.set(true);
+  }
+
+  private apply(data: unknown): void {
+    if (!this.changedMeanwhile) this._profilePhoto.set(toSiteSettings(data).profilePhoto);
   }
 }

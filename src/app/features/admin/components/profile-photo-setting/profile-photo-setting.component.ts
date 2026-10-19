@@ -13,11 +13,11 @@ import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { SiteSettingsStore } from '@features/site-settings/store/site-settings.store';
 import { portraitFor } from '@features/site-settings/utils/portrait';
+import { TimeoutError, withTimeout } from '@shared/utils/with-timeout';
 
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
 import { PhotoRejectedError, preparePhoto } from '../../utils/prepare-photo';
-import { TimeoutError, withTimeout } from '../../utils/with-timeout';
 import {
   IMAGE_CODEC,
   PREVIEW_MAKER,
