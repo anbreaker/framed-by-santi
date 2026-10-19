@@ -51,6 +51,8 @@ export class ProfilePhotoSettingComponent {
   private readonly settings = inject(SiteSettingsStore);
   private readonly settingsAdmin = inject(SiteSettingsAdminService);
   private readonly uploads = inject(PhotoUploadService);
+  /** Counts the photos chosen, so a slow preview of an earlier one is never shown. */
+  private choice = 0;
 
   protected readonly errorKey = signal<string | null>(null);
   /** The chosen file, shown at once while it uploads and saves. */
@@ -69,7 +71,7 @@ export class ProfilePhotoSettingComponent {
 
     this.errorKey.set(null);
     this.status.set('uploading');
-    void this.showPreview(file);
+    void this.showPreview(file, ++this.choice);
 
     let photo: Photo;
     try {
@@ -97,10 +99,15 @@ export class ProfilePhotoSettingComponent {
     try {
       await withTimeout(this.settingsAdmin.saveProfilePhoto(photo), this.timeouts.save);
     } catch (error) {
-      this.fail(
-        error instanceof TimeoutError ? TIMEOUT_KEY : 'admin.settings.profilePhoto.saveFailed'
-      );
-      return;
+      // A slow save may still have gone through: ask the server before calling it a failure.
+      const savedAnyway =
+        error instanceof TimeoutError && (await this.settingsAdmin.isProfilePhotoSaved(photo.id));
+      if (!savedAnyway) {
+        this.fail(
+          error instanceof TimeoutError ? TIMEOUT_KEY : 'admin.settings.profilePhoto.saveFailed'
+        );
+        return;
+      }
     }
 
     this.settings.setProfilePhoto(photo);
@@ -109,7 +116,7 @@ export class ProfilePhotoSettingComponent {
   }
 
   /** Shows a small version of the chosen file; without one the frame keeps the current portrait. */
-  private async showPreview(file: File): Promise<void> {
+  private async showPreview(file: File, choice: number): Promise<void> {
     let url: string;
     try {
       url = await this.previewMaker(file);
@@ -117,8 +124,8 @@ export class ProfilePhotoSettingComponent {
       return;
     }
 
-    // The upload may already be over (or failed) by the time the preview is ready.
-    if (this.busy()) {
+    // The upload may be over by now, or another photo may have been chosen meanwhile.
+    if (choice === this.choice && this.busy()) {
       this.preview.set(url);
     } else {
       URL.revokeObjectURL(url);

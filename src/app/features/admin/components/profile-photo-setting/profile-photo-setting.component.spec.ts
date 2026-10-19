@@ -20,6 +20,7 @@ describe('ProfilePhotoSettingComponent', () => {
   const setProfilePhoto = vi.fn((photo: Photo) => profilePhoto.set(photo));
   const upload = vi.fn();
   const saveProfilePhoto = vi.fn();
+  const isProfilePhotoSaved = vi.fn();
   // A small JPEG fits as it is, so it is uploaded untouched.
   const codec: ImageCodec = {
     decode: vi.fn().mockResolvedValue({ height: 900, source: {}, width: 600 }),
@@ -49,6 +50,7 @@ describe('ProfilePhotoSettingComponent', () => {
       .mockReset()
       .mockResolvedValue({ height: 900, publicId: 'framed-by-santi/posts/me', width: 600 });
     saveProfilePhoto.mockReset().mockResolvedValue(undefined);
+    isProfilePhotoSaved.mockReset().mockResolvedValue(false);
     makePreview.mockReset().mockResolvedValue('blob:preview');
     timeouts.save = 1000;
     timeouts.upload = 1000;
@@ -61,7 +63,7 @@ describe('ProfilePhotoSettingComponent', () => {
         { provide: PREVIEW_MAKER, useValue: makePreview },
         { provide: PROFILE_PHOTO_TIMEOUTS, useValue: timeouts },
         { provide: PhotoUploadService, useValue: { upload } },
-        { provide: SiteSettingsAdminService, useValue: { saveProfilePhoto } },
+        { provide: SiteSettingsAdminService, useValue: { isProfilePhotoSaved, saveProfilePhoto } },
         {
           provide: SiteSettingsStore,
           useValue: { profilePhoto, ready: signal(true), setProfilePhoto },
@@ -174,6 +176,41 @@ describe('ProfilePhotoSettingComponent', () => {
     );
 
     expect(setProfilePhoto).not.toHaveBeenCalled();
+  });
+
+  it('should count a slow save as saved when the server already has the photo', async () => {
+    timeouts.save = 20;
+    saveProfilePhoto.mockReturnValue(new Promise(() => undefined));
+    isProfilePhotoSaved.mockResolvedValue(true);
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(status()).toContain('Saved'));
+
+    expect(isProfilePhotoSaved).toHaveBeenCalledWith('framed-by-santi/posts/me');
+    expect(setProfilePhoto).toHaveBeenCalled();
+    expect(root().querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it('should show only the preview of the last photo chosen', async () => {
+    // The first upload fails at once, before its slow preview is ready; then another photo is chosen.
+    upload.mockRejectedValueOnce(new PhotoUploadError('upload-failed'));
+    upload.mockReturnValue(new Promise(() => undefined));
+    let firstPreview: (url: string) => void = () => undefined;
+    makePreview
+      .mockReturnValueOnce(new Promise<string>((resolve) => (firstPreview = resolve)))
+      .mockResolvedValueOnce('blob:second');
+
+    await choose(jpeg());
+    await vi.waitFor(() => expect(input().disabled).toBe(false));
+    await choose(jpeg());
+    await vi.waitFor(() => expect(shownImage()).toBe('blob:second'));
+
+    firstPreview('blob:first');
+    await new Promise((resolve) => setTimeout(resolve));
+    await fixture.whenStable();
+
+    expect(shownImage()).toBe('blob:second');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:first');
   });
 
   it('should still upload when a preview cannot be made', async () => {

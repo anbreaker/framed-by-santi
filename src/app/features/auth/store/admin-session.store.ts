@@ -1,7 +1,14 @@
-import { computed, inject, Injectable, Injector, signal } from '@angular/core';
+import { computed, inject, Injectable, InjectionToken, Injector, signal } from '@angular/core';
 
 import { hasAdminHint } from '../utils/admin-hint';
+import { hasStoredFirebaseUser } from '../utils/stored-session';
 import type { AuthStore } from './auth.store';
+
+/** Tells whether Firebase kept a signed-in user on this browser; replaced in tests. */
+export const STORED_SESSION_CHECK = new InjectionToken<() => Promise<boolean>>(
+  'STORED_SESSION_CHECK',
+  { factory: (): (() => Promise<boolean>) => () => hasStoredFirebaseUser() }
+);
 
 /**
  * What the public pages know about the admin, without the Firebase SDK. Auth is loaded only when the hint
@@ -10,6 +17,7 @@ import type { AuthStore } from './auth.store';
 @Injectable({ providedIn: 'root' })
 export class AdminSessionStore {
   private readonly injector = inject(Injector);
+  private readonly storedSession = inject(STORED_SESSION_CHECK);
   private readonly auth = signal<AuthStore | null>(null);
   private loading: Promise<AuthStore> | null = null;
 
@@ -18,7 +26,11 @@ export class AdminSessionStore {
 
   constructor() {
     // If auth cannot be loaded (offline), the admin links just stay hidden until it can.
-    if (hasAdminHint()) this.load().catch(() => undefined);
+    if (hasAdminHint()) {
+      this.load().catch(() => undefined);
+    } else {
+      void this.loadForOldSession();
+    }
   }
 
   /** Loads auth once; later calls get the same store, and a failed load can be tried again. */
@@ -34,6 +46,11 @@ export class AdminSessionStore {
         throw error;
       });
     return this.loading;
+  }
+
+  /** A session from before the hint existed: load auth once, and auth leaves the hint for next time. */
+  private async loadForOldSession(): Promise<void> {
+    if (await this.storedSession()) await this.load().catch(() => undefined);
   }
 
   /** Called by AuthStore when it is created, so a sign in on /admin shows in the header without reloading. */
