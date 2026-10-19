@@ -3,8 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../../utils/photo-upload-tokens';
 import { ImageCodec } from '../../utils/prepare-photo';
-import { IMAGE_CODEC, PREVIEW_MAKER, UploadPanelComponent } from './upload-panel.component';
+import { UploadPanelComponent } from './upload-panel.component';
 
 const fileOf = (name: string, type = 'image/jpeg'): File =>
   new File([new Uint8Array(1)], name, { type });

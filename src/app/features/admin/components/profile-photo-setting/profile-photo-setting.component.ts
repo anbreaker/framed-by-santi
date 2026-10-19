@@ -13,24 +13,29 @@ import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/
 import { Photo } from '@features/photo-posts/models/photo.model';
 import { SiteSettingsStore } from '@features/site-settings/store/site-settings.store';
 import { portraitFor } from '@features/site-settings/utils/portrait';
+import { TimeoutError, withTimeout } from '@shared/utils/with-timeout';
 
-import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
+import { PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
-import { PhotoRejectedError, preparePhoto } from '../../utils/prepare-photo';
-import { TimeoutError, withTimeout } from '../../utils/with-timeout';
-import {
-  IMAGE_CODEC,
-  PREVIEW_MAKER,
-  UPLOAD_ERROR_KEYS,
-} from '../upload-panel/upload-panel.component';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../../utils/photo-upload-tokens';
+import { preparePhoto } from '../../utils/prepare-photo';
+import { uploadErrorKey } from '../../utils/upload-error-key';
 
 type Status = 'idle' | 'saved' | 'saving' | 'uploading';
 
-/** How long the upload and the save may take before the admin is told something is wrong. */
-export const PROFILE_PHOTO_TIMEOUTS = new InjectionToken<{ save: number; upload: number }>(
+interface ProfilePhotoTimeouts {
+  /** One small write. */
+  save: number;
+  /** A large photo on a slow connection can take a while. */
+  upload: number;
+  /** Asking the server whether a save that timed out went through anyway. */
+  verify: number;
+}
+
+/** How long each step may take before the admin is told something is wrong. */
+export const PROFILE_PHOTO_TIMEOUTS = new InjectionToken<ProfilePhotoTimeouts>(
   'PROFILE_PHOTO_TIMEOUTS',
-  // A large photo on a slow connection can take a while to upload; a save is one small write.
-  { factory: (): { save: number; upload: number } => ({ save: 20_000, upload: 120_000 }) }
+  { factory: (): ProfilePhotoTimeouts => ({ save: 20000, upload: 120000, verify: 5000 }) }
 );
 
 const TIMEOUT_KEY = 'admin.settings.profilePhoto.timeout';
@@ -51,6 +56,8 @@ export class ProfilePhotoSettingComponent {
   private readonly settings = inject(SiteSettingsStore);
   private readonly settingsAdmin = inject(SiteSettingsAdminService);
   private readonly uploads = inject(PhotoUploadService);
+  /** Counts the photos chosen, so a slow preview of an earlier one is never shown. */
+  private choice = 0;
 
   protected readonly errorKey = signal<string | null>(null);
   /** The chosen file, shown at once while it uploads and saves. */
@@ -69,7 +76,7 @@ export class ProfilePhotoSettingComponent {
 
     this.errorKey.set(null);
     this.status.set('uploading');
-    void this.showPreview(file);
+    void this.showPreview(file, ++this.choice);
 
     let photo: Photo;
     try {
@@ -83,13 +90,7 @@ export class ProfilePhotoSettingComponent {
         width: uploaded.width,
       };
     } catch (error) {
-      this.fail(
-        error instanceof TimeoutError
-          ? TIMEOUT_KEY
-          : error instanceof PhotoRejectedError || error instanceof PhotoUploadError
-            ? UPLOAD_ERROR_KEYS[error.reason]
-            : UPLOAD_ERROR_KEYS['upload-failed']
-      );
+      this.fail(error instanceof TimeoutError ? TIMEOUT_KEY : uploadErrorKey(error));
       return;
     }
 
@@ -97,10 +98,19 @@ export class ProfilePhotoSettingComponent {
     try {
       await withTimeout(this.settingsAdmin.saveProfilePhoto(photo), this.timeouts.save);
     } catch (error) {
-      this.fail(
-        error instanceof TimeoutError ? TIMEOUT_KEY : 'admin.settings.profilePhoto.saveFailed'
-      );
-      return;
+      // A slow save may still have gone through: ask the server before calling it a failure.
+      const savedAnyway =
+        error instanceof TimeoutError &&
+        (await withTimeout(
+          this.settingsAdmin.isProfilePhotoSaved(photo.id),
+          this.timeouts.verify
+        ).catch(() => false));
+      if (!savedAnyway) {
+        this.fail(
+          error instanceof TimeoutError ? TIMEOUT_KEY : 'admin.settings.profilePhoto.saveFailed'
+        );
+        return;
+      }
     }
 
     this.settings.setProfilePhoto(photo);
@@ -109,7 +119,7 @@ export class ProfilePhotoSettingComponent {
   }
 
   /** Shows a small version of the chosen file; without one the frame keeps the current portrait. */
-  private async showPreview(file: File): Promise<void> {
+  private async showPreview(file: File, choice: number): Promise<void> {
     let url: string;
     try {
       url = await this.previewMaker(file);
@@ -117,8 +127,8 @@ export class ProfilePhotoSettingComponent {
       return;
     }
 
-    // The upload may already be over (or failed) by the time the preview is ready.
-    if (this.busy()) {
+    // The upload may be over by now, or another photo may have been chosen meanwhile.
+    if (choice === this.choice && this.busy()) {
       this.preview.set(url);
     } else {
       URL.revokeObjectURL(url);

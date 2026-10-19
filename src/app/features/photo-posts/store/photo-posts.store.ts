@@ -1,11 +1,11 @@
 import { computed, Injectable, signal } from '@angular/core';
 
+import { queryCollection } from '@core/firestore/firestore-rest';
 import { isFirebaseConfigured } from '@features/auth/services/firebase-config';
 
 import { LOCAL_PHOTO_POSTS } from '../data/local-photo-posts.data';
 import { PhotoPost } from '../models/photo-post.model';
 import { DEFAULT_THEMES, Theme, toTheme } from '../models/theme.model';
-import { queryCollection } from '../services/firestore-rest';
 import { toPhotoPost } from '../utils/post-from-document';
 import { byNewest } from '../utils/post-order';
 

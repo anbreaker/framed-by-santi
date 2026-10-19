@@ -14,6 +14,7 @@ import {
 import { provideTransloco } from '@jsverse/transloco';
 
 import { DEFAULT_LANG, SUPPORTED_LANGS } from '@core/const/lang.const';
+import { withChunkLoadRecovery } from '@core/router/chunk-load-recovery';
 import { I18nLoaderService } from '@core/services/i18n-loader.service';
 import { prefetchTranslations } from '@core/utils/prefetch-translations';
 import { skipSamePageTransitions } from '@core/utils/view-transition';
@@ -44,7 +45,8 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'enabled',
       }),
       withComponentInputBinding(),
-      withViewTransitions({ onViewTransitionCreated: skipSamePageTransitions })
+      withViewTransitions({ onViewTransitionCreated: skipSamePageTransitions }),
+      withChunkLoadRecovery()
     ),
   ],
 };

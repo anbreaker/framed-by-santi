@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SiteSettingsStore } from './site-settings.store';
+import { SETTINGS_READ_TIMEOUT, SiteSettingsStore } from './site-settings.store';
 
 const mocks = vi.hoisted(() => ({ configured: vi.fn(), getDocument: vi.fn() }));
 
 vi.mock('@features/auth/services/firebase-config', () => ({
   isFirebaseConfigured: mocks.configured,
 }));
-vi.mock('@features/photo-posts/services/firestore-rest', () => ({
+vi.mock('@core/firestore/firestore-rest', () => ({
   getDocument: mocks.getDocument,
 }));
 
@@ -80,5 +80,33 @@ describe('SiteSettingsStore', () => {
 
     expect(store.profilePhoto()).toEqual(photo);
     expect(store.ready()).toBe(true);
+  });
+
+  describe('when the settings take too long', () => {
+    beforeEach(() => {
+      TestBed.configureTestingModule({
+        providers: [{ provide: SETTINGS_READ_TIMEOUT, useValue: 20 }],
+      });
+    });
+
+    it('should stop waiting and show the portrait that ships with the site', async () => {
+      mocks.getDocument.mockReturnValue(new Promise(() => undefined));
+
+      const store = TestBed.inject(SiteSettingsStore);
+
+      await vi.waitFor(() => expect(store.ready()).toBe(true));
+      expect(store.profilePhoto()).toBeNull();
+    });
+
+    it('should still show the chosen photo when the answer comes late', async () => {
+      let answer: (value: unknown) => void = () => undefined;
+      mocks.getDocument.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+      const store = TestBed.inject(SiteSettingsStore);
+      await vi.waitFor(() => expect(store.ready()).toBe(true));
+
+      answer({ data: { profilePhoto: photo }, id: 'site' });
+
+      await vi.waitFor(() => expect(store.profilePhoto()).toEqual(photo));
+    });
   });
 });

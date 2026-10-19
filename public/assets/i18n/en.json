@@ -172,6 +172,20 @@
     },
     "settings": {
       "intro": "What the site shows about Santi.",
+      "password": {
+        "failed": "The email could not be sent. Try again.",
+        "hint": "We will email a link to {{email}} to choose a new password.",
+        "noEmail": "This account has no email, so its password cannot be changed from here.",
+        "resend": "Send the email again",
+        "send": "Send a link to change the password",
+        "sending": "Sending…",
+        "sent": "Email sent to {{email}}. Now:",
+        "step1": "Open the email from Firebase. If it has not arrived in a few minutes, check spam.",
+        "step2": "Follow the link and type your new password. The link expires after a while: if it says so, send a new one from here.",
+        "step3": "Come back here and sign in again with the new password. This browser may sign you out on its own.",
+        "title": "Password",
+        "tooMany": "Too many emails asked for in a row. Wait a few minutes and try again."
+      },
       "profilePhoto": {
         "change": "Change photo",
         "hint": "The portrait on the About page.",

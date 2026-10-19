@@ -1,3 +1,4 @@
+import { SAVED_SITE_SETTINGS } from '../src/app/shared/testing/settings-site.fixture';
 import { CleanupEnv, handleCleanup } from './_cleanup-photos.js';
 
 const ENV: CleanupEnv = {
@@ -42,6 +43,19 @@ const post = (...publicIds: string[]): Record<string, unknown> => ({
     },
   },
 });
+
+/** A plain object as the Firestore REST API sends it. */
+const toRestFields = (data: Record<string, unknown>): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key,
+      typeof value === 'number'
+        ? { integerValue: String(value) }
+        : typeof value === 'object' && value !== null
+          ? { mapValue: { fields: toRestFields(value as Record<string, unknown>) } }
+          : { stringValue: String(value) },
+    ])
+  );
 
 interface World {
   /** Pages of Firestore documents; each inner array is one page. */
@@ -236,6 +250,17 @@ describe('cleanup-photos', () => {
           profilePhoto: { mapValue: { fields: { id: { stringValue: `${FOLDER}/profile` } } } },
         },
       },
+    });
+    await response;
+
+    expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
+  });
+
+  it('should keep the portrait exactly as the dashboard saves it', async () => {
+    const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[photo('used', 40), photo('portrait', 40), photo('orphan', 40)]],
+      settings: { fields: toRestFields(SAVED_SITE_SETTINGS) },
     });
     await response;
 

@@ -172,6 +172,20 @@
     },
     "settings": {
       "intro": "Lo que la web muestra de Santi.",
+      "password": {
+        "failed": "No se pudo enviar el correo. Inténtalo de nuevo.",
+        "hint": "Te enviaremos un correo a {{email}} con un enlace para elegir una contraseña nueva.",
+        "noEmail": "Esta cuenta no tiene correo, así que su contraseña no se puede cambiar desde aquí.",
+        "resend": "Reenviar el correo",
+        "send": "Enviar enlace para cambiar la contraseña",
+        "sending": "Enviando…",
+        "sent": "Correo enviado a {{email}}. Ahora:",
+        "step1": "Abre el correo de Firebase. Si no llega en unos minutos, mira en spam.",
+        "step2": "Pulsa el enlace y escribe tu contraseña nueva. El enlace caduca al poco tiempo: si te dice que ha caducado, envía otro desde aquí.",
+        "step3": "Vuelve aquí e inicia sesión de nuevo con la contraseña nueva. Puede que este navegador cierre tu sesión solo.",
+        "title": "Contraseña",
+        "tooMany": "Has pedido demasiados correos seguidos. Espera unos minutos e inténtalo de nuevo."
+      },
       "profilePhoto": {
         "change": "Cambiar foto",
         "hint": "El retrato de la página Sobre mí.",

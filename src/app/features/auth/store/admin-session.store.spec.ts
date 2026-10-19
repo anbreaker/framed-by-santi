@@ -2,7 +2,7 @@ import { Injector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { setAdminHint } from '../utils/admin-hint';
-import { AdminSessionStore } from './admin-session.store';
+import { AdminSessionStore, STORED_SESSION_CHECK } from './admin-session.store';
 import { AuthStore } from './auth.store';
 
 describe('AdminSessionStore', () => {
@@ -10,19 +10,25 @@ describe('AdminSessionStore', () => {
   const signOut = vi.fn();
   const createAuth = vi.fn();
   const fakeAuth = { isAdmin, signOut } as unknown as AuthStore;
+  const storedSession = vi.fn();
 
   beforeEach(() => {
     localStorage.clear();
     isAdmin.set(false);
     signOut.mockReset().mockResolvedValue(undefined);
     createAuth.mockReset().mockReturnValue(fakeAuth);
+    storedSession.mockReset().mockResolvedValue(false);
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthStore, useFactory: createAuth }],
+      providers: [
+        { provide: AuthStore, useFactory: createAuth },
+        { provide: STORED_SESSION_CHECK, useValue: storedSession },
+      ],
     });
   });
 
   it('should not load auth for a visitor, who never signed in on this browser', async () => {
     const session = TestBed.inject(AdminSessionStore);
+    await vi.waitFor(() => expect(storedSession).toHaveBeenCalledTimes(1));
     await new Promise((resolve) => setTimeout(resolve));
 
     expect(createAuth).not.toHaveBeenCalled();
@@ -37,6 +43,25 @@ describe('AdminSessionStore', () => {
 
     await vi.waitFor(() => expect(session.isAdmin()).toBe(true));
     expect(createAuth).toHaveBeenCalledTimes(1);
+  });
+
+  it('should load auth for an admin whose session predates the hint', async () => {
+    storedSession.mockResolvedValue(true);
+    isAdmin.set(true);
+
+    const session = TestBed.inject(AdminSessionStore);
+
+    await vi.waitFor(() => expect(session.isAdmin()).toBe(true));
+    expect(createAuth).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not look for an old session when the hint already says to load auth', async () => {
+    setAdminHint(true);
+
+    TestBed.inject(AdminSessionStore);
+    await vi.waitFor(() => expect(createAuth).toHaveBeenCalled());
+
+    expect(storedSession).not.toHaveBeenCalled();
   });
 
   it('should follow the admin state of the loaded auth', async () => {

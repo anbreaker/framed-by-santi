@@ -172,6 +172,20 @@
     },
     "settings": {
       "intro": "O que o site mostra sobre o Santi.",
+      "password": {
+        "failed": "Não foi possível enviar o email. Tente novamente.",
+        "hint": "Vamos enviar um email para {{email}} com uma ligação para escolher uma palavra-passe nova.",
+        "noEmail": "Esta conta não tem email, por isso a palavra-passe não pode ser alterada aqui.",
+        "resend": "Reenviar o email",
+        "send": "Enviar ligação para alterar a palavra-passe",
+        "sending": "A enviar…",
+        "sent": "Email enviado para {{email}}. Agora:",
+        "step1": "Abra o email do Firebase. Se não chegar em poucos minutos, veja no spam.",
+        "step2": "Siga a ligação e escreva a palavra-passe nova. A ligação expira ao fim de algum tempo: se indicar que expirou, envie outra a partir daqui.",
+        "step3": "Volte aqui e inicie sessão de novo com a palavra-passe nova. Este navegador pode terminar a sessão sozinho.",
+        "title": "Palavra-passe",
+        "tooMany": "Pediu demasiados emails seguidos. Aguarde alguns minutos e tente novamente."
+      },
       "profilePhoto": {
         "change": "Mudar foto",
         "hint": "O retrato da página Sobre.",
