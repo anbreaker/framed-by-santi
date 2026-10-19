@@ -15,3 +15,7 @@
     padding-block: var(--space-5) var(--space-7);
   }
 }
+
+.admin-library__settings {
+  margin-top: var(--space-6);
+}

@@ -1,0 +1,45 @@
+<section class="profile-photo-setting" *transloco="let t">
+  <div class="profile-photo-setting__photo">
+    <app-post-photo
+      sizes="160px"
+      [alt]="t('about.photoAlt')"
+      [photo]="photo()"
+      [source]="source()"
+    />
+  </div>
+
+  <div class="profile-photo-setting__body">
+    <h2 class="profile-photo-setting__title">{{ t('admin.settings.profilePhoto.title') }}</h2>
+    <p class="profile-photo-setting__hint">{{ t('admin.settings.profilePhoto.hint') }}</p>
+
+    <input
+      #picker
+      accept="image/jpeg,image/png,image/webp"
+      hidden
+      type="file"
+      [attr.aria-label]="t('admin.settings.profilePhoto.change')"
+      [disabled]="status() === 'working'"
+      (change)="onFileChosen($event)"
+    />
+    <button
+      class="btn btn--ghost"
+      type="button"
+      [disabled]="status() === 'working'"
+      (click)="picker.click()"
+    >
+      {{ t('admin.settings.profilePhoto.change') }}
+    </button>
+
+    <p class="profile-photo-setting__status" role="status">
+      @if (status() === 'working') {
+        {{ t('admin.settings.profilePhoto.working') }}
+      } @else if (status() === 'saved') {
+        {{ t('admin.settings.profilePhoto.saved') }}
+      }
+    </p>
+
+    @if (errorKey(); as key) {
+      <p class="profile-photo-setting__error" role="alert">{{ t(key) }}</p>
+    }
+  </div>
+</section>

@@ -48,7 +48,10 @@ export async function fillMissingLanguages(
     'auto',
     items.map((item) => item.text)
   );
-  const filled: PostTexts = { caption: { ...texts.caption }, description: { ...texts.description } };
+  const filled: PostTexts = {
+    caption: { ...texts.caption },
+    description: { ...texts.description },
+  };
 
   items.forEach(({ field }, index) => {
     SUPPORTED_LANGS.filter((lang) => filled[field][lang].trim() === '').forEach((lang) => {

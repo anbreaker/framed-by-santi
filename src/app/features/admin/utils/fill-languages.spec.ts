@@ -1,6 +1,9 @@
 import { fillMissingLanguages, PostTexts, toLanguageTexts } from './fill-languages';
 
-const texts = (caption: PostTexts['caption'], description?: PostTexts['description']): PostTexts => ({
+const texts = (
+  caption: PostTexts['caption'],
+  description?: PostTexts['description']
+): PostTexts => ({
   caption,
   description: description ?? { en: '', es: '', pt: '' },
 });
@@ -39,7 +42,10 @@ describe('fillMissingLanguages', () => {
   });
 
   it('should translate nothing for a field that has no text in any language', async () => {
-    const result = await fillMissingLanguages(texts({ en: 'Only caption', es: '', pt: '' }), translate);
+    const result = await fillMissingLanguages(
+      texts({ en: 'Only caption', es: '', pt: '' }),
+      translate
+    );
 
     expect(translate).toHaveBeenCalledWith('auto', ['Only caption']);
     expect(result.description).toEqual({ en: '', es: '', pt: '' });

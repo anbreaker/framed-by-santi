@@ -165,6 +165,16 @@
       "loadFailed": "Could not load this set. Check your connection.",
       "notFound": "This set does not exist any more."
     },
+    "settings": {
+      "profilePhoto": {
+        "change": "Change photo",
+        "hint": "The portrait on the About page.",
+        "saveFailed": "The photo was uploaded but could not be saved. Try again.",
+        "saved": "Saved. The About page shows it now.",
+        "title": "Profile photo",
+        "working": "Uploading and saving…"
+      }
+    },
     "upload": {
       "errors": {
         "notAllowed": "This account is not allowed to upload. Sign in again.",

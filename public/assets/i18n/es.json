@@ -165,6 +165,16 @@
       "loadFailed": "No se pudo cargar esta serie. Revisa tu conexión.",
       "notFound": "Esta serie ya no existe."
     },
+    "settings": {
+      "profilePhoto": {
+        "change": "Cambiar foto",
+        "hint": "El retrato de la página Sobre mí.",
+        "saveFailed": "La foto se subió pero no se pudo guardar. Inténtalo de nuevo.",
+        "saved": "Guardada. Ya se ve en Sobre mí.",
+        "title": "Foto de perfil",
+        "working": "Subiendo y guardando…"
+      }
+    },
     "upload": {
       "errors": {
         "notAllowed": "Esta cuenta no tiene permiso para subir. Vuelve a iniciar sesión.",

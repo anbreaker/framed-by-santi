@@ -122,7 +122,10 @@ export class SetLibraryComponent {
     const post = this.entries()?.find((entry) => entry.post.id === postId)?.post;
     if (post === undefined) return this.posts.setHidden(postId, false);
 
-    const texts = { caption: toLanguageTexts(post.caption), description: toLanguageTexts(post.description) };
+    const texts = {
+      caption: toLanguageTexts(post.caption),
+      description: toLanguageTexts(post.description),
+    };
     let filled = texts;
 
     try {
