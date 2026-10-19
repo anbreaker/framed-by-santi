@@ -34,6 +34,7 @@ describe('AdminSettingsPageComponent', () => {
     expect(root().querySelector('app-admin-shell app-admin-nav')).not.toBeNull();
     expect(root().querySelector('h1')?.textContent).toContain('Settings');
     expect(root().querySelector('app-profile-photo-setting')).not.toBeNull();
+    expect(root().querySelector('app-password-setting')).not.toBeNull();
   });
 
   it('should keep search engines away, like the other admin pages', () => {
