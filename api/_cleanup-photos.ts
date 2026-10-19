@@ -7,7 +7,7 @@ const GRACE_DAYS = 7;
 const MAX_DELETES_PER_RUN = 100;
 /** Public ids go in the address of a DELETE call, so the batches stay small and the address short. */
 const DELETE_BATCH = 25;
-const REQUEST_TIMEOUT_MS = 10_000;
+const REQUEST_TIMEOUT_MS = 10000;
 
 export interface CleanupEnv {
   apiKey: string | undefined;
