@@ -1,6 +1,8 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 import { getFirebaseAuth, getFirebaseDb } from '../services/firebase-client';
+import { setAdminHint } from '../utils/admin-hint';
+import { AdminSessionStore } from './admin-session.store';
 
 import {
   Auth,
@@ -41,6 +43,8 @@ export class AuthStore {
   readonly user = this._user.asReadonly();
 
   constructor() {
+    inject(AdminSessionStore).attach(this);
+
     if (this.auth === null || this.db === null) {
       this._status.set('unavailable');
       this.resolveReady();
@@ -82,6 +86,7 @@ export class AuthStore {
       this._user.set(null);
       this._isAdmin.set(false);
       this._status.set('signed-out');
+      setAdminHint(false);
       this.resolveReady();
       return;
     }
@@ -92,6 +97,7 @@ export class AuthStore {
     this._user.set({ email: firebaseUser.email, uid: firebaseUser.uid });
     this._isAdmin.set(isAdmin);
     this._status.set('signed-in');
+    setAdminHint(isAdmin);
     this.resolveReady();
   }
 

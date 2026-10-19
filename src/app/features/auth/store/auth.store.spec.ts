@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
 import { getFirebaseAuth, getFirebaseDb } from '../services/firebase-client';
+import { hasAdminHint, setAdminHint } from '../utils/admin-hint';
+import { AdminSessionStore } from './admin-session.store';
 import { AuthStore } from './auth.store';
 
 import {
@@ -51,6 +53,7 @@ function createStore(): AuthStore {
 describe('AuthStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
     fakeAuth.currentUser = null;
     configureFirebase();
   });
@@ -125,6 +128,51 @@ describe('AuthStore', () => {
 
     expect(store.status()).toBe('signed-out');
     expect(store.isAdmin()).toBe(false);
+  });
+
+  describe('admin hint', () => {
+    it('should leave the hint once an admin is confirmed, so the public pages load auth next time', async () => {
+      vi.mocked(getDoc).mockResolvedValue({ exists: () => true } as never);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'uid-1' });
+      await store.whenReady();
+
+      expect(hasAdminHint()).toBe(true);
+    });
+
+    it('should clear the hint when the user signs out', async () => {
+      setAdminHint(true);
+      const store = createStore();
+
+      emitAuthState(null);
+      await store.whenReady();
+
+      expect(hasAdminHint()).toBe(false);
+    });
+
+    it('should clear the hint for a signed-in user who is not an admin', async () => {
+      setAdminHint(true);
+      vi.mocked(getDoc).mockResolvedValue({ exists: () => false } as never);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'stranger' });
+      await store.whenReady();
+
+      expect(hasAdminHint()).toBe(false);
+    });
+  });
+
+  it('should let the admin session follow it when it is created elsewhere, like the sign in page', async () => {
+    vi.mocked(getDoc).mockResolvedValue({ exists: () => true } as never);
+    const store = createStore();
+    const session = TestBed.inject(AdminSessionStore);
+    expect(session.isAdmin()).toBe(false);
+
+    emitAuthState({ email: null, uid: 'uid-1' });
+    await store.whenReady();
+
+    expect(session.isAdmin()).toBe(true);
   });
 
   it('should settle the admin check before sign in resolves', async () => {

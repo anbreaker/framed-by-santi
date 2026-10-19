@@ -161,9 +161,28 @@
       "title": "Iniciar sesión",
       "unavailable": "El acceso no está disponible ahora mismo."
     },
+    "nav": {
+      "ariaLabel": "Secciones del panel",
+      "sets": "Series",
+      "settings": "Ajustes"
+    },
     "set": {
       "loadFailed": "No se pudo cargar esta serie. Revisa tu conexión.",
       "notFound": "Esta serie ya no existe."
+    },
+    "settings": {
+      "intro": "Lo que la web muestra de Santi.",
+      "profilePhoto": {
+        "change": "Cambiar foto",
+        "hint": "El retrato de la página Sobre mí.",
+        "saveFailed": "La foto se subió pero no se pudo guardar. Inténtalo de nuevo.",
+        "saved": "Guardada. Ya se ve en Sobre mí.",
+        "saving": "Guardando…",
+        "timeout": "Está tardando demasiado. Revisa la conexión, recarga para ver si se guardó e inténtalo de nuevo.",
+        "title": "Foto de perfil",
+        "uploading": "Subiendo foto…"
+      },
+      "title": "Ajustes"
     },
     "upload": {
       "errors": {

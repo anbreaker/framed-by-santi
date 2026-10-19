@@ -65,7 +65,11 @@ export interface UploadItem {
   warnings: PhotoWarning[];
 }
 
-const ERROR_KEYS: Record<PhotoRejectedError['reason'] | PhotoUploadError['reason'], string> = {
+/** The message for each reason a photo could not be prepared or uploaded. */
+export const UPLOAD_ERROR_KEYS: Record<
+  PhotoRejectedError['reason'] | PhotoUploadError['reason'],
+  string
+> = {
   'not-allowed': 'admin.upload.errors.notAllowed',
   'sign-failed': 'admin.upload.errors.signFailed',
   'too-large': 'admin.upload.errors.tooLarge',
@@ -165,8 +169,8 @@ export class UploadPanelComponent {
     } catch (error) {
       const reason =
         error instanceof PhotoRejectedError || error instanceof PhotoUploadError
-          ? ERROR_KEYS[error.reason]
-          : ERROR_KEYS['upload-failed'];
+          ? UPLOAD_ERROR_KEYS[error.reason]
+          : UPLOAD_ERROR_KEYS['upload-failed'];
       this.patch(id, { errorKey: reason, status: 'failed' });
       this.finished.emit({ localId: id, result: null });
     }

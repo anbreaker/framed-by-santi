@@ -1,12 +1,16 @@
 <section class="about-profile" *transloco="let t">
   <div class="about-profile__photo" appScrollReveal="frame">
-    <app-post-photo
-      sizes="(min-width: 768px) 480px, 384px"
-      [alt]="t('about.photoAlt')"
-      [eager]="true"
-      [photo]="profilePhoto"
-      [source]="profileSource"
-    />
+    @if (ready()) {
+      <app-post-photo
+        sizes="(min-width: 768px) 480px, 384px"
+        [alt]="t('about.photoAlt')"
+        [eager]="true"
+        [photo]="portrait().photo"
+        [source]="portrait().source"
+      />
+    } @else {
+      <div class="about-profile__placeholder"></div>
+    }
   </div>
 
   <div class="about-profile__text" appScrollReveal>

@@ -1,14 +1,10 @@
 import { environment } from '@environments/environment';
-import { FirebaseEnvironment } from '@environments/environment.model';
+
+import { isFirebaseConfigured } from './firebase-config';
 
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
-
-/** True when the public Firebase web config is present; otherwise the app runs on local data. */
-export function isFirebaseConfigured(config: FirebaseEnvironment = environment.firebase): boolean {
-  return config.apiKey !== '' && config.appId !== '' && config.projectId !== '';
-}
 
 function getFirebaseApp(): FirebaseApp | null {
   if (!isFirebaseConfigured()) return null;

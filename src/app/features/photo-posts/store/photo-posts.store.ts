@@ -1,19 +1,18 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import { getFirebaseDb } from '@features/auth/services/firebase-client';
+import { isFirebaseConfigured } from '@features/auth/services/firebase-config';
 
 import { LOCAL_PHOTO_POSTS } from '../data/local-photo-posts.data';
 import { PhotoPost } from '../models/photo-post.model';
 import { DEFAULT_THEMES, Theme, toTheme } from '../models/theme.model';
+import { queryCollection } from '../services/firestore-rest';
 import { toPhotoPost } from '../utils/post-from-document';
 import { byNewest } from '../utils/post-order';
-
-import { collection, getDocs, query, where } from 'firebase/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class PhotoPostsStore {
   /** Without Firebase the bundled posts are all there is; with it they only wait there if it cannot be read. */
-  private readonly firebaseConfigured = getFirebaseDb() !== null;
+  private readonly firebaseConfigured = isFirebaseConfigured();
   private readonly _posts = signal<readonly PhotoPost[]>(
     this.firebaseConfigured ? [] : LOCAL_PHOTO_POSTS
   );
@@ -59,13 +58,11 @@ export class PhotoPostsStore {
 
   /** Adds the themes created in Firestore to the default ones; a failure leaves the defaults. */
   private async loadThemes(): Promise<void> {
-    const db = getFirebaseDb();
-    if (db === null) return;
+    if (!this.firebaseConfigured) return;
 
     try {
-      const snapshot = await getDocs(collection(db, 'themes'));
-      snapshot.docs
-        .map((item) => toTheme(item.id, item.data()))
+      (await queryCollection('themes'))
+        .map((item) => toTheme(item.id, item.data))
         .filter((theme): theme is Theme => theme !== null)
         .forEach((theme) => this.addTheme(theme));
     } catch {
@@ -110,17 +107,16 @@ export class PhotoPostsStore {
    * that cannot return hidden posts.
    */
   private async fetchPublished(): Promise<PhotoPost[] | null | undefined> {
-    const db = getFirebaseDb();
-    if (db === null) return null;
+    if (!this.firebaseConfigured) return null;
 
     const request = ++this.latestRequest;
 
     try {
-      const snapshot = await getDocs(query(collection(db, 'posts'), where('hidden', '==', false)));
+      const documents = await queryCollection('posts', { equals: false, field: 'hidden' });
       if (request !== this.latestRequest) return undefined;
 
-      return snapshot.docs
-        .map((item) => toPhotoPost(item.id, item.data()))
+      return documents
+        .map((item) => toPhotoPost(item.id, item.data))
         .filter((post): post is PhotoPost => post !== null)
         .sort(byNewest);
     } catch {

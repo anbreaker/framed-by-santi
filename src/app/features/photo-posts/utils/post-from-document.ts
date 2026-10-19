@@ -14,7 +14,8 @@ function isPositiveNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0;
 }
 
-function toPhoto(value: unknown): Photo | null {
+/** A photo as stored in Firestore, or null when it cannot be shown. */
+export function toPhoto(value: unknown): Photo | null {
   if (!isFields(value)) return null;
 
   const { alt, description, height, id, publicId, title, width } = value;

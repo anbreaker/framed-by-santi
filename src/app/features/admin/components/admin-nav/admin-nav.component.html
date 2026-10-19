@@ -1,0 +1,18 @@
+<nav class="admin-nav" *transloco="let t" [attr.aria-label]="t('admin.nav.ariaLabel')">
+  <a
+    class="admin-nav__link"
+    ariaCurrentWhenActive="page"
+    routerLink="/admin/dashboard"
+    routerLinkActive="admin-nav__link--active"
+  >
+    {{ t('admin.nav.sets') }}
+  </a>
+  <a
+    class="admin-nav__link"
+    ariaCurrentWhenActive="page"
+    routerLink="/admin/settings"
+    routerLinkActive="admin-nav__link--active"
+  >
+    {{ t('admin.nav.settings') }}
+  </a>
+</nav>

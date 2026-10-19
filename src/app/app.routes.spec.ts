@@ -1,3 +1,4 @@
+import { adminGuard } from '@features/auth/guards/admin.guard';
 import { HomePageComponent } from '@pages/home/home.page';
 
 import { routes } from './app.routes';
@@ -17,5 +18,12 @@ describe('routes', () => {
     lazy
       .filter((route) => route.loadComponent !== undefined)
       .forEach((route) => expect(route.component).toBeUndefined());
+  });
+
+  it('should keep every admin page behind the admin guard, except the sign-in page', () => {
+    const admin = routes.filter((route) => route.path?.startsWith('admin/'));
+
+    expect(admin.map((route) => route.path)).toContain('admin/settings');
+    admin.forEach((route) => expect(route.canActivate).toEqual([adminGuard]));
   });
 });

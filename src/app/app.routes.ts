@@ -34,6 +34,12 @@ export const routes: Routes = [
       (await import('@pages/admin-library/admin-library.page')).AdminLibraryPageComponent,
   },
   {
+    path: 'admin/settings',
+    canActivate: [adminGuard],
+    loadComponent: async () =>
+      (await import('@pages/admin-settings/admin-settings.page')).AdminSettingsPageComponent,
+  },
+  {
     path: 'admin/sets/new',
     canActivate: [adminGuard],
     loadComponent: async () =>

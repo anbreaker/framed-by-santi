@@ -16,7 +16,8 @@ export interface CleanupEnv {
   firebaseProjectId: string | undefined;
 }
 
-type Failure = 'delete-failed' | 'posts-unavailable' | 'storage-unavailable';
+type Failure =
+  'delete-failed' | 'posts-unavailable' | 'settings-unavailable' | 'storage-unavailable';
 
 class CleanupError extends Error {
   constructor(readonly reason: Failure) {
@@ -94,6 +95,42 @@ const readUsedPhotos = async (
   } while (pageToken !== undefined);
 
   return used;
+};
+
+/**
+ * The photos the site settings use (the About portrait). A settings document that was never saved uses
+ * none; any other failure stops the clean-up, because the portrait could be among the orphans.
+ */
+const readSettingsPhotos = async (
+  fetchFn: FetchFn,
+  projectId: string,
+  idToken: string
+): Promise<string[]> => {
+  const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/settings/site`;
+  let document: {
+    fields?: {
+      profilePhoto?: { mapValue?: { fields?: Record<string, { stringValue?: string }> } };
+    };
+  };
+
+  try {
+    const response = await fetchFn(url, {
+      headers: { Authorization: `Bearer ${idToken}` },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+
+    if (response.status === 404) return [];
+    if (!response.ok) throw new CleanupError('settings-unavailable');
+
+    document = (await response.json()) as typeof document;
+  } catch (error) {
+    throw error instanceof CleanupError ? error : new CleanupError('settings-unavailable');
+  }
+
+  const fields = document.fields?.profilePhoto?.mapValue?.fields;
+  return ['publicId', 'id']
+    .map((key) => fields?.[key]?.stringValue)
+    .filter((id): id is string => Boolean(id));
 };
 
 const adminUrl = (cloudName: string): string =>
@@ -177,8 +214,8 @@ const deleteUploads = async (
 };
 
 /**
- * Deletes the photos in the upload folder that no set uses and that are old enough. It is built to do
- * nothing when in doubt: if the sets or Cloudinary cannot be read, nothing is deleted.
+ * Deletes the photos in the upload folder that no set and no setting uses and that are old enough. It is
+ * built to do nothing when in doubt: if the sets, the settings or Cloudinary cannot be read, nothing is deleted.
  */
 export const handleCleanup = async (
   request: Request,
@@ -228,6 +265,8 @@ export const handleCleanup = async (
         skipped: 'no-sets-found',
       });
     }
+
+    for (const id of await readSettingsPhotos(fetchFn, firebaseProjectId, idToken)) used.add(id);
 
     const uploads = await listUploads(fetchFn, cloudName, authorization);
     const cutoff = now() - GRACE_DAYS * 24 * 60 * 60 * 1000;

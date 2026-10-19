@@ -1,6 +1,6 @@
 import { FirebaseEnvironment } from '@environments/environment.model';
 
-import { isFirebaseConfigured } from './firebase-client';
+import { isFirebaseConfigured } from './firebase-config';
 
 const CONFIG: FirebaseEnvironment = {
   apiKey: 'key',

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 
-import { AuthStore } from '@features/auth/store/auth.store';
+import { AdminSessionStore } from '@features/auth/store/admin-session.store';
 
 import { SiteHeaderComponent } from './site-header.component';
 
@@ -155,7 +155,7 @@ describe('SiteHeaderComponent sign out', () => {
       ],
       providers: [
         provideRouter([{ children: [], path: 'admin/dashboard' }]),
-        { provide: AuthStore, useValue: { isAdmin, signOut } },
+        { provide: AdminSessionStore, useValue: { isAdmin, signOut } },
       ],
     }).compileComponents();
 

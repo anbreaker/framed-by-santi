@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
-
-import { PROFILE_PHOTO, PROFILE_PHOTO_SOURCE } from '../../const/profile-photo.const';
+import { SiteSettingsStore } from '@features/site-settings/store/site-settings.store';
+import { portraitFor } from '@features/site-settings/utils/portrait';
 
 /** Portrait, name and a few words about Santi. */
 @Component({
@@ -16,6 +16,8 @@ import { PROFILE_PHOTO, PROFILE_PHOTO_SOURCE } from '../../const/profile-photo.c
   templateUrl: './about-profile.component.html',
 })
 export class AboutProfileComponent {
-  protected readonly profilePhoto = PROFILE_PHOTO;
-  protected readonly profileSource = PROFILE_PHOTO_SOURCE;
+  private readonly settings = inject(SiteSettingsStore);
+
+  protected readonly ready = this.settings.ready;
+  protected readonly portrait = computed(() => portraitFor(this.settings.profilePhoto()));
 }
