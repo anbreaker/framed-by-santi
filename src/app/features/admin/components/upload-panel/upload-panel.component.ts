@@ -3,36 +3,15 @@ import {
   Component,
   ElementRef,
   inject,
-  InjectionToken,
   output,
   signal,
   viewChild,
 } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import {
-  PhotoUploadError,
-  PhotoUploadService,
-  UploadedPhoto,
-} from '../../services/photo-upload.service';
-import { browserImageCodec } from '../../utils/browser-image-codec';
-import { makePreview } from '../../utils/browser-preview';
-import {
-  ImageCodec,
-  MAX_LONG_EDGE,
-  PhotoRejectedError,
-  PhotoWarning,
-  preparePhoto,
-} from '../../utils/prepare-photo';
-
-/** Makes the small preview shown while a photo uploads; replaced in tests. */
-export const PREVIEW_MAKER = new InjectionToken<(file: File) => Promise<string>>('PREVIEW_MAKER', {
-  factory: (): ((file: File) => Promise<string>) => makePreview,
-});
-
-export const IMAGE_CODEC = new InjectionToken<ImageCodec>('IMAGE_CODEC', {
-  factory: (): ImageCodec => browserImageCodec,
-});
+import { PhotoUploadService, UploadedPhoto } from '../../services/photo-upload.service';
+import { IMAGE_CODEC, PREVIEW_MAKER, uploadErrorKey } from '../../utils/photo-upload-tokens';
+import { MAX_LONG_EDGE, PhotoWarning, preparePhoto } from '../../utils/prepare-photo';
 
 type UploadStatus = 'done' | 'failed' | 'preparing' | 'uploading';
 
@@ -64,19 +43,6 @@ export interface UploadItem {
   status: UploadStatus;
   warnings: PhotoWarning[];
 }
-
-/** The message for each reason a photo could not be prepared or uploaded. */
-export const UPLOAD_ERROR_KEYS: Record<
-  PhotoRejectedError['reason'] | PhotoUploadError['reason'],
-  string
-> = {
-  'not-allowed': 'admin.upload.errors.notAllowed',
-  'sign-failed': 'admin.upload.errors.signFailed',
-  'too-large': 'admin.upload.errors.tooLarge',
-  unreadable: 'admin.upload.errors.unreadable',
-  'unsupported-type': 'admin.upload.errors.unsupportedType',
-  'upload-failed': 'admin.upload.errors.uploadFailed',
-};
 
 @Component({
   standalone: true,
@@ -167,10 +133,7 @@ export class UploadPanelComponent {
       this.patch(id, { result, status: 'done' });
       this.finished.emit({ localId: id, result });
     } catch (error) {
-      const reason =
-        error instanceof PhotoRejectedError || error instanceof PhotoUploadError
-          ? UPLOAD_ERROR_KEYS[error.reason]
-          : UPLOAD_ERROR_KEYS['upload-failed'];
+      const reason = uploadErrorKey(error);
       this.patch(id, { errorKey: reason, status: 'failed' });
       this.finished.emit({ localId: id, result: null });
     }

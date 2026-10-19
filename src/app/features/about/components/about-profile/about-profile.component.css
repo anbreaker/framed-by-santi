@@ -14,7 +14,7 @@
 
 /* Holds the portrait's place while the settings are read, so nothing jumps when it appears. */
 .about-profile__placeholder {
-  aspect-ratio: 600 / 794;
+  aspect-ratio: var(--portrait-ratio);
   background: var(--color-surface);
 }
 

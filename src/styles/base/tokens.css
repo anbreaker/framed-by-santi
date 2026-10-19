@@ -22,6 +22,9 @@
   --space-6: 4rem;
   --space-7: 6rem;
 
+  /* Width / height of the portrait that ships with the site (public/assets/images/profile.webp). */
+  --portrait-ratio: 600 / 794;
+
   --gutter: 1.25rem;
   --header-height: 4rem;
   --touch-target: 2.75rem;

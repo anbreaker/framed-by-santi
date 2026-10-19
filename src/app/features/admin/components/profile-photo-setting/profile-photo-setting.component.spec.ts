@@ -7,8 +7,8 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
+import { IMAGE_CODEC, PREVIEW_MAKER } from '../../utils/photo-upload-tokens';
 import { ImageCodec } from '../../utils/prepare-photo';
-import { IMAGE_CODEC, PREVIEW_MAKER } from '../upload-panel/upload-panel.component';
 import {
   PROFILE_PHOTO_TIMEOUTS,
   ProfilePhotoSettingComponent,

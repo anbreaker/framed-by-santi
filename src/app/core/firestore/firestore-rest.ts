@@ -1,7 +1,7 @@
 import { environment } from '@environments/environment';
 import { FirebaseEnvironment } from '@environments/environment.model';
 
-import { FirestoreValue, fromFirestoreFields } from '../utils/firestore-value';
+import { FirestoreValue, fromFirestoreFields } from './firestore-value';
 
 export interface FirestoreDocument {
   data: Record<string, unknown>;

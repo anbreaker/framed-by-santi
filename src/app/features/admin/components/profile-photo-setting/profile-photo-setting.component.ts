@@ -15,14 +15,10 @@ import { SiteSettingsStore } from '@features/site-settings/store/site-settings.s
 import { portraitFor } from '@features/site-settings/utils/portrait';
 import { TimeoutError, withTimeout } from '@shared/utils/with-timeout';
 
-import { PhotoUploadError, PhotoUploadService } from '../../services/photo-upload.service';
+import { PhotoUploadService } from '../../services/photo-upload.service';
 import { SiteSettingsAdminService } from '../../services/site-settings-admin.service';
-import { PhotoRejectedError, preparePhoto } from '../../utils/prepare-photo';
-import {
-  IMAGE_CODEC,
-  PREVIEW_MAKER,
-  UPLOAD_ERROR_KEYS,
-} from '../upload-panel/upload-panel.component';
+import { IMAGE_CODEC, PREVIEW_MAKER, uploadErrorKey } from '../../utils/photo-upload-tokens';
+import { preparePhoto } from '../../utils/prepare-photo';
 
 type Status = 'idle' | 'saved' | 'saving' | 'uploading';
 
@@ -85,13 +81,7 @@ export class ProfilePhotoSettingComponent {
         width: uploaded.width,
       };
     } catch (error) {
-      this.fail(
-        error instanceof TimeoutError
-          ? TIMEOUT_KEY
-          : error instanceof PhotoRejectedError || error instanceof PhotoUploadError
-            ? UPLOAD_ERROR_KEYS[error.reason]
-            : UPLOAD_ERROR_KEYS['upload-failed']
-      );
+      this.fail(error instanceof TimeoutError ? TIMEOUT_KEY : uploadErrorKey(error));
       return;
     }
 

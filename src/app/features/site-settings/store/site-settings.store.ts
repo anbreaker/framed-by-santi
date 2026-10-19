@@ -1,8 +1,8 @@
 import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 
+import { getDocument } from '@core/firestore/firestore-rest';
 import { isFirebaseConfigured } from '@features/auth/services/firebase-config';
 import { Photo } from '@features/photo-posts/models/photo.model';
-import { getDocument } from '@features/photo-posts/services/firestore-rest';
 import { withTimeout } from '@shared/utils/with-timeout';
 
 import { toSiteSettings } from '../models/site-settings.model';

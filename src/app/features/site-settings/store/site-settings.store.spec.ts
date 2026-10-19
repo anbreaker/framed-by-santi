@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({ configured: vi.fn(), getDocument: vi.fn() }));
 vi.mock('@features/auth/services/firebase-config', () => ({
   isFirebaseConfigured: mocks.configured,
 }));
-vi.mock('@features/photo-posts/services/firestore-rest', () => ({
+vi.mock('@core/firestore/firestore-rest', () => ({
   getDocument: mocks.getDocument,
 }));
 

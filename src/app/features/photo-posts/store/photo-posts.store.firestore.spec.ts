@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@features/auth/services/firebase-config', () => ({
   isFirebaseConfigured: mocks.configured,
 }));
-vi.mock('../services/firestore-rest', () => ({ queryCollection: mocks.queryCollection }));
+vi.mock('@core/firestore/firestore-rest', () => ({ queryCollection: mocks.queryCollection }));
 
 const photo = { alt: 'A', height: 10, id: 'p/1', width: 20 };
 const docOf = (id: string, data: unknown): { data: unknown; id: string } => ({ data, id });
