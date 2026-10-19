@@ -50,6 +50,9 @@ interface World {
   resourcePages?: { created_at: string; public_id: string }[][];
   admin?: number;
   firestoreStatus?: number;
+  /** The `settings/site` document; missing means it was never saved (404). */
+  settings?: Record<string, unknown>;
+  settingsStatus?: number;
   cloudinaryListStatus?: number;
   cloudinaryDeleteStatus?: number;
   /** What Cloudinary says per id in a successful delete; defaults to 'deleted' for every id. */
@@ -66,6 +69,13 @@ const network = (world: World = {}) => {
 
     if (url.includes('/documents/admins/')) {
       return new Response('{}', { status: world.admin ?? 200 });
+    }
+
+    if (url.includes('/documents/settings/site')) {
+      if (world.settingsStatus) return new Response('{}', { status: world.settingsStatus });
+      return world.settings
+        ? Response.json(world.settings)
+        : new Response('{"error":{"status":"NOT_FOUND"}}', { status: 404 });
     }
 
     if (url.includes('/documents/posts')) {
@@ -215,6 +225,49 @@ describe('cleanup-photos', () => {
     expect(net.calls.some((call) => call.url.startsWith('https://api.cloudinary.com/'))).toBe(
       false
     );
+  });
+
+  it('should keep the profile photo chosen in the settings, though no set uses it', async () => {
+    const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[photo('used', 40), photo('profile', 40), photo('orphan', 40)]],
+      settings: {
+        fields: {
+          profilePhoto: { mapValue: { fields: { id: { stringValue: `${FOLDER}/profile` } } } },
+        },
+      },
+    });
+    await response;
+
+    expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
+  });
+
+  it('should read the settings with the caller token', async () => {
+    const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[photo('used', 40)]],
+    });
+    await response;
+
+    const call = net.calls.find((item) => item.url.includes('/documents/settings/site'));
+    expect(call?.url).toBe(
+      'https://firestore.googleapis.com/v1/projects/demo-project/databases/(default)/documents/settings/site'
+    );
+    expect(new Headers(call?.init?.headers).get('Authorization')).toBe(
+      `Bearer ${tokenFor('uid-1')}`
+    );
+  });
+
+  it('should delete nothing when the settings cannot be read, because the profile photo may be among them', async () => {
+    const { net, response } = run({
+      postPages: [[post(`${FOLDER}/used`)]],
+      resourcePages: [[photo('orphan', 40)]],
+      settingsStatus: 500,
+    });
+
+    expect((await response).status).toBe(502);
+    expect(await (await response).json()).toEqual({ error: 'settings-unavailable' });
+    expect(net.deleted).toEqual([]);
   });
 
   it('should delete nothing when Cloudinary cannot be listed or the delete is refused', async () => {
