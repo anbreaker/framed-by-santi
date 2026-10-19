@@ -31,7 +31,7 @@ describe('AdminSettingsPageComponent', () => {
 
   it('should be its own page, with the admin navigation, a heading and the profile photo setting', () => {
     expect(root().querySelector('main#main-content')).not.toBeNull();
-    expect(root().querySelector('app-admin-nav')).not.toBeNull();
+    expect(root().querySelector('app-admin-shell app-admin-nav')).not.toBeNull();
     expect(root().querySelector('h1')?.textContent).toContain('Settings');
     expect(root().querySelector('app-profile-photo-setting')).not.toBeNull();
   });

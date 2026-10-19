@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.admin-shell {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 900px) {
+    align-items: start;
+    gap: var(--space-6);
+    grid-template-columns: 11rem minmax(0, 1fr);
+  }
+}
+
+/* On a wide screen the sections stay in view while the open one scrolls. */
+.admin-shell__sidebar {
+  @media (min-width: 900px) {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}
+
+.admin-shell__content {
+  min-width: 0;
+}

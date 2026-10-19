@@ -3,8 +3,6 @@
 }
 
 .admin-settings {
-  display: grid;
-  gap: var(--space-5);
   margin-inline: auto;
   max-width: 80rem;
   padding: var(--space-4) var(--gutter) var(--space-6);
@@ -16,6 +14,11 @@
   @media (min-width: 700px) {
     padding-block: var(--space-5) var(--space-7);
   }
+}
+
+.admin-settings__body {
+  display: grid;
+  gap: var(--space-5);
 }
 
 .admin-settings__title {

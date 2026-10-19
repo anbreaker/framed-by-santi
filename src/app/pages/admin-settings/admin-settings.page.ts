@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { AdminNavComponent } from '@features/admin/components/admin-nav/admin-nav.component';
+import { AdminShellComponent } from '@features/admin/components/admin-shell/admin-shell.component';
 import { ProfilePhotoSettingComponent } from '@features/admin/components/profile-photo-setting/profile-photo-setting.component';
 import { useNoIndex } from '@shared/utils/use-noindex';
 
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminNavComponent, ProfilePhotoSettingComponent, TranslocoDirective],
+  imports: [AdminShellComponent, ProfilePhotoSettingComponent, TranslocoDirective],
   selector: 'app-admin-settings-page',
   styleUrl: './admin-settings.page.css',
   templateUrl: './admin-settings.page.html',
