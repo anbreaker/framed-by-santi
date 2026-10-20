@@ -183,7 +183,7 @@
         "step1": "Abra o email do Firebase. Se não chegar em poucos minutos, veja no spam.",
         "step2": "Siga a ligação e escreva a palavra-passe nova. A ligação expira ao fim de algum tempo: se indicar que expirou, envie outra a partir daqui.",
         "step3": "Volte aqui e inicie sessão de novo com a palavra-passe nova. Este navegador pode terminar a sessão sozinho.",
-        "title": "Palavra-passe",
+        "title": "Mudar palavra-passe",
         "tooMany": "Pediu demasiados emails seguidos. Aguarde alguns minutos e tente novamente."
       },
       "profilePhoto": {

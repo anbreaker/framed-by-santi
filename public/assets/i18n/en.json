@@ -183,7 +183,7 @@
         "step1": "Open the email from Firebase. If it has not arrived in a few minutes, check spam.",
         "step2": "Follow the link and type your new password. The link expires after a while: if it says so, send a new one from here.",
         "step3": "Come back here and sign in again with the new password. This browser may sign you out on its own.",
-        "title": "Password",
+        "title": "Change password",
         "tooMany": "Too many emails asked for in a row. Wait a few minutes and try again."
       },
       "profilePhoto": {

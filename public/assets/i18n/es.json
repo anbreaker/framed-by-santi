@@ -183,7 +183,7 @@
         "step1": "Abre el correo de Firebase. Si no llega en unos minutos, mira en spam.",
         "step2": "Pulsa el enlace y escribe tu contraseña nueva. El enlace caduca al poco tiempo: si te dice que ha caducado, envía otro desde aquí.",
         "step3": "Vuelve aquí e inicia sesión de nuevo con la contraseña nueva. Puede que este navegador cierre tu sesión solo.",
-        "title": "Contraseña",
+        "title": "Cambiar contraseña",
         "tooMany": "Has pedido demasiados correos seguidos. Espera unos minutos e inténtalo de nuevo."
       },
       "profilePhoto": {
