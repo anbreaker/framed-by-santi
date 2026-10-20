@@ -28,7 +28,26 @@ describe('AboutProfileComponent', () => {
   it('should be the page heading with the name, the tagline and a few words', () => {
     expect(root().querySelector('h1')?.textContent).toBe('Santi García');
     expect(root().textContent).toContain('I just press buttons.');
-    expect(root().textContent).toContain('camera always on');
+  });
+
+  it('should tell his story in four paragraphs, signed by him', async () => {
+    const paragraphs = (): string[] =>
+      Array.from(root().querySelectorAll('.about-profile__story p'), (p) => p.textContent?.trim() ?? '');
+    const signature = (): string => root().querySelector('.about-profile__signature')?.textContent?.trim() ?? '';
+
+    expect(paragraphs()).toHaveLength(4);
+    expect(paragraphs()[0]).toContain('I was born in Badajoz');
+    expect(paragraphs()[3]).toContain('Marhya and Marta');
+    expect(signature()).toBe('— Santi "El Inefable"');
+
+    TestBed.inject(LanguageStore).setLang('es');
+    await fixture.whenStable();
+
+    expect(paragraphs()[0]).toBe(
+      'Nací en Badajoz y el amor me llevó a Nueva York. De eso hace ya unos siete años. Se dice pronto.',
+    );
+    expect(paragraphs()[2]).toContain('(jajaja, insertar risas enlatadas, que conste que lo digo en serio XD)');
+    expect(signature()).toBe('— Santi "El Inefable"');
   });
 
   it('should show the portrait as the first image on the page, with a translated alt text', async () => {

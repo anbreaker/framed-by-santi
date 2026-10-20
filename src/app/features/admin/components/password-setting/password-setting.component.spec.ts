@@ -35,7 +35,7 @@ describe('PasswordSettingComponent', () => {
   });
 
   it('should say the link goes to the email of the account that is signed in', () => {
-    expect(root().querySelector('h2')?.textContent).toContain('Password');
+    expect(root().querySelector('h2')?.textContent?.trim()).toBe('Change password');
     expect(root().textContent).toContain('santi@example.com');
     expect(button().textContent).toContain('Send a link to change the password');
     expect(steps()).toEqual([]);
