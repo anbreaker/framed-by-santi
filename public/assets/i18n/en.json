@@ -25,7 +25,7 @@
       "enlarge": "See the photo from {{name}} full screen",
       "from": "From",
       "goTo": "Go to message {{n}}",
-      "intro": "Messages from your friends.",
+      "intro": "Messages from your family and the friends who are family.",
       "loadFailed": "The messages could not be loaded. Check your connection and reload the page.",
       "loading": "Loading the messages…",
       "manage": {
