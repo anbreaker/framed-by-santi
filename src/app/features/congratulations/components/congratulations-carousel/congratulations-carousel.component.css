@@ -23,11 +23,9 @@
   }
 }
 
-/* The description of the photo, under its frame and as it was written; it keeps its line when
-   empty so nothing jumps. */
+/* The description of the photo, under its frame; it keeps its line when empty so nothing jumps. */
 .congrats__caption {
   color: var(--color-accent);
-  font-size: 0.875rem;
   margin: var(--space-2) 0 0;
   min-height: 1lh;
   padding-inline: 0.875rem;
@@ -150,7 +148,6 @@
   /* Above the zoom controls, which sit in the bottom right corner. */
   bottom: calc(var(--space-2) * 2 + var(--touch-target) + var(--space-1) * 2);
   color: var(--color-accent);
-  font-size: 0.875rem;
   margin: 0;
   max-width: calc(100% - var(--space-2) * 2);
   padding: var(--space-1) var(--space-2);
