@@ -14,6 +14,8 @@ describe('AdminSettingsPageComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    // A robots meta left by another spec would hide a page that forgets to add its own.
+    document.head.querySelectorAll('meta[name="robots"]').forEach((meta) => meta.remove());
     await TestBed.configureTestingModule({
       imports: [AdminSettingsPageComponent, realTranslations()],
       providers: [

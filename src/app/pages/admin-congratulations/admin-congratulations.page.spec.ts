@@ -14,6 +14,8 @@ describe('AdminCongratulationsPageComponent', () => {
 
   const render = async (messages: readonly Congratulation[]): Promise<void> => {
     localStorage.clear();
+    // A robots meta left by another spec would hide a page that forgets to add its own.
+    document.head.querySelectorAll('meta[name="robots"]').forEach((meta) => meta.remove());
     await TestBed.configureTestingModule({
       imports: [AdminCongratulationsPageComponent, realTranslations()],
       providers: [provideRouter([]), { provide: CONGRATULATIONS, useValue: messages }],
