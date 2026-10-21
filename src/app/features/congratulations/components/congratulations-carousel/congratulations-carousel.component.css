@@ -29,6 +29,7 @@
   margin: var(--space-2) 0 0;
   min-height: 1lh;
   padding-inline: 0.875rem;
+  text-align: end;
 }
 
 /* Viewfinder corners around the media, the same marks the buttons of the site draw on hover. */
@@ -144,13 +145,15 @@
 
 .congrats__viewer-caption {
   background: rgb(14 13 12 / 0.8);
-  bottom: var(--space-2);
+  /* Above the zoom controls, which sit in the bottom right corner. */
+  bottom: calc(var(--space-2) * 2 + var(--touch-target) + var(--space-1) * 2);
   color: var(--color-text);
-  left: var(--space-2);
   margin: 0;
-  max-width: calc(100% - 16rem);
+  max-width: calc(100% - var(--space-2) * 2);
   padding: var(--space-1) var(--space-2);
   position: absolute;
+  right: var(--space-2);
+  text-align: end;
 }
 
 .congrats__viewer-close {
