@@ -28,6 +28,7 @@ export class AuthStore {
   private readonly db = getFirebaseDb();
 
   private readonly _isAdmin = signal(false);
+  private readonly _isOwner = signal(false);
   private readonly _status = signal<AuthStatus>('loading');
   private readonly _user = signal<AuthUser | null>(null);
 
@@ -38,6 +39,8 @@ export class AuthStore {
   });
 
   readonly isAdmin = this._isAdmin.asReadonly();
+  /** The admin who manages the friends' messages; the security rules enforce it, this only shapes the UI. */
+  readonly isOwner = this._isOwner.asReadonly();
   readonly isSignedIn = computed(() => this._status() === 'signed-in');
   readonly status = this._status.asReadonly();
   readonly user = this._user.asReadonly();
@@ -85,30 +88,36 @@ export class AuthStore {
     if (firebaseUser === null) {
       this._user.set(null);
       this._isAdmin.set(false);
+      this._isOwner.set(false);
       this._status.set('signed-out');
       setAdminHint(false);
       this.resolveReady();
       return;
     }
 
-    const isAdmin = await this.checkAdmin(firebaseUser.uid);
+    const isAdmin = await this.hasOwnDocument('admins', firebaseUser.uid);
+    const isOwner = isAdmin && (await this.hasOwnDocument('owners', firebaseUser.uid));
     if (run !== this.generation) return; // a newer auth state superseded this one
 
     this._user.set({ email: firebaseUser.email, uid: firebaseUser.uid });
     this._isAdmin.set(isAdmin);
+    this._isOwner.set(isOwner);
     this._status.set('signed-in');
     setAdminHint(isAdmin);
     this.resolveReady();
   }
 
-  /** A user is an admin when `admins/{uid}` exists; the rules let each user read only their own. */
-  private async checkAdmin(uid: string): Promise<boolean> {
+  /**
+   * A user is an admin when `admins/{uid}` exists, and the owner when `owners/{uid}` exists too; the rules
+   * let each user read only their own.
+   */
+  private async hasOwnDocument(collection: 'admins' | 'owners', uid: string): Promise<boolean> {
     if (this.db === null) return false;
 
     try {
-      return (await getDoc(doc(this.db, 'admins', uid))).exists();
+      return (await getDoc(doc(this.db, collection, uid))).exists();
     } catch {
-      return false; // permission denied or offline: never grant admin on doubt
+      return false; // permission denied or offline: never grant a role on doubt
     }
   }
 

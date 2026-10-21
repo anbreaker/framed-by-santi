@@ -128,6 +128,68 @@ describe('AuthStore', () => {
 
     expect(store.status()).toBe('signed-out');
     expect(store.isAdmin()).toBe(false);
+    expect(store.isOwner()).toBe(false);
+  });
+
+  describe('owner', () => {
+    const withDocuments = (paths: string[]): void => {
+      vi.mocked(getDoc).mockImplementation((async (reference: { path: string }) => ({
+        exists: () => paths.includes(reference.path),
+      })) as never);
+    };
+
+    it('should be owner when an admin also has an owners document, reading only their own', async () => {
+      withDocuments(['admins/uid-1', 'owners/uid-1']);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'uid-1' });
+      await store.whenReady();
+
+      expect(store.isAdmin()).toBe(true);
+      expect(store.isOwner()).toBe(true);
+      expect(vi.mocked(getDoc).mock.calls.map((call) => call[0])).toEqual([
+        { path: 'admins/uid-1' },
+        { path: 'owners/uid-1' },
+      ]);
+    });
+
+    it('should not be owner when an admin has no owners document', async () => {
+      withDocuments(['admins/uid-2']);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'uid-2' });
+      await store.whenReady();
+
+      expect(store.isAdmin()).toBe(true);
+      expect(store.isOwner()).toBe(false);
+    });
+
+    it('should never be owner without being admin, and not even ask', async () => {
+      withDocuments(['owners/uid-3']);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'uid-3' });
+      await store.whenReady();
+
+      expect(store.isOwner()).toBe(false);
+      expect(vi.mocked(getDoc).mock.calls.map((call) => call[0])).toEqual([
+        { path: 'admins/uid-3' },
+      ]);
+    });
+
+    it('should not be owner when the owner check is denied', async () => {
+      vi.mocked(getDoc).mockImplementation((async (reference: { path: string }) => {
+        if (reference.path.startsWith('owners/')) throw new Error('permission-denied');
+        return { exists: () => true };
+      }) as never);
+      const store = createStore();
+
+      emitAuthState({ email: null, uid: 'uid-1' });
+      await store.whenReady();
+
+      expect(store.isAdmin()).toBe(true);
+      expect(store.isOwner()).toBe(false);
+    });
   });
 
   describe('admin hint', () => {

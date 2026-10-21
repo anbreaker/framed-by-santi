@@ -7,11 +7,39 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // The owner is the one admin who manages the friends' messages; Santi only reads them.
+    function isOwner() {
+      return isAdmin()
+        && exists(/databases/$(database)/documents/owners/$(request.auth.uid));
+    }
+
+    function isCongratulation(data) {
+      return data.keys().hasOnly(['createdAt', 'from', 'media', 'message'])
+        && data.keys().hasAll(['createdAt', 'from', 'media', 'message'])
+        && data.from is string && data.from.size() > 0 && data.from.size() <= 80
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 4000
+        && (data.media == null || data.media is map)
+        && data.createdAt is int;
+    }
+
     // Each signed-in user may only read their own admin document.
     // The sign-upload function relies on this to check admin status.
     match /admins/{uid} {
       allow get: if request.auth != null && request.auth.uid == uid;
       allow list, write: if false;
+    }
+
+    // Created by hand in the console, like admins. Each user may only read their own.
+    match /owners/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    // The friends' messages to Santi: every admin reads them, only the owner writes them.
+    match /congratulations/{id} {
+      allow read: if isAdmin();
+      allow create, update: if isOwner() && isCongratulation(request.resource.data);
+      allow delete: if isOwner();
     }
 
     // Public visitors read only posts that are not hidden.
