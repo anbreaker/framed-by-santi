@@ -50,7 +50,7 @@
         </div>
       </div>
       <!-- Screen readers already get the description as the photo's alternative text. -->
-      <p class="congrats__caption meta" aria-hidden="true">{{ caption() }}</p>
+      <p class="congrats__caption" aria-hidden="true">{{ caption() }}</p>
     </div>
 
     <div class="congrats__texts">
@@ -84,7 +84,7 @@
     @if (viewing(); as current) {
       <app-zoomable-photo class="congrats__viewer-photo" [photo]="current.photo" />
       @if (current.photo.alt) {
-        <p class="congrats__viewer-caption meta" aria-hidden="true">{{ current.photo.alt }}</p>
+        <p class="congrats__viewer-caption" aria-hidden="true">{{ current.photo.alt }}</p>
       }
       <button
         class="congrats__button congrats__viewer-close"
