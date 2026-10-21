@@ -3,14 +3,22 @@ import { slideMedia } from './slide-media';
 const config = { cloudName: 'demo', publicIdPrefix: '' };
 
 describe('slideMedia', () => {
-  it('should keep a photo as it is', () => {
+  it('should deliver an uploaded photo from Cloudinary, with the widths it has', () => {
     const photo = {
       alt: 'Ana and Santi',
-      kind: 'photo' as const,
-      src: '/assets/congratulations/ana.webp',
+      height: 600,
+      id: 'p1',
+      publicId: 'framed-by-santi/posts/p1',
+      width: 900,
     };
 
-    expect(slideMedia(photo, config)).toEqual(photo);
+    expect(slideMedia({ kind: 'photo', photo }, config)).toEqual({
+      alt: 'Ana and Santi',
+      kind: 'photo',
+      src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p1',
+      srcset:
+        'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/p1 480w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_800/framed-by-santi/posts/p1 800w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_900/framed-by-santi/posts/p1 900w',
+    });
   });
 
   it('should turn a YouTube link into its thumbnail and the player it opens', () => {

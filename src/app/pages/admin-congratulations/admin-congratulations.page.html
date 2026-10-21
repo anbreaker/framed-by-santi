@@ -6,11 +6,19 @@
         <p class="admin-congratulations__intro">{{ t('admin.congratulations.intro') }}</p>
       </header>
 
-      @if (messages.length > 0) {
-      <app-congratulations-carousel [items]="messages" />
+      @switch (status()) { @case ('failed') {
+      <p class="admin-congratulations__empty" role="alert">
+        {{ t('admin.congratulations.loadFailed') }}
+      </p>
+      } @case ('ready') { @if (messages().length > 0) {
+      <app-congratulations-carousel [items]="messages()" />
       } @else {
       <p class="admin-congratulations__empty">{{ t('admin.congratulations.empty') }}</p>
-      }
+      } } @default {
+      <p class="admin-congratulations__empty" aria-busy="true">
+        {{ t('admin.congratulations.loading') }}
+      </p>
+      } }
     </div>
   </app-admin-shell>
 </main>

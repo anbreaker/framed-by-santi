@@ -24,6 +24,8 @@
       "from": "De",
       "goTo": "Ir a la felicitación {{n}}",
       "intro": "Mensajes de tus amigos.",
+      "loadFailed": "No se pudieron cargar los mensajes. Revisa la conexión y recarga la página.",
+      "loading": "Cargando los mensajes…",
       "next": "Siguiente",
       "pause": "Pausar el pase automático",
       "play": "Reproducir el vídeo de {{name}}",

@@ -1,12 +1,12 @@
-/** A photo by its URL: a file under `public/` (`/assets/...`) or a full Cloudinary delivery URL. */
+import { Photo } from '@features/photo-posts/models/photo.model';
+
+/** A photo uploaded to Cloudinary from the dashboard, delivered like the photos of the sets. */
 export interface CongratulationPhoto {
-  /** What the photo shows, for screen readers. */
-  alt: string;
   kind: 'photo';
-  src: string;
+  photo: Photo;
 }
 
-/** A YouTube video by its id or any link YouTube hands out (share, watch, Shorts). */
+/** A YouTube video by its id. */
 export interface CongratulationYoutube {
   kind: 'youtube';
   video: string;
@@ -21,13 +21,22 @@ export interface CongratulationCloudinaryVideo {
 export type CongratulationMedia =
   CongratulationCloudinaryVideo | CongratulationPhoto | CongratulationYoutube;
 
-/** One friend's message to Santi, with an optional photo or video beside it. */
-export interface Congratulation {
+/** What the owner writes in the dashboard: who sends it, the words and an optional photo or video. */
+export interface CongratulationDraft {
   /** Who sends it, as it should read. */
   from: string;
-  /** Stable and unique among the messages. */
-  id: string;
   media?: CongratulationMedia;
   /** The message as the friend wrote it; line breaks are kept. */
   message: string;
 }
+
+/** One friend's message to Santi, as saved in Firestore (`congratulations/{id}`). */
+export interface Congratulation extends CongratulationDraft {
+  /** When it was first saved, in milliseconds; messages are shown oldest first. */
+  createdAt: number;
+  id: string;
+}
+
+/** Limits the security rules enforce; the form checks them first. */
+export const MAX_FROM_LENGTH = 80;
+export const MAX_MESSAGE_LENGTH = 4000;

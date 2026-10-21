@@ -19,8 +19,10 @@
               <img
                 class="congrats__photo"
                 decoding="async"
+                sizes="(min-width: 1100px) 50vw, 100vw"
                 [alt]="slide.media.alt"
                 [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+                [attr.srcset]="slide.media.srcset"
                 [src]="slide.media.src"
               />
             } @else if (slide.media.kind === 'video') {

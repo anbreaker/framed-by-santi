@@ -24,6 +24,8 @@
       "from": "From",
       "goTo": "Go to message {{n}}",
       "intro": "Messages from your friends.",
+      "loadFailed": "The messages could not be loaded. Check your connection and reload the page.",
+      "loading": "Loading the messages…",
       "next": "Next",
       "pause": "Pause autoplay",
       "play": "Play the video from {{name}}",

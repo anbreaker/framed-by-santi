@@ -11,17 +11,22 @@ import { CongratulationsCarouselComponent } from './congratulations-carousel.com
 const messages: Congratulation[] = [
   {
     from: 'Ana',
+    createdAt: 1,
     id: 'ana',
     media: { kind: 'youtube', video: 'https://youtu.be/dQw4w9WgXcQ' },
     message: 'Happy birthday!',
   },
   {
     from: 'Bruno',
+    createdAt: 2,
     id: 'bruno',
-    media: { alt: 'Bruno and Santi', kind: 'photo', src: '/assets/congratulations/bruno.webp' },
+    media: {
+      kind: 'photo',
+      photo: { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 },
+    },
     message: 'Line one\nLine two',
   },
-  { from: 'Carla', id: 'carla', message: 'Just words.' },
+  { createdAt: 3, from: 'Carla', id: 'carla', message: 'Just words.' },
 ];
 
 @Component({
@@ -136,7 +141,7 @@ describe('CongratulationsCarouselComponent', () => {
   it('should show a photo with its description, and a message without media on its own', async () => {
     await press('Next');
     const photo = activeMedia().querySelector('img');
-    expect(photo?.getAttribute('src')).toBe('/assets/congratulations/bruno.webp');
+    expect(photo?.getAttribute('src')).toBe('/local-photos/bruno.webp');
     expect(photo?.getAttribute('alt')).toBe('Bruno and Santi');
 
     await press('Next');
