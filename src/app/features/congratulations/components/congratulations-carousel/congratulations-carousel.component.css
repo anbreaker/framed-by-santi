@@ -1,0 +1,300 @@
+:host {
+  --autoplay-duration: 7s;
+  --slide-shift: 8%;
+
+  display: block;
+}
+
+.congrats {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* Media above the words in a narrow column; side by side once there is room for both. */
+.congrats__stage {
+  align-items: center;
+  display: grid;
+  gap: var(--space-5);
+
+  @container (min-width: 44rem) {
+    gap: var(--space-6);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+}
+
+/* Viewfinder corners around the media, the same marks the buttons of the site draw on hover. */
+.congrats__media {
+  --frame-color: var(--color-accent);
+  --frame-length: 1.375rem;
+  --frame-thickness: 2px;
+
+  padding: 0.875rem;
+  position: relative;
+
+  &::before {
+    background:
+      linear-gradient(var(--frame-color), var(--frame-color)) left top / var(--frame-length)
+        var(--frame-thickness) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) left top / var(--frame-thickness)
+        var(--frame-length) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) right top / var(--frame-length)
+        var(--frame-thickness) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) right top / var(--frame-thickness)
+        var(--frame-length) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) left bottom / var(--frame-length)
+        var(--frame-thickness) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) left bottom / var(--frame-thickness)
+        var(--frame-length) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) right bottom / var(--frame-length)
+        var(--frame-thickness) no-repeat,
+      linear-gradient(var(--frame-color), var(--frame-color)) right bottom / var(--frame-thickness)
+        var(--frame-length) no-repeat;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+}
+
+.congrats__frame {
+  aspect-ratio: 4 / 3;
+  background: var(--color-surface);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Every slide waits off to one side, faded out; the current one slides in and the old one leaves. */
+.congrats__media-slide {
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transform: translateX(var(--slide-shift)) scale(1.04);
+  transition:
+    opacity 900ms var(--ease-out),
+    transform 1100ms var(--ease-out),
+    visibility 0s linear 900ms;
+  visibility: hidden;
+}
+
+.congrats__media-slide--before {
+  transform: translateX(calc(var(--slide-shift) * -1)) scale(1.04);
+}
+
+.congrats__media-slide--active {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
+  visibility: visible;
+  z-index: 1;
+}
+
+.congrats__photo {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* A slow push in on the photo shown, so a still image keeps breathing. */
+.congrats__media-slide--active .congrats__photo {
+  animation: congrats-push-in 9s var(--ease-out) forwards;
+}
+
+.congrats__quote {
+  align-items: center;
+  color: var(--color-accent);
+  display: flex;
+  font-family: var(--font-display);
+  font-size: clamp(8rem, 30cqi, 16rem);
+  height: 100%;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* The words of every message share one cell, so the column keeps the height of the longest. */
+.congrats__texts {
+  display: grid;
+}
+
+.congrats__text {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition:
+    opacity 400ms ease,
+    transform 500ms ease,
+    visibility 0s linear 400ms;
+  visibility: hidden;
+}
+
+/* The words arrive a beat after the image. */
+.congrats__text--active {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 700ms ease 250ms,
+    transform 900ms var(--ease-out) 250ms,
+    visibility 0s;
+  visibility: visible;
+}
+
+.congrats__message {
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  white-space: pre-line;
+
+  &::before {
+    color: var(--color-accent);
+    content: '“' / '';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 6rem;
+    height: 2.5rem;
+    line-height: 0.75;
+  }
+}
+
+.congrats__from {
+  margin-top: var(--space-5);
+}
+
+.congrats__name {
+  font-size: 2.5rem;
+}
+
+.congrats__controls {
+  align-items: center;
+  border-top: 1px solid var(--color-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+  padding-top: var(--space-4);
+}
+
+.congrats__counter {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.congrats__dots {
+  display: flex;
+  flex: 1 1 12rem;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.congrats__dot {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  height: var(--touch-target);
+  padding: 0;
+  transition: width var(--duration-base) var(--ease-out);
+  width: 1.75rem;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.congrats__dot--active {
+  width: 4.5rem;
+}
+
+.congrats__track {
+  background: var(--color-hairline);
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .congrats__dot:hover .congrats__track {
+    background: var(--color-border);
+  }
+}
+
+/* The bar of the current message fills up; when it is full the next message comes in. */
+.congrats__fill {
+  animation: congrats-fill var(--autoplay-duration) linear forwards;
+  background: var(--color-accent);
+  inset: 0 auto 0 0;
+  position: absolute;
+}
+
+.congrats__fill--halted {
+  animation-play-state: paused;
+}
+
+.congrats__buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.congrats__button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  height: 3rem;
+  justify-content: center;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+  width: 3rem;
+
+  &:hover {
+    border-color: var(--color-text);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes congrats-push-in {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08) translate(-1.5%, -1%);
+  }
+}
+
+@keyframes congrats-fill {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+/* Less motion: messages swap without sliding, and nothing passes on its own. */
+@media (prefers-reduced-motion: reduce) {
+  .congrats__media-slide,
+  .congrats__text,
+  .congrats__dot {
+    transform: none;
+    transition: none;
+  }
+
+  .congrats__media-slide--active .congrats__photo,
+  .congrats__fill {
+    animation: none;
+  }
+}

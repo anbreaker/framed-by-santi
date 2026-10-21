@@ -18,6 +18,23 @@
     "title": "Santi García"
   },
   "admin": {
+    "congratulations": {
+      "carousel": "carrossel",
+      "empty": "Ainda não há felicitações.",
+      "from": "De",
+      "goTo": "Ir para a felicitação {{n}}",
+      "intro": "Mensagens dos teus amigos.",
+      "next": "Seguinte",
+      "pause": "Pausar a passagem automática",
+      "play": "Reproduzir o vídeo de {{name}}",
+      "pressToPlay": "Carrega para reproduzir",
+      "previous": "Anterior",
+      "resume": "Retomar a passagem automática",
+      "slide": "diapositivo",
+      "slideLabel": "{{n}} de {{total}}",
+      "title": "Felicitações",
+      "videoTitle": "Vídeo de {{name}}"
+    },
     "dashboard": {},
     "editor": {
       "caption": "Legenda",
@@ -170,6 +187,7 @@
     },
     "nav": {
       "ariaLabel": "Secções do painel",
+      "congratulations": "Felicitações",
       "sets": "Séries",
       "settings": "Definições"
     },

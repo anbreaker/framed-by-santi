@@ -1,0 +1,44 @@
+@if (playing()) {
+  @if (embedUrl(); as src) {
+    <iframe
+      class="video-facade__player"
+      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+      allowfullscreen
+      referrerpolicy="strict-origin-when-cross-origin"
+      [src]="src"
+      [title]="title()"
+    ></iframe>
+  } @else {
+    <video
+      class="video-facade__player"
+      autoplay
+      controls
+      playsinline
+      [attr.aria-label]="title()"
+      [attr.poster]="video().poster"
+      [src]="fileUrl()"
+    ></video>
+  }
+} @else {
+  <button
+    class="video-facade__poster"
+    type="button"
+    *transloco="let t"
+    [attr.aria-label]="playLabel()"
+    (click)="play.emit()"
+    (focus)="warmUp()"
+    (pointerenter)="warmUp()"
+  >
+    @if (video().poster; as poster) {
+      <img class="video-facade__image" alt="" decoding="async" loading="lazy" [src]="poster" />
+    }
+    <span class="video-facade__icon" aria-hidden="true">
+      <svg fill="currentColor" height="30" viewBox="0 0 24 24" width="30">
+        <path d="M8 5l12 7-12 7z" />
+      </svg>
+    </span>
+    <span class="video-facade__hint" aria-hidden="true">
+      {{ t('admin.congratulations.pressToPlay') }}
+    </span>
+  </button>
+}

@@ -1,0 +1,158 @@
+<section
+  class="congrats"
+  *transloco="let t; prefix: 'admin.congratulations'"
+  [attr.aria-label]="t('title')"
+  [attr.aria-roledescription]="t('carousel')"
+>
+  <div class="congrats__stage">
+    <div class="congrats__media">
+      <div class="congrats__frame">
+        @for (slide of slides(); track slide.id; let i = $index) {
+          <div
+            class="congrats__media-slide"
+            [attr.aria-hidden]="i === current() ? null : 'true'"
+            [attr.inert]="i === current() ? null : ''"
+            [class.congrats__media-slide--active]="i === current()"
+            [class.congrats__media-slide--before]="i < current()"
+          >
+            @if (slide.media.kind === 'photo') {
+              <img
+                class="congrats__photo"
+                decoding="async"
+                [alt]="slide.media.alt"
+                [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+                [src]="slide.media.src"
+              />
+            } @else if (slide.media.kind === 'video') {
+              <app-video-facade
+                [playing]="playing() === i"
+                [playLabel]="t('play', { name: slide.from })"
+                [title]="t('videoTitle', { name: slide.from })"
+                [video]="slide.media.video"
+                (play)="play(i)"
+              />
+            } @else {
+              <div class="congrats__quote" aria-hidden="true">“</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="congrats__texts">
+      @for (slide of slides(); track slide.id; let i = $index) {
+        <article
+          class="congrats__text"
+          role="group"
+          [attr.aria-hidden]="i === current() ? null : 'true'"
+          [attr.aria-label]="t('slideLabel', { n: i + 1, total: total() })"
+          [attr.aria-roledescription]="t('slide')"
+          [attr.inert]="i === current() ? null : ''"
+          [class.congrats__text--active]="i === current()"
+        >
+          <p class="congrats__message">{{ slide.message }}</p>
+          <p class="congrats__from meta">{{ t('from') }}</p>
+          <h2 class="congrats__name">{{ slide.from }}</h2>
+        </article>
+      }
+    </div>
+  </div>
+
+  @if (total() > 1) {
+    <div class="congrats__controls">
+      <p class="congrats__counter" [attr.aria-live]="halted() ? 'polite' : 'off'">
+        {{ counter(current() + 1, total()) }}
+      </p>
+
+      <div class="congrats__dots">
+        @for (slide of slides(); track slide.id; let i = $index) {
+          <button
+            class="congrats__dot"
+            type="button"
+            [attr.aria-current]="i === current() ? 'true' : null"
+            [attr.aria-label]="t('goTo', { n: i + 1 })"
+            [class.congrats__dot--active]="i === current()"
+            (click)="goTo(i)"
+          >
+            <span class="congrats__track">
+              @if (i === current()) {
+                <span
+                  class="congrats__fill"
+                  [class.congrats__fill--halted]="halted()"
+                  (animationend)="next()"
+                ></span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+
+      <div class="congrats__buttons">
+        <button
+          class="congrats__button"
+          type="button"
+          [attr.aria-label]="paused() ? t('resume') : t('pause')"
+          (click)="togglePause()"
+        >
+          @if (paused()) {
+            <svg aria-hidden="true" fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+              <path d="M8 5l12 7-12 7z" />
+            </svg>
+          } @else {
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+            >
+              <path d="M9 5v14M15 5v14" />
+            </svg>
+          }
+        </button>
+        <button
+          class="congrats__button"
+          type="button"
+          [attr.aria-label]="t('previous')"
+          (click)="previous()"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="20"
+          >
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+        </button>
+        <button
+          class="congrats__button"
+          type="button"
+          [attr.aria-label]="t('next')"
+          (click)="next()"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="20"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  }
+</section>

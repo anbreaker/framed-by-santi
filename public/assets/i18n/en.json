@@ -18,6 +18,23 @@
     "title": "Santi García"
   },
   "admin": {
+    "congratulations": {
+      "carousel": "carousel",
+      "empty": "No congratulations yet.",
+      "from": "From",
+      "goTo": "Go to message {{n}}",
+      "intro": "Messages from your friends.",
+      "next": "Next",
+      "pause": "Pause autoplay",
+      "play": "Play the video from {{name}}",
+      "pressToPlay": "Press to play",
+      "previous": "Previous",
+      "resume": "Resume autoplay",
+      "slide": "slide",
+      "slideLabel": "{{n}} of {{total}}",
+      "title": "Congratulations",
+      "videoTitle": "Video from {{name}}"
+    },
     "dashboard": {},
     "editor": {
       "caption": "Caption",
@@ -170,6 +187,7 @@
     },
     "nav": {
       "ariaLabel": "Admin sections",
+      "congratulations": "Congratulations",
       "sets": "Sets",
       "settings": "Settings"
     },
