@@ -97,10 +97,10 @@
   border-left: 3px solid var(--color-accent);
   color: var(--color-accent);
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-style: italic;
   line-height: 1.3;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
 }
 
 .contact-form__notice--failed {
@@ -108,42 +108,34 @@
   color: var(--color-error);
 }
 
-/* The notice develops like a photo: from a bright blur to sharp, with a short glow around it. */
+/* The notice opens from the middle like a camera shutter, then the words fade in. */
 @media (prefers-reduced-motion: no-preference) {
   .contact-form__notice {
-    animation:
-      contact-form-develop 900ms var(--ease-out) both,
-      contact-form-glow 1600ms ease-out 300ms both;
+    animation: contact-form-shutter 420ms cubic-bezier(0.7, 0, 0.2, 1) both;
+  }
+
+  .contact-form__notice-text {
+    animation: contact-form-fade 400ms ease-out 300ms both;
   }
 }
 
-@keyframes contact-form-develop {
+@keyframes contact-form-shutter {
   from {
-    filter: blur(8px) brightness(1.8);
+    clip-path: inset(50% 0 50% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes contact-form-fade {
+  from {
     opacity: 0;
-    transform: translateY(0.75rem);
   }
 
   to {
-    filter: none;
     opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes contact-form-glow {
-  from {
-    box-shadow: 0 0 0 0 color-mix(in srgb, currentcolor 45%, transparent);
-  }
-
-  to {
-    box-shadow: 0 0 0 1rem transparent;
-  }
-}
-
-@media (min-width: 768px) {
-  .contact-form__notice {
-    font-size: 1.75rem;
   }
 }
 

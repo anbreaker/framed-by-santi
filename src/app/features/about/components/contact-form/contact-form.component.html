@@ -88,9 +88,13 @@
       <!-- The live region stays in place so screen readers announce what appears inside it. -->
       <div class="contact-form__status" role="status">
         @if (status() === 'sent') {
-          <p class="contact-form__notice contact-form__notice--sent">{{ t('sent') }}</p>
+          <p class="contact-form__notice contact-form__notice--sent">
+            <span class="contact-form__notice-text">{{ t('sent') }}</span>
+          </p>
         } @else if (status() === 'failed') {
-          <p class="contact-form__notice contact-form__notice--failed">{{ t('failed') }}</p>
+          <p class="contact-form__notice contact-form__notice--failed">
+            <span class="contact-form__notice-text">{{ t('failed') }}</span>
+          </p>
         }
       </div>
     </div>
