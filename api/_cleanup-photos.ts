@@ -17,7 +17,11 @@ export interface CleanupEnv {
 }
 
 type Failure =
-  'delete-failed' | 'posts-unavailable' | 'settings-unavailable' | 'storage-unavailable';
+  | 'congratulations-unavailable'
+  | 'delete-failed'
+  | 'posts-unavailable'
+  | 'settings-unavailable'
+  | 'storage-unavailable';
 
 class CleanupError extends Error {
   constructor(readonly reason: Failure) {
@@ -55,46 +59,97 @@ const get = async (
   }
 };
 
-/** Every photo id any set uses, hidden ones included. Reads with the caller's own token, which the rules let an admin do. */
+type RestFields = Record<string, RestValue | undefined>;
+
+interface RestValue {
+  arrayValue?: { values?: RestValue[] };
+  mapValue?: { fields?: RestFields };
+  stringValue?: string;
+}
+
+/** The ids a saved photo map is known by: its full public id and its storage id. */
+const photoIds = (fields: RestFields | undefined): string[] =>
+  ['publicId', 'id']
+    .map((key) => fields?.[key]?.stringValue)
+    .filter((id): id is string => Boolean(id));
+
+/**
+ * The given fields of every document in a collection, page after page. Reads with the caller's own token,
+ * which the rules let an admin do; any failure stops the clean-up with `fail`.
+ */
+const readCollection = async (
+  fetchFn: FetchFn,
+  projectId: string,
+  idToken: string,
+  name: string,
+  field: string,
+  fail: Failure
+): Promise<RestFields[]> => {
+  const all: RestFields[] = [];
+  const base = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/${name}?pageSize=300&mask.fieldPaths=${field}`;
+  let pageToken: string | undefined;
+
+  do {
+    const url =
+      pageToken === undefined ? base : `${base}&pageToken=${encodeURIComponent(pageToken)}`;
+    const page = (await get(fetchFn, url, { Authorization: `Bearer ${idToken}` }, fail)) as {
+      documents?: { fields?: RestFields }[];
+      nextPageToken?: string;
+    };
+
+    for (const document of page.documents ?? []) all.push(document.fields ?? {});
+    pageToken = page.nextPageToken;
+  } while (pageToken !== undefined);
+
+  return all;
+};
+
+/** Every photo id any set uses, hidden ones included. */
 const readUsedPhotos = async (
   fetchFn: FetchFn,
   projectId: string,
   idToken: string
 ): Promise<Set<string>> => {
   const used = new Set<string>();
-  const base = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/posts?pageSize=300&mask.fieldPaths=photos`;
-  let pageToken: string | undefined;
+  const posts = await readCollection(
+    fetchFn,
+    projectId,
+    idToken,
+    'posts',
+    'photos',
+    'posts-unavailable'
+  );
 
-  do {
-    const url =
-      pageToken === undefined ? base : `${base}&pageToken=${encodeURIComponent(pageToken)}`;
-    const page = (await get(
-      fetchFn,
-      url,
-      { Authorization: `Bearer ${idToken}` },
-      'posts-unavailable'
-    )) as {
-      documents?: { fields?: { photos?: { arrayValue?: { values?: unknown[] } } } }[];
-      nextPageToken?: string;
-    };
-
-    for (const document of page.documents ?? []) {
-      for (const value of document.fields?.photos?.arrayValue?.values ?? []) {
-        const fields = (
-          value as { mapValue?: { fields?: Record<string, { stringValue?: string }> } }
-        ).mapValue?.fields;
-
-        for (const key of ['publicId', 'id']) {
-          const id = fields?.[key]?.stringValue;
-          if (id) used.add(id);
-        }
-      }
+  for (const fields of posts) {
+    for (const value of fields['photos']?.arrayValue?.values ?? []) {
+      for (const id of photoIds(value.mapValue?.fields)) used.add(id);
     }
-
-    pageToken = page.nextPageToken;
-  } while (pageToken !== undefined);
+  }
 
   return used;
+};
+
+/** The photos the friends' messages use; a failure stops the clean-up, since they could be among the orphans. */
+const readCongratulationPhotos = async (
+  fetchFn: FetchFn,
+  projectId: string,
+  idToken: string
+): Promise<string[]> => {
+  const congratulations = await readCollection(
+    fetchFn,
+    projectId,
+    idToken,
+    'congratulations',
+    'media',
+    'congratulations-unavailable'
+  );
+
+  return congratulations.flatMap((fields) => {
+    const media = fields['media']?.mapValue?.fields;
+    return media?.['kind']?.stringValue === 'photo'
+      ? photoIds(media['photo']?.mapValue?.fields)
+      : [];
+  });
 };
 
 /**
@@ -267,6 +322,9 @@ export const handleCleanup = async (
     }
 
     for (const id of await readSettingsPhotos(fetchFn, firebaseProjectId, idToken)) used.add(id);
+    for (const id of await readCongratulationPhotos(fetchFn, firebaseProjectId, idToken)) {
+      used.add(id);
+    }
 
     const uploads = await listUploads(fetchFn, cloudName, authorization);
     const cutoff = now() - GRACE_DAYS * 24 * 60 * 60 * 1000;

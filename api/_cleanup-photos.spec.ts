@@ -64,6 +64,9 @@ interface World {
   resourcePages?: { created_at: string; public_id: string }[][];
   admin?: number;
   firestoreStatus?: number;
+  /** Pages of `congratulations` documents; missing means the collection is empty. */
+  congratulationPages?: Record<string, unknown>[][];
+  congratulationsStatus?: number;
   /** The `settings/site` document; missing means it was never saved (404). */
   settings?: Record<string, unknown>;
   settingsStatus?: number;
@@ -90,6 +93,20 @@ const network = (world: World = {}) => {
       return world.settings
         ? Response.json(world.settings)
         : new Response('{"error":{"status":"NOT_FOUND"}}', { status: 404 });
+    }
+
+    if (url.includes('/documents/congratulations')) {
+      if (world.congratulationsStatus)
+        return new Response('{}', { status: world.congratulationsStatus });
+
+      const pages = world.congratulationPages ?? [[]];
+      const token = new URL(url).searchParams.get('pageToken');
+      const index = token === null ? 0 : Number(token);
+
+      return Response.json({
+        ...(pages[index].length > 0 && { documents: pages[index] }),
+        ...(index + 1 < pages.length && { nextPageToken: String(index + 1) }),
+      });
     }
 
     if (url.includes('/documents/posts')) {
@@ -293,6 +310,73 @@ describe('cleanup-photos', () => {
     expect((await response).status).toBe(502);
     expect(await (await response).json()).toEqual({ error: 'settings-unavailable' });
     expect(net.deleted).toEqual([]);
+  });
+
+  describe('congratulations', () => {
+    /** A message as the dashboard saves it, with a photo uploaded to the posts folder. */
+    const withPhoto = (publicId: string): Record<string, unknown> => ({
+      fields: toRestFields({
+        createdAt: 1,
+        from: 'Ana',
+        media: {
+          kind: 'photo',
+          photo: { alt: '', height: 600, id: publicId, publicId, width: 900 },
+        },
+        message: 'Hi',
+      }),
+    });
+    const withVideo = (): Record<string, unknown> => ({
+      fields: toRestFields({
+        createdAt: 2,
+        from: 'Bruno',
+        media: { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+        message: 'Hi',
+      }),
+    });
+
+    it('should keep the photos of the congratulations, on every page, though no set uses them', async () => {
+      const { net, response } = run({
+        congratulationPages: [
+          [withPhoto(`${FOLDER}/ana`), withVideo()],
+          [withPhoto(`${FOLDER}/bruno`)],
+        ],
+        postPages: [[post(`${FOLDER}/used`)]],
+        resourcePages: [
+          [photo('used', 40), photo('ana', 40), photo('bruno', 40), photo('orphan', 40)],
+        ],
+      });
+      await response;
+
+      expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
+    });
+
+    it('should read only the media of the congratulations, with the caller token', async () => {
+      const { net, response } = run({
+        postPages: [[post(`${FOLDER}/used`)]],
+        resourcePages: [[photo('used', 40)]],
+      });
+      await response;
+
+      const call = net.calls.find((item) => item.url.includes('/documents/congratulations'));
+      expect(call?.url).toBe(
+        'https://firestore.googleapis.com/v1/projects/demo-project/databases/(default)/documents/congratulations?pageSize=300&mask.fieldPaths=media'
+      );
+      expect(new Headers(call?.init?.headers).get('Authorization')).toBe(
+        `Bearer ${tokenFor('uid-1')}`
+      );
+    });
+
+    it('should delete nothing when the congratulations cannot be read, because their photos may be among the orphans', async () => {
+      const { net, response } = run({
+        congratulationsStatus: 500,
+        postPages: [[post(`${FOLDER}/used`)]],
+        resourcePages: [[photo('orphan', 40)]],
+      });
+
+      expect((await response).status).toBe(502);
+      expect(await (await response).json()).toEqual({ error: 'congratulations-unavailable' });
+      expect(net.deleted).toEqual([]);
+    });
   });
 
   it('should delete nothing when Cloudinary cannot be listed or the delete is refused', async () => {
