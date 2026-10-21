@@ -4,12 +4,13 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from '@core/const/social.const';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
+import { InstagramIconComponent } from '@shared/components/instagram-icon/instagram-icon.component';
 
 /** The camera, the city and where to find the work. */
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ScrollRevealDirective, TranslocoDirective],
+  imports: [InstagramIconComponent, RouterLink, ScrollRevealDirective, TranslocoDirective],
   selector: 'app-about-details',
   styleUrl: './about-details.component.css',
   templateUrl: './about-details.component.html',

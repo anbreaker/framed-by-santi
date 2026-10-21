@@ -53,6 +53,13 @@ describe('LandingHeroComponent', () => {
     expect(hrefs).toEqual(['/gallery', INSTAGRAM_URL]);
   });
 
+  it('should put the Instagram logo next to the Instagram button text', () => {
+    const link = root().querySelector(`a[href="${INSTAGRAM_URL}"]`) as HTMLAnchorElement;
+
+    expect(link.querySelector('app-instagram-icon svg[aria-hidden="true"]')).not.toBeNull();
+    expect(link.textContent?.trim()).toBe('@framedbysanti');
+  });
+
   it('should format the photo date for the active language', async () => {
     expect(root().querySelector('.landing-hero__caption')?.textContent).toContain('Aug 31, 2026');
 

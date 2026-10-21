@@ -50,6 +50,19 @@ describe('SiteFooterComponent', () => {
     expect(instagram.rel).toContain('noopener');
   });
 
+  it('should put the Instagram logo next to the Instagram link text', () => {
+    const link = root().querySelector(`a[href="${INSTAGRAM_URL}"]`) as HTMLAnchorElement;
+
+    expect(link.querySelector('app-instagram-icon svg[aria-hidden="true"]')).not.toBeNull();
+    expect(link.textContent?.trim()).toBe('Instagram ↗');
+  });
+
+  it('should group the Instagram logo with its label so both take the hover accent', () => {
+    const link = root().querySelector(`a[href="${INSTAGRAM_URL}"]`) as HTMLAnchorElement;
+
+    expect(link.querySelector('.link-grow > app-instagram-icon')).not.toBeNull();
+  });
+
   it('should credit the author with a link to rootdevs.es that opens in a new tab', () => {
     const credit = root().querySelector(`a[href="${ROOTDEVS_URL}"]`) as HTMLAnchorElement;
 
