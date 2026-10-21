@@ -27,11 +27,13 @@ const file: VideoSource = {
       title="Video from Ana"
       [playing]="playing()"
       [video]="video()"
+      (ended)="ends = ends + 1"
       (play)="plays = plays + 1"
     />
   `,
 })
 class HostComponent {
+  ends = 0;
   plays = 0;
   readonly playing = signal(false);
   readonly video = signal<VideoSource>(youtube);
@@ -89,6 +91,16 @@ describe('VideoFacadeComponent', () => {
     expect(video?.hasAttribute('controls')).toBe(true);
     expect(video?.getAttribute('aria-label')).toBe('Video from Ana');
     expect(root().querySelector('iframe')).toBeNull();
+  });
+
+  it('should tell when a Cloudinary video reaches its end', async () => {
+    fixture.componentInstance.video.set(file);
+    fixture.componentInstance.playing.set(true);
+    await fixture.whenStable();
+
+    root().querySelector('video')?.dispatchEvent(new Event('ended'));
+
+    expect(fixture.componentInstance.ends).toBe(1);
   });
 
   it('should warm up the connection to YouTube once, when the pointer reaches the play button', () => {

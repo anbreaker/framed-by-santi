@@ -17,6 +17,7 @@
       [attr.aria-label]="title()"
       [attr.poster]="video().poster"
       [src]="fileUrl()"
+      (ended)="ended.emit()"
     ></video>
   }
 } @else {

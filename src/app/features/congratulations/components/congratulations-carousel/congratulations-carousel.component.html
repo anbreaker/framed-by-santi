@@ -29,6 +29,7 @@
                 [playLabel]="t('play', { name: slide.from })"
                 [title]="t('videoTitle', { name: slide.from })"
                 [video]="slide.media.video"
+                (ended)="finished(i)"
                 (play)="play(i)"
               />
             } @else {
@@ -60,7 +61,7 @@
 
   @if (total() > 1) {
     <div class="congrats__controls">
-      <p class="congrats__counter" [attr.aria-live]="halted() ? 'polite' : 'off'">
+      <p class="congrats__counter" [attr.aria-live]="announced() ? 'polite' : 'off'">
         {{ counter(current() + 1, total()) }}
       </p>
 

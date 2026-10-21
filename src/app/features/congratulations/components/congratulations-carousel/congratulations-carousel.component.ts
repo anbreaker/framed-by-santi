@@ -39,6 +39,16 @@ export class CongratulationsCarouselComponent {
   );
   /** The automatic pass waits while it is paused or a video plays. */
   protected readonly halted = computed(() => this.paused() || this.playing() !== null);
+  /** With less motion asked for, the progress bar does not animate, so nothing passes on its own. */
+  private readonly reducedMotion =
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  /** The position is announced only while nothing moves on its own, so autoplay does not chatter. */
+  protected readonly announced = computed(() => this.reducedMotion || this.halted());
+
+  /** A video that reaches its end lets the automatic pass go on. */
+  protected finished(index: number): void {
+    if (this.playing() === index) this.playing.set(null);
+  }
 
   protected goTo(index: number): void {
     const total = this.total();

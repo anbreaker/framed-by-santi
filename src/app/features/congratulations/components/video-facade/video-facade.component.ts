@@ -31,6 +31,8 @@ export class VideoFacadeComponent {
   readonly title = input.required<string>();
   readonly video = input.required<VideoSource>();
 
+  /** The browser player reached the end of a Cloudinary video; YouTube does not report it. */
+  readonly ended = output<void>();
   readonly play = output<void>();
 
   /** The player URL is built from a validated video id, so it is trusted as a frame source. */

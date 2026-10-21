@@ -1,9 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { Congratulation } from '../../models/congratulation.model';
+import { VideoFacadeComponent } from '../video-facade/video-facade.component';
 import { CongratulationsCarouselComponent } from './congratulations-carousel.component';
 
 const messages: Congratulation[] = [
@@ -58,6 +60,31 @@ describe('CongratulationsCarouselComponent', () => {
 
     fixture = TestBed.createComponent(HostComponent);
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('should announce the position when the visitor asks for less motion, since nothing passes on its own then', async () => {
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
+    fixture = TestBed.createComponent(HostComponent);
+    await fixture.whenStable();
+
+    expect(root().querySelector('.congrats__counter')?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('should resume the automatic pass when the video that was playing ends', async () => {
+    (activeMedia().querySelector('.video-facade__poster') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(fill()?.classList).toContain('congrats__fill--halted');
+
+    const facade = fixture.debugElement.query(By.directive(VideoFacadeComponent));
+    (facade.componentInstance as VideoFacadeComponent).ended.emit();
+    await fixture.whenStable();
+
+    expect(fill()?.classList).not.toContain('congrats__fill--halted');
+    expect(activeText().textContent).toContain('Ana');
   });
 
   it('should be a labelled carousel that opens on the first message, with its sender and text', () => {
