@@ -1,0 +1,112 @@
+<main
+  class="manage"
+  id="main-content"
+  tabindex="-1"
+  *transloco="let t; prefix: 'admin.congratulations'"
+>
+  <app-admin-shell>
+    <div class="manage__body">
+      <header class="manage__header">
+        <div>
+          <h1 class="manage__title">{{ t('manage.title') }}</h1>
+          <p class="manage__intro">{{ t('manage.intro') }}</p>
+        </div>
+        <a class="btn btn--ghost" routerLink="/admin/congratulations">{{ t('manage.viewLink') }}</a>
+      </header>
+
+      <p
+        class="manage__status"
+        [attr.role]="notice()?.kind === 'error' ? 'alert' : 'status'"
+        [class.manage__status--error]="notice()?.kind === 'error'"
+      >
+        @if (notice(); as current) { {{ t('manage.' + current.key) }} }
+      </p>
+
+      <section class="manage__panel" aria-labelledby="manage-form-title">
+        <h2 class="manage__subtitle" #formTitle id="manage-form-title" tabindex="-1">
+          {{ editing() ? t('manage.editTitle') : t('manage.newTitle') }}
+        </h2>
+        <app-congratulation-form
+          [editing]="editing()"
+          [resetKey]="resetKey()"
+          [saving]="saving()"
+          (cancelled)="cancelEdit()"
+          (submitted)="save($event)"
+        />
+      </section>
+
+      <section class="manage__saved" aria-labelledby="manage-saved-title">
+        <div class="manage__saved-header">
+          <h2 class="manage__subtitle" id="manage-saved-title">{{ t('manage.savedTitle') }}</h2>
+          @if (status() === 'ready') {
+          <span class="meta">{{ cards().length }}</span>
+          }
+        </div>
+
+        @switch (status()) { @case ('failed') {
+        <p class="manage__empty" role="alert">{{ t('loadFailed') }}</p>
+        } @case ('ready') { @if (cards().length === 0) {
+        <p class="manage__empty">{{ t('manage.empty') }}</p>
+        } @else {
+        <ul class="manage__grid" role="list">
+          @for (card of cards(); track card.id) {
+          <li class="manage__card">
+            <div class="manage__thumb">
+              @if (card.thumbnail; as src) {
+              <img alt="" decoding="async" loading="lazy" [src]="src" />
+              } @else {
+              <span class="manage__quote" aria-hidden="true">“</span>
+              }
+            </div>
+            <div class="manage__card-body">
+              <span class="meta">{{ t('manage.kinds.' + (card.media?.kind ?? 'none')) }}</span>
+              <h3 class="manage__name">{{ card.from }}</h3>
+              <p class="manage__excerpt">{{ card.message }}</p>
+
+              @if (confirming() === card.id) {
+              <div
+                class="manage__confirm"
+                role="group"
+                [attr.aria-label]="t('manage.confirm', { name: card.from })"
+              >
+                <p>{{ t('manage.confirm', { name: card.from }) }}</p>
+                <div class="manage__actions">
+                  <button class="manage__danger" type="button" (click)="remove(card)">
+                    {{ t('manage.confirmYes') }}
+                  </button>
+                  <button class="manage__action" type="button" (click)="keep()">
+                    {{ t('manage.confirmNo') }}
+                  </button>
+                </div>
+              </div>
+              } @else {
+              <div class="manage__actions">
+                <button
+                  class="manage__action"
+                  type="button"
+                  [attr.aria-label]="t('manage.editLabel', { name: card.from })"
+                  (click)="edit(card)"
+                >
+                  {{ t('manage.edit') }}
+                </button>
+                <button
+                  class="manage__action manage__action--danger"
+                  type="button"
+                  [attr.aria-label]="t('manage.deleteLabel', { name: card.from })"
+                  (click)="askToRemove(card.id)"
+                >
+                  {{ t('manage.delete') }}
+                </button>
+              </div>
+              }
+            </div>
+          </li>
+          }
+        </ul>
+        } } @default {
+        <p class="manage__empty" aria-busy="true">{{ t('loading') }}</p>
+        } }
+      </section>
+    </div>
+  </app-admin-shell>
+</main>

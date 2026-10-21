@@ -24,6 +24,8 @@ export class AdminSessionStore {
 
   /** Nobody is an admin until auth is loaded and says so. */
   readonly isAdmin = computed(() => this.auth()?.isAdmin() ?? false);
+  /** Only shapes the menu; the owner guard and the security rules hold the line. */
+  readonly isOwner = computed(() => this.auth()?.isOwner() ?? false);
 
   constructor() {
     // If auth cannot be loaded (offline), the admin links just stay hidden until it can.

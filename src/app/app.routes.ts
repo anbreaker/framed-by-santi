@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { adminGuard } from '@features/auth/guards/admin.guard';
+import { ownerGuard } from '@features/auth/guards/owner.guard';
 import { HomePageComponent } from '@pages/home/home.page';
 
 export const routes: Routes = [
@@ -45,6 +46,13 @@ export const routes: Routes = [
     loadComponent: async () =>
       (await import('@pages/admin-congratulations/admin-congratulations.page'))
         .AdminCongratulationsPageComponent,
+  },
+  {
+    path: 'admin/congratulations/manage',
+    canActivate: [ownerGuard],
+    loadComponent: async () =>
+      (await import('@pages/admin-congratulations-manage/admin-congratulations-manage.page'))
+        .AdminCongratulationsManagePageComponent,
   },
   {
     path: 'admin/sets/new',

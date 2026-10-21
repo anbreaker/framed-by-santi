@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
+import { AdminSessionStore } from '@features/auth/store/admin-session.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
 
 import { AdminNavComponent } from './admin-nav.component';
 
 @Component({ template: '' })
 class EmptyPageComponent {}
+
+const isOwner = signal(false);
 
 describe('AdminNavComponent', () => {
   let fixture: ComponentFixture<AdminNavComponent>;
@@ -18,6 +21,7 @@ describe('AdminNavComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    isOwner.set(false);
     await TestBed.configureTestingModule({
       imports: [AdminNavComponent, realTranslations()],
       providers: [
@@ -25,7 +29,9 @@ describe('AdminNavComponent', () => {
           { component: EmptyPageComponent, path: 'admin/dashboard' },
           { component: EmptyPageComponent, path: 'admin/settings' },
           { component: EmptyPageComponent, path: 'admin/congratulations' },
+          { component: EmptyPageComponent, path: 'admin/congratulations/manage' },
         ]),
+        { provide: AdminSessionStore, useValue: { isOwner } },
       ],
     }).compileComponents();
 
@@ -50,5 +56,23 @@ describe('AdminNavComponent', () => {
 
     expect(link('/admin/settings').getAttribute('aria-current')).toBe('page');
     expect(link('/admin/dashboard').getAttribute('aria-current')).toBeNull();
+  });
+
+  it('should add the link to manage the congratulations only for the owner', async () => {
+    await fixture.whenStable();
+    expect(link('/admin/congratulations/manage')).toBeNull();
+
+    isOwner.set(true);
+    await fixture.whenStable();
+    expect(link('/admin/congratulations/manage').textContent).toContain('Manage congratulations');
+  });
+
+  it('should mark only the manage link as current while managing', async () => {
+    isOwner.set(true);
+    await TestBed.inject(Router).navigateByUrl('/admin/congratulations/manage');
+    await fixture.whenStable();
+
+    expect(link('/admin/congratulations/manage').getAttribute('aria-current')).toBe('page');
+    expect(link('/admin/congratulations').getAttribute('aria-current')).toBeNull();
   });
 });

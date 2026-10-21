@@ -7,14 +7,16 @@ import { AuthStore } from './auth.store';
 
 describe('AdminSessionStore', () => {
   const isAdmin = signal(false);
+  const isOwner = signal(false);
   const signOut = vi.fn();
   const createAuth = vi.fn();
-  const fakeAuth = { isAdmin, signOut } as unknown as AuthStore;
+  const fakeAuth = { isAdmin, isOwner, signOut } as unknown as AuthStore;
   const storedSession = vi.fn();
 
   beforeEach(() => {
     localStorage.clear();
     isAdmin.set(false);
+    isOwner.set(false);
     signOut.mockReset().mockResolvedValue(undefined);
     createAuth.mockReset().mockReturnValue(fakeAuth);
     storedSession.mockReset().mockResolvedValue(false);
@@ -43,6 +45,20 @@ describe('AdminSessionStore', () => {
 
     await vi.waitFor(() => expect(session.isAdmin()).toBe(true));
     expect(createAuth).toHaveBeenCalledTimes(1);
+  });
+
+  it('should know the owner only once auth says so', async () => {
+    setAdminHint(true);
+    isAdmin.set(true);
+
+    const session = TestBed.inject(AdminSessionStore);
+    expect(session.isOwner()).toBe(false);
+
+    await vi.waitFor(() => expect(session.isAdmin()).toBe(true));
+    expect(session.isOwner()).toBe(false);
+
+    isOwner.set(true);
+    expect(session.isOwner()).toBe(true);
   });
 
   it('should load auth for an admin whose session predates the hint', async () => {

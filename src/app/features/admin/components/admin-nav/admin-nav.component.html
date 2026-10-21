@@ -20,7 +20,18 @@
     ariaCurrentWhenActive="page"
     routerLink="/admin/congratulations"
     routerLinkActive="admin-nav__link--active"
+    [routerLinkActiveOptions]="{ exact: true }"
   >
     {{ t('admin.nav.congratulations') }}
   </a>
+  @if (isOwner()) {
+    <a
+      class="admin-nav__link"
+      ariaCurrentWhenActive="page"
+      routerLink="/admin/congratulations/manage"
+      routerLinkActive="admin-nav__link--active"
+    >
+      {{ t('admin.nav.manageCongratulations') }}
+    </a>
+  }
 </nav>

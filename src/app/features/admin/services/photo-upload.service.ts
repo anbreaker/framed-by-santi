@@ -17,6 +17,10 @@ export interface UploadedPhoto {
   width: number;
 }
 
+export interface UploadedVideo {
+  publicId: string;
+}
+
 interface UploadSignature {
   apiKey: string;
   cloudName: string;
@@ -32,16 +36,27 @@ interface CloudinaryResponse {
   width: number;
 }
 
-/** Uploads a photo straight to Cloudinary using a signature that only admins can get from `/api/sign-upload`. */
+/** Uploads photos and videos straight to Cloudinary using a signature that only admins can get from `/api/sign-upload`. */
 @Injectable({ providedIn: 'root' })
 export class PhotoUploadService {
   private readonly authStore = inject(AuthStore);
 
   async upload(photo: Blob): Promise<UploadedPhoto> {
+    const uploaded = (await this.send(photo, 'image')) as CloudinaryResponse;
+    return { height: uploaded.height, publicId: uploaded.public_id, width: uploaded.width };
+  }
+
+  /** A video goes up with the same signature, to the video endpoint; Cloudinary picks the format when it is delivered. */
+  async uploadVideo(video: Blob): Promise<UploadedVideo> {
+    const uploaded = (await this.send(video, 'video')) as Pick<CloudinaryResponse, 'public_id'>;
+    return { publicId: uploaded.public_id };
+  }
+
+  private async send(file: Blob, resourceType: 'image' | 'video'): Promise<unknown> {
     const signature = await this.sign();
 
     const form = new FormData();
-    form.append('file', photo);
+    form.append('file', file);
     form.append('api_key', signature.apiKey);
     form.append('folder', signature.folder);
     form.append('signature', signature.signature);
@@ -50,14 +65,13 @@ export class PhotoUploadService {
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${signature.cloudName}/${resourceType}/upload`,
         { body: form, method: 'POST' }
       );
 
       if (!response.ok) throw new PhotoUploadError('upload-failed');
 
-      const uploaded = (await response.json()) as CloudinaryResponse;
-      return { height: uploaded.height, publicId: uploaded.public_id, width: uploaded.width };
+      return await response.json();
     } catch (error) {
       throw error instanceof PhotoUploadError ? error : new PhotoUploadError('upload-failed');
     }

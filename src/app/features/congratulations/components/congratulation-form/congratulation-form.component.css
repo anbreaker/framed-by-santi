@@ -1,0 +1,151 @@
+:host {
+  display: block;
+}
+
+.congrats-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.congrats-form__field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.congrats-form__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.congrats-form__input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font: inherit;
+  min-height: 3rem;
+  padding: 0 var(--space-3);
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+}
+
+.congrats-form__textarea {
+  line-height: 1.6;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+.congrats-form__fieldset {
+  border: 0;
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+
+  & > legend {
+    margin-bottom: var(--space-3);
+    padding: 0;
+  }
+}
+
+/* Radio buttons drawn as a row of toggles; the real inputs stay for the keyboard and screen readers. */
+.congrats-form__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.congrats-form__kind {
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  position: relative;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    border-color: var(--color-text);
+  }
+
+  &:has(.congrats-form__radio:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.congrats-form__kind--selected {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+.congrats-form__radio {
+  appearance: none;
+  inset: 0;
+  margin: 0;
+  position: absolute;
+}
+
+.congrats-form__file {
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.9375rem;
+
+  &::file-selector-button {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    margin-right: var(--space-3);
+    min-height: 3rem;
+    padding-inline: var(--space-4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.congrats-form__hint {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.congrats-form__error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.congrats-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

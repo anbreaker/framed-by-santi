@@ -1,0 +1,178 @@
+<form
+  class="congrats-form"
+  novalidate
+  *transloco="let t; prefix: 'admin.congratulations.manage'"
+  (submit)="submit($event)"
+>
+  <div class="congrats-form__field">
+    <label class="congrats-form__label" for="congrats-from">{{ t('from') }}</label>
+    <input
+      class="congrats-form__input"
+      autocomplete="off"
+      id="congrats-from"
+      type="text"
+      [attr.aria-describedby]="hasError('from') ? 'congrats-from-error' : null"
+      [attr.aria-invalid]="hasError('from')"
+      [attr.maxlength]="maxFrom"
+      [placeholder]="t('fromHint')"
+      [value]="from()"
+      (input)="onText('from', $event)"
+    />
+    @if (hasError('from')) {
+      <p class="congrats-form__error" id="congrats-from-error">
+        {{ t('errors.from', { max: maxFrom }) }}
+      </p>
+    }
+  </div>
+
+  <div class="congrats-form__field">
+    <label class="congrats-form__label" for="congrats-message">{{ t('message') }}</label>
+    <textarea
+      class="congrats-form__input congrats-form__textarea"
+      id="congrats-message"
+      rows="6"
+      [attr.aria-describedby]="hasError('message') ? 'congrats-message-error' : null"
+      [attr.aria-invalid]="hasError('message')"
+      [attr.maxlength]="maxMessage"
+      [placeholder]="t('messageHint')"
+      [value]="message()"
+      (input)="onText('message', $event)"
+    ></textarea>
+    @if (hasError('message')) {
+      <p class="congrats-form__error" id="congrats-message-error">
+        {{ t('errors.message', { max: maxMessage }) }}
+      </p>
+    }
+  </div>
+
+  <fieldset class="congrats-form__fieldset">
+    <legend class="congrats-form__label">{{ t('media') }}</legend>
+    <div class="congrats-form__kinds">
+      @for (option of kinds; track option) {
+        <label
+          class="congrats-form__kind"
+          [class.congrats-form__kind--selected]="kind() === option"
+        >
+          <input
+            class="congrats-form__radio"
+            name="congrats-kind"
+            type="radio"
+            [checked]="kind() === option"
+            [value]="option"
+            (change)="onKind(option)"
+          />
+          {{ t('kinds.' + option) }}
+        </label>
+      }
+    </div>
+
+    @for (reset of fileInputs(); track reset) {
+      @switch (kind()) {
+        @case ('none') {
+          <p class="congrats-form__hint">{{ t('noneHint') }}</p>
+        }
+        @case ('photo') {
+          <div class="congrats-form__field">
+            <label class="congrats-form__label" for="congrats-photo">{{ t('photo') }}</label>
+            <input
+              class="congrats-form__file"
+              accept="image/jpeg,image/png,image/webp"
+              id="congrats-photo"
+              type="file"
+              [attr.aria-describedby]="
+                hasError('photo') ? 'congrats-photo-error' : 'congrats-photo-hint'
+              "
+              [attr.aria-invalid]="hasError('photo')"
+              (change)="onFile($event)"
+            />
+            <p class="congrats-form__hint" id="congrats-photo-hint">
+              {{ keepsSaved() ? t('currentPhoto') : t('photoHint') }}
+            </p>
+            @if (hasError('photo')) {
+              <p class="congrats-form__error" id="congrats-photo-error">{{ t('errors.photo') }}</p>
+            }
+          </div>
+          <div class="congrats-form__field">
+            <label class="congrats-form__label" for="congrats-alt">{{ t('alt') }}</label>
+            <input
+              class="congrats-form__input"
+              id="congrats-alt"
+              type="text"
+              [value]="alt()"
+              (input)="onText('alt', $event)"
+            />
+          </div>
+        }
+        @case ('youtube') {
+          <div class="congrats-form__field">
+            <label class="congrats-form__label" for="congrats-youtube">{{ t('youtube') }}</label>
+            <input
+              class="congrats-form__input"
+              id="congrats-youtube"
+              inputmode="url"
+              placeholder="https://youtu.be/…"
+              type="url"
+              [attr.aria-describedby]="
+                hasError('youtube') ? 'congrats-youtube-error' : 'congrats-youtube-hint'
+              "
+              [attr.aria-invalid]="hasError('youtube')"
+              [value]="youtube()"
+              (input)="onText('youtube', $event)"
+            />
+            <p class="congrats-form__hint" id="congrats-youtube-hint">{{ t('youtubeHint') }}</p>
+            @if (hasError('youtube')) {
+              <p class="congrats-form__error" id="congrats-youtube-error">
+                {{ t('errors.youtube') }}
+              </p>
+            }
+          </div>
+        }
+        @case ('cloudinary') {
+          <div class="congrats-form__field">
+            <label class="congrats-form__label" for="congrats-video">{{ t('video') }}</label>
+            <input
+              class="congrats-form__file"
+              accept="video/mp4,video/quicktime,video/webm"
+              id="congrats-video"
+              type="file"
+              [attr.aria-describedby]="
+                hasError('video') || hasError('videoTooLarge')
+                  ? 'congrats-video-error'
+                  : 'congrats-video-hint'
+              "
+              [attr.aria-invalid]="hasError('video') || hasError('videoTooLarge')"
+              (change)="onFile($event)"
+            />
+            <p class="congrats-form__hint" id="congrats-video-hint">
+              {{ keepsSaved() ? t('currentVideo') : t('videoHint') }}
+            </p>
+            @if (hasError('video')) {
+              <p class="congrats-form__error" id="congrats-video-error">{{ t('errors.video') }}</p>
+            }
+            @if (hasError('videoTooLarge')) {
+              <p class="congrats-form__error" id="congrats-video-error">
+                {{ t('errors.videoTooLarge') }}
+              </p>
+            }
+          </div>
+        }
+      }
+    }
+  </fieldset>
+
+  <div class="congrats-form__actions">
+    <button
+      class="btn btn--primary"
+      type="submit"
+      [attr.aria-busy]="saving()"
+      [disabled]="saving()"
+    >
+      {{ saving() ? t('saving') : t('save') }}
+    </button>
+    @if (isEditing()) {
+      <button class="btn btn--ghost" type="button" [disabled]="saving()" (click)="cancelled.emit()">
+        {{ t('cancel') }}
+      </button>
+    }
+  </div>
+</form>

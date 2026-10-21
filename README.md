@@ -77,7 +77,9 @@ Photos are never committed: `public/local-photos/` (WebP) and `santiImages/` (ra
 
 #### 💌 Congratulations
 
-`/admin/congratulations` (admin only) shows friends' messages to Santi in a carousel: the photo or video on one side, the words on the other. The messages live in `features/congratulations/data/congratulations.data.ts`, one object per friend with `from`, `message` and an optional `media`: a photo (`src` + `alt`), a YouTube video (`video`, any YouTube link or id) or a Cloudinary video (`publicId`). Videos load as a facade: only the thumbnail until someone presses play, then the `youtube-nocookie.com` player or the Cloudinary file.
+`/admin/congratulations` shows friends' messages to Santi in a carousel: the photo or video on one side, the words on the other. Videos load as a facade: only the thumbnail until someone presses play, then the `youtube-nocookie.com` player or the Cloudinary file.
+
+The messages live in the Firestore collection `congratulations`. Every admin reads them; only the **owner** writes them, from `/admin/congratulations/manage` (form plus list with edit and delete). The owner is an admin who also has a document `owners/{uid}` (any content, id = their Firebase Auth UID), created by hand in the console like `admins`. `firestore.rules` enforces it, so paste the updated rules after pulling this change. Photos go to the same Cloudinary folder as the sets and the clean-up keeps them; videos go up through the same signature, up to 100 MB.
 
 ### 📁 Relevant structure
 
@@ -262,7 +264,9 @@ Las fotos nunca se commitean: `public/local-photos/` (WebP) y `santiImages/` (or
 
 #### 💌 Felicitaciones
 
-`/admin/congratulations` (solo admin) muestra los mensajes de los amigos de Santi en un carrusel: la foto o el vídeo a un lado y el texto al otro. Los mensajes están en `features/congratulations/data/congratulations.data.ts`, un objeto por amigo con `from`, `message` y un `media` opcional: una foto (`src` + `alt`), un vídeo de YouTube (`video`, cualquier enlace de YouTube o su id) o un vídeo de Cloudinary (`publicId`). Los vídeos cargan como fachada: solo la miniatura hasta que alguien pulsa reproducir, y entonces el reproductor de `youtube-nocookie.com` o el archivo de Cloudinary.
+`/admin/congratulations` muestra los mensajes de los amigos de Santi en un carrusel: la foto o el vídeo a un lado y el texto al otro. Los vídeos cargan como fachada: solo la miniatura hasta que alguien pulsa reproducir, y entonces el reproductor de `youtube-nocookie.com` o el archivo de Cloudinary.
+
+Los mensajes están en la colección `congratulations` de Firestore. Cualquier admin los lee; solo el **owner** los escribe, desde `/admin/congratulations/manage` (formulario y lista con editar y eliminar). El owner es un admin que además tiene un documento `owners/{uid}` (cualquier contenido, id = su UID de Firebase Auth), creado a mano en la consola como `admins`. `firestore.rules` lo hace cumplir, así que pega las reglas actualizadas después de traer este cambio. Las fotos van a la misma carpeta de Cloudinary que las series y la limpieza las respeta; los vídeos suben con la misma firma, hasta 100 MB.
 
 ### 📁 Estructura relevante
 
@@ -447,7 +451,9 @@ As fotos nunca são enviadas para o repositório: `public/local-photos/` (WebP) 
 
 #### 💌 Felicitações
 
-`/admin/congratulations` (apenas admin) mostra as mensagens dos amigos do Santi num carrossel: a foto ou o vídeo de um lado e o texto do outro. As mensagens estão em `features/congratulations/data/congratulations.data.ts`, um objeto por amigo com `from`, `message` e um `media` opcional: uma foto (`src` + `alt`), um vídeo do YouTube (`video`, qualquer ligação do YouTube ou o seu id) ou um vídeo do Cloudinary (`publicId`). Os vídeos carregam como fachada: apenas a miniatura até alguém carregar em reproduzir, e então o leitor de `youtube-nocookie.com` ou o ficheiro do Cloudinary.
+`/admin/congratulations` mostra as mensagens dos amigos do Santi num carrossel: a foto ou o vídeo de um lado e o texto do outro. Os vídeos carregam como fachada: apenas a miniatura até alguém carregar em reproduzir, e então o leitor de `youtube-nocookie.com` ou o ficheiro do Cloudinary.
+
+As mensagens estão na coleção `congratulations` do Firestore. Qualquer admin as lê; só o **owner** as escreve, em `/admin/congratulations/manage` (formulário e lista com editar e eliminar). O owner é um admin que tem também um documento `owners/{uid}` (qualquer conteúdo, id = o seu UID do Firebase Auth), criado à mão na consola como `admins`. O `firestore.rules` garante-o, por isso cola as regras atualizadas depois de trazer esta alteração. As fotos vão para a mesma pasta do Cloudinary que as séries e a limpeza respeita-as; os vídeos sobem com a mesma assinatura, até 100 MB.
 
 ### 📁 Estrutura relevante
 

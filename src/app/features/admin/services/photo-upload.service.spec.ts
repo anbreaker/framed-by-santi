@@ -63,6 +63,31 @@ describe('PhotoUploadService', () => {
     expect(result).toEqual({ height: 3333, publicId: 'framed-by-santi/posts/abc', width: 5000 });
   });
 
+  it('should upload a video with the same signature, to the video endpoint', async () => {
+    fetchFn
+      .mockResolvedValueOnce(json(200, SIGNED))
+      .mockResolvedValueOnce(json(200, { public_id: 'framed-by-santi/posts/v1' }));
+    const video = new Blob(['video'], { type: 'video/mp4' });
+
+    const result = await service.uploadVideo(video);
+
+    const [uploadUrl, uploadInit] = fetchFn.mock.calls[1];
+    const form = uploadInit.body as FormData;
+    expect(uploadUrl).toBe('https://api.cloudinary.com/v1_1/demo-cloud/video/upload');
+    expect(form.get('signature')).toBe('sig-1');
+    expect(form.get('folder')).toBe('framed-by-santi/posts');
+    expect(form.get('file')).toBeInstanceOf(Blob);
+    expect(result).toEqual({ publicId: 'framed-by-santi/posts/v1' });
+  });
+
+  it('should report a refused video upload as upload-failed', async () => {
+    fetchFn.mockResolvedValueOnce(json(200, SIGNED)).mockResolvedValueOnce(json(400, {}));
+
+    await expect(service.uploadVideo(new Blob(['video']))).rejects.toMatchObject({
+      reason: 'upload-failed',
+    });
+  });
+
   it('should not call the network without a signed-in user', async () => {
     getIdToken.mockResolvedValue(null);
 
