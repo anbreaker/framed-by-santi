@@ -37,6 +37,19 @@ describe('AboutTeaserComponent', () => {
     expect(portrait().alt).toBe('Retrato de Santi García');
   });
 
+  it('should show the tagline in the chosen language, above the intro', async () => {
+    const tagline = (): string | undefined =>
+      root().querySelector('.about-teaser__tagline')?.textContent?.trim();
+
+    expect(tagline()).toBe('I just press buttons.');
+    expect(root().querySelector('.about-teaser__tagline + .about-teaser__intro')).not.toBeNull();
+
+    TestBed.inject(LanguageStore).setLang('es');
+    await fixture.whenStable();
+
+    expect(tagline()).toBe('Yo solo aprieto botones.');
+  });
+
   it('should invite visitors to the about page', () => {
     const link = root().querySelector('a') as HTMLAnchorElement;
 

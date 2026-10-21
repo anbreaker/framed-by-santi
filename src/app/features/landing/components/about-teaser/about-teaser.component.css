@@ -24,6 +24,14 @@
   line-height: 0.95;
 }
 
+.about-teaser__tagline {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-style: italic;
+  line-height: 1.2;
+}
+
 .about-teaser__intro {
   color: var(--color-text-muted);
   font-size: 1.125rem;
