@@ -20,7 +20,9 @@
   "admin": {
     "congratulations": {
       "carousel": "carrusel",
+      "close": "Cerrar",
       "empty": "Todavía no hay felicitaciones.",
+      "enlarge": "Ver la foto de {{name}} a pantalla completa",
       "from": "De",
       "goTo": "Ir a la felicitación {{n}}",
       "intro": "Mensajes de tus amigos.",
@@ -83,6 +85,7 @@
       },
       "next": "Siguiente",
       "pause": "Pausar el pase automático",
+      "photoTitle": "Foto de {{name}}",
       "play": "Reproducir el vídeo de {{name}}",
       "pressToPlay": "Pulsa para reproducir",
       "previous": "Anterior",

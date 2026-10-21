@@ -20,7 +20,9 @@
   "admin": {
     "congratulations": {
       "carousel": "carousel",
+      "close": "Close",
       "empty": "No congratulations yet.",
+      "enlarge": "See the photo from {{name}} full screen",
       "from": "From",
       "goTo": "Go to message {{n}}",
       "intro": "Messages from your friends.",
@@ -83,6 +85,7 @@
       },
       "next": "Next",
       "pause": "Pause autoplay",
+      "photoTitle": "Photo from {{name}}",
       "play": "Play the video from {{name}}",
       "pressToPlay": "Press to play",
       "previous": "Previous",

@@ -15,23 +15,23 @@
             [class.congrats__media-slide--active]="i === current()"
             [class.congrats__media-slide--before]="i < current()"
           >
-            @if (slide.photo && i === current()) {
-              <!-- Only the photo shown can be zoomed: the zoom answers keys on the whole window. -->
-              <app-zoomable-photo
-                class="congrats__zoomable"
-                [photo]="slide.photo"
-                (zoomedChange)="zoomed.set($event)"
-              />
-            } @else if (slide.media.kind === 'photo') {
-              <img
-                class="congrats__photo"
-                decoding="async"
-                sizes="(min-width: 1100px) 50vw, 100vw"
-                [alt]="slide.media.alt"
-                [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-                [attr.srcset]="slide.media.srcset"
-                [src]="slide.media.src"
-              />
+            @if (slide.media.kind === 'photo' && slide.photo; as photo) {
+              <button
+                class="congrats__enlarge"
+                type="button"
+                [attr.aria-label]="t('enlarge', { name: slide.from })"
+                (click)="enlarge(slide.from, photo)"
+              >
+                <img
+                  class="congrats__photo"
+                  decoding="async"
+                  sizes="(min-width: 1100px) 50vw, 100vw"
+                  [alt]="slide.media.alt"
+                  [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+                  [attr.srcset]="slide.media.srcset"
+                  [src]="slide.media.src"
+                />
+              </button>
             } @else if (slide.media.kind === 'video') {
               <app-video-facade
                 [playing]="playing() === i"
@@ -67,6 +67,39 @@
       }
     </div>
   </div>
+
+  <!-- Full screen, the photo can be zoomed and moved like the photos of the sets. -->
+  <dialog
+    class="congrats__viewer"
+    #viewer
+    closedby="any"
+    [attr.aria-label]="viewing() ? t('photoTitle', { name: viewing()!.from }) : null"
+    (click)="onViewerClick($event)"
+    (close)="viewerClosed()"
+  >
+    @if (viewing(); as current) {
+      <app-zoomable-photo class="congrats__viewer-photo" [photo]="current.photo" />
+      <button
+        class="congrats__button congrats__viewer-close"
+        type="button"
+        [attr.aria-label]="t('close')"
+        (click)="closeViewer()"
+      >
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="20"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+          width="20"
+        >
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    }
+  </dialog>
 
   @if (total() > 1) {
     <div class="congrats__controls">

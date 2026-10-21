@@ -59,6 +59,9 @@ describe('CongratulationsCarouselComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    // jsdom has no modal dialogs; the browser opens and closes them.
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
     await TestBed.configureTestingModule({
       imports: [HostComponent, realTranslations()],
     }).compileComponents();
@@ -149,24 +152,40 @@ describe('CongratulationsCarouselComponent', () => {
     expect(activeMedia().querySelector('.congrats__quote')).not.toBeNull();
   });
 
-  it('should let the photo shown be zoomed, like the photos of the sets', async () => {
+  it('should keep the photo in its frame, and open it full screen to zoom in from a press on it', async () => {
     await press('Next');
+    expect(all('app-zoomable-photo')).toHaveLength(0);
 
-    const zoomable = activeMedia().querySelector('app-zoomable-photo');
-    expect(zoomable?.querySelector('img')?.getAttribute('alt')).toBe('Bruno and Santi');
-    expect(zoomable?.querySelector('button[aria-label="Zoom in"]')).not.toBeNull();
-    expect(all('app-zoomable-photo')).toHaveLength(1);
+    const open = activeMedia().querySelector(
+      'button[aria-label="See the photo from Bruno full screen"]'
+    ) as HTMLButtonElement;
+    expect(open.querySelector('img')?.getAttribute('alt')).toBe('Bruno and Santi');
+    open.click();
+    await fixture.whenStable();
+
+    const dialog = root().querySelector('dialog') as HTMLDialogElement;
+    expect(dialog.showModal).toHaveBeenCalledTimes(1);
+    expect(dialog.getAttribute('aria-label')).toBe('Photo from Bruno');
+    expect(dialog.querySelector('app-zoomable-photo button[aria-label="Zoom in"]')).not.toBeNull();
+    expect(dialog.querySelector('app-zoomable-photo img')?.getAttribute('alt')).toBe(
+      'Bruno and Santi'
+    );
   });
 
-  it('should hold the automatic pass while the photo is zoomed in, and zoom out on a new message', async () => {
+  it('should hold the automatic pass while the photo is full screen, and go on once it closes', async () => {
     await press('Next');
-    (activeMedia().querySelector('button[aria-label="Zoom in"]') as HTMLButtonElement).click();
+    (activeMedia().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
     await fixture.whenStable();
     expect(fill()?.classList).toContain('congrats__fill--halted');
 
-    await press('Previous');
-    await press('Next');
-    expect(activeMedia().querySelector('.zoomable--zoomed')).toBeNull();
+    (root().querySelector('dialog button[aria-label="Close"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    const dialog = root().querySelector('dialog') as HTMLDialogElement;
+    expect(dialog.close).toHaveBeenCalled();
+
+    dialog.dispatchEvent(new Event('close'));
+    await fixture.whenStable();
+    expect(dialog.querySelector('app-zoomable-photo')).toBeNull();
     expect(fill()?.classList).not.toContain('congrats__fill--halted');
   });
 

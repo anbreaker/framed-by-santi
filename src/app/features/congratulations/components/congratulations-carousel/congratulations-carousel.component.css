@@ -96,6 +96,51 @@
   width: 100%;
 }
 
+/* The whole photo is the button that opens it full screen. */
+.congrats__enlarge {
+  background: none;
+  border: 0;
+  cursor: zoom-in;
+  display: block;
+  height: 100%;
+  padding: 0;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -4px;
+  }
+}
+
+/* Full screen over a dark backdrop; the page underneath does not scroll. */
+.congrats__viewer:modal {
+  background: var(--color-bg);
+  border: 0;
+  height: 100dvh;
+  max-height: none;
+  max-width: none;
+  overscroll-behavior: contain;
+  padding: 0;
+  width: 100vw;
+}
+
+.congrats__viewer::backdrop {
+  background: rgb(0 0 0 / 0.85);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.congrats__viewer-photo {
+  height: 100%;
+}
+
+.congrats__viewer-close {
+  background: rgb(14 13 12 / 0.8);
+  position: absolute;
+  right: var(--space-3);
+  top: var(--space-3);
+}
+
 /* A slow push in on the photo shown, so a still image keeps breathing. */
 .congrats__media-slide--active .congrats__photo {
   animation: congrats-push-in 9s var(--ease-out) forwards;
