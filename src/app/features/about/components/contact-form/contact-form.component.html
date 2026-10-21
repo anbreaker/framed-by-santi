@@ -1,0 +1,101 @@
+<section
+  class="contact-form"
+  aria-labelledby="contact-title"
+  *transloco="let t; prefix: 'about.contact'"
+>
+  <div class="contact-form__intro" appScrollReveal>
+    <p class="meta">{{ t('eyebrow') }}</p>
+    <h2 class="contact-form__title" id="contact-title">{{ t('title') }}</h2>
+    <p class="contact-form__lead">{{ t('intro') }}</p>
+  </div>
+
+  <form class="contact-form__form" appScrollReveal novalidate (submit)="submit($event)">
+    <div class="contact-form__field">
+      <label class="contact-form__label" for="contact-name">{{ t('name') }}</label>
+      <input
+        class="contact-form__input"
+        autocomplete="name"
+        id="contact-name"
+        type="text"
+        [attr.aria-describedby]="hasError('name') ? 'contact-name-error' : null"
+        [attr.aria-invalid]="hasError('name')"
+        [attr.maxlength]="maxName"
+        [value]="name()"
+        (input)="onText('name', $event)"
+      />
+      @if (hasError('name')) {
+        <p class="contact-form__error" id="contact-name-error">
+          {{ t('errors.name', { max: maxName }) }}
+        </p>
+      }
+    </div>
+
+    <div class="contact-form__field">
+      <label class="contact-form__label" for="contact-email">{{ t('email') }}</label>
+      <input
+        class="contact-form__input"
+        autocomplete="email"
+        id="contact-email"
+        type="email"
+        [attr.aria-describedby]="hasError('email') ? 'contact-email-error' : null"
+        [attr.aria-invalid]="hasError('email')"
+        [attr.maxlength]="maxEmail"
+        [value]="email()"
+        (input)="onText('email', $event)"
+      />
+      @if (hasError('email')) {
+        <p class="contact-form__error" id="contact-email-error">{{ t('errors.email') }}</p>
+      }
+    </div>
+
+    <div class="contact-form__field">
+      <label class="contact-form__label" for="contact-message">{{ t('message') }}</label>
+      <textarea
+        class="contact-form__input contact-form__textarea"
+        id="contact-message"
+        rows="6"
+        [attr.aria-describedby]="hasError('message') ? 'contact-message-error' : null"
+        [attr.aria-invalid]="hasError('message')"
+        [attr.maxlength]="maxMessage"
+        [value]="message()"
+        (input)="onText('message', $event)"
+      ></textarea>
+      @if (hasError('message')) {
+        <p class="contact-form__error" id="contact-message-error">
+          {{ t('errors.message', { max: maxMessage }) }}
+        </p>
+      }
+    </div>
+
+    <!-- People never see this field; bots fill it in, and the server drops their messages. -->
+    <div class="contact-form__trap" aria-hidden="true">
+      <label for="contact-website">{{ t('website') }}</label>
+      <input
+        autocomplete="off"
+        id="contact-website"
+        name="website"
+        tabindex="-1"
+        type="text"
+        [value]="website()"
+        (input)="onText('website', $event)"
+      />
+    </div>
+
+    <div class="contact-form__actions">
+      <button class="btn btn--primary" type="submit" [disabled]="status() === 'sending'">
+        {{ status() === 'sending' ? t('sending') : t('send') }}
+      </button>
+      <p
+        class="contact-form__status"
+        role="status"
+        [class.contact-form__status--failed]="status() === 'failed'"
+      >
+        @if (status() === 'sent') {
+          {{ t('sent') }}
+        } @else if (status() === 'failed') {
+          {{ t('failed') }}
+        }
+      </p>
+    </div>
+  </form>
+</section>

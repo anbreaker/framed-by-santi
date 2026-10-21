@@ -4,6 +4,24 @@
     "cameraValue": "Fujifilm X100VI",
     "city": "City",
     "cityValue": "New York",
+    "contact": {
+      "email": "Email",
+      "errors": {
+        "email": "I can't reply to that email. Mind checking it?",
+        "message": "Write me something, even just a hello (up to {{max}} characters).",
+        "name": "And you are…? Add your name (up to {{max}} characters)."
+      },
+      "eyebrow": "Contact",
+      "failed": "Well, that didn't send. Not even pressing buttons fixes this one. Try again in a moment.",
+      "intro": "A question about a photo, want a print, or just saying hi? Write here. I promise to reply… between buttons.",
+      "message": "Message",
+      "name": "Name",
+      "send": "Send message",
+      "sending": "Sending…",
+      "sent": "Got it! I'll reply as soon as I put the camera down (so, soon… I think XD).",
+      "title": "Write to me",
+      "website": "Website"
+    },
     "eyebrow": "About",
     "instagramCta": "Follow on Instagram",
     "intro": "About seven years in New York, camera always on.",

@@ -6,7 +6,7 @@ import { realTranslations } from '@shared/testing/transloco-testing';
 import { AboutPageComponent } from './about.page';
 
 describe('AboutPageComponent', () => {
-  it('should compose the profile and the details inside the main landmark', async () => {
+  it('should compose the profile, the details and the contact form inside the main landmark', async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [AboutPageComponent, realTranslations()],
@@ -21,6 +21,7 @@ describe('AboutPageComponent', () => {
     expect(main.getAttribute('tabindex')).toBe('-1');
     expect(main.querySelector('app-about-profile')).not.toBeNull();
     expect(main.querySelector('app-about-details')).not.toBeNull();
+    expect(main.querySelector('app-about-details + app-contact-form')).not.toBeNull();
     expect(main.querySelectorAll('h1')).toHaveLength(1);
   });
 });
