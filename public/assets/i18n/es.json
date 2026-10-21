@@ -4,6 +4,24 @@
     "cameraValue": "Fujifilm X100VI",
     "city": "Ciudad",
     "cityValue": "Nueva York",
+    "contact": {
+      "email": "Correo",
+      "errors": {
+        "email": "Con ese correo no tengo dónde contestarte. Revísalo.",
+        "message": "Escríbeme algo, aunque sea un hola (hasta {{max}} caracteres).",
+        "name": "¿Y tú quién eres? Pon tu nombre (hasta {{max}} caracteres)."
+      },
+      "eyebrow": "Contacto",
+      "failed": "Pues no se ha enviado. Ni apretando botones lo arreglo. Prueba otra vez en un momento.",
+      "intro": "¿Una pregunta sobre una foto, quieres una copia o solo saludar? Escribe aquí. Prometo contestar… entre botón y botón.",
+      "message": "Mensaje",
+      "name": "Nombre",
+      "send": "Enviar mensaje",
+      "sending": "Enviando…",
+      "sent": "¡Recibido! Te contesto en cuanto suelte la cámara (o sea, pronto… creo XD).",
+      "title": "Escríbeme",
+      "website": "Web"
+    },
     "eyebrow": "Sobre mí",
     "instagramCta": "Seguir en Instagram",
     "intro": "Unos siete años en Nueva York, siempre con la cámara encima.",

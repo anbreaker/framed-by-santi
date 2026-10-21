@@ -1,0 +1,148 @@
+:host {
+  display: block;
+}
+
+.contact-form {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--gutter);
+}
+
+.contact-form__intro {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.contact-form__title {
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.contact-form__lead {
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+  max-width: 32rem;
+}
+
+.contact-form__form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.contact-form__field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.contact-form__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.contact-form__input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font: inherit;
+  min-height: 3rem;
+  padding: 0 var(--space-3);
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+}
+
+.contact-form__textarea {
+  line-height: 1.6;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+.contact-form__error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+/* Out of sight and out of the tab order, but still in the form for bots to find. */
+.contact-form__trap {
+  height: 1px;
+  left: -10000px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.contact-form__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: flex-end;
+}
+
+.contact-form__status {
+  flex-basis: 100%;
+}
+
+.contact-form__notice {
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-accent);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.3;
+  padding: var(--space-3) var(--space-4);
+}
+
+.contact-form__notice--failed {
+  border-left-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* The notice opens from the middle like a camera shutter, then the words fade in. */
+@media (prefers-reduced-motion: no-preference) {
+  .contact-form__notice {
+    animation: contact-form-shutter 420ms cubic-bezier(0.7, 0, 0.2, 1) both;
+  }
+
+  .contact-form__notice-text {
+    animation: contact-form-fade 400ms ease-out 300ms both;
+  }
+}
+
+@keyframes contact-form-shutter {
+  from {
+    clip-path: inset(50% 0 50% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes contact-form-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .contact-form {
+    align-items: start;
+    gap: var(--space-6);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
