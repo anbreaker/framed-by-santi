@@ -24,6 +24,7 @@ describe('routes', () => {
     const admin = routes.filter((route) => route.path?.startsWith('admin/'));
 
     expect(admin.map((route) => route.path)).toContain('admin/settings');
+    expect(admin.map((route) => route.path)).toContain('admin/congratulations');
     admin.forEach((route) => expect(route.canActivate).toEqual([adminGuard]));
   });
 });

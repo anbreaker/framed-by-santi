@@ -1,0 +1,16 @@
+<main class="admin-congratulations" id="main-content" tabindex="-1" *transloco="let t">
+  <app-admin-shell>
+    <div class="admin-congratulations__body">
+      <header>
+        <h1 class="admin-congratulations__title">{{ t('admin.congratulations.title') }}</h1>
+        <p class="admin-congratulations__intro">{{ t('admin.congratulations.intro') }}</p>
+      </header>
+
+      @if (messages.length > 0) {
+      <app-congratulations-carousel [items]="messages" />
+      } @else {
+      <p class="admin-congratulations__empty">{{ t('admin.congratulations.empty') }}</p>
+      }
+    </div>
+  </app-admin-shell>
+</main>

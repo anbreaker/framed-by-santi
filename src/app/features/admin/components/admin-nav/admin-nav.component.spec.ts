@@ -24,6 +24,7 @@ describe('AdminNavComponent', () => {
         provideRouter([
           { component: EmptyPageComponent, path: 'admin/dashboard' },
           { component: EmptyPageComponent, path: 'admin/settings' },
+          { component: EmptyPageComponent, path: 'admin/congratulations' },
         ]),
       ],
     }).compileComponents();
@@ -31,15 +32,16 @@ describe('AdminNavComponent', () => {
     fixture = TestBed.createComponent(AdminNavComponent);
   });
 
-  it('should link the sets and the settings, in that order, inside a labelled navigation', async () => {
+  it('should link the sets, the settings and the congratulations, in that order, inside a labelled navigation', async () => {
     await fixture.whenStable();
 
     const nav = root().querySelector('nav');
     const hrefs = Array.from(root().querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(nav?.getAttribute('aria-label')).toBe('Admin sections');
-    expect(hrefs).toEqual(['/admin/dashboard', '/admin/settings']);
+    expect(hrefs).toEqual(['/admin/dashboard', '/admin/settings', '/admin/congratulations']);
     expect(link('/admin/dashboard').textContent).toContain('Sets');
     expect(link('/admin/settings').textContent).toContain('Settings');
+    expect(link('/admin/congratulations').textContent).toContain('Congratulations');
   });
 
   it('should mark the section that is open as the current page', async () => {

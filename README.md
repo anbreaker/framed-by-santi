@@ -75,6 +75,10 @@ Every image goes through `photoUrl()` / `photoSrcset()` in `features/photo-posts
 
 Photos are never committed: `public/local-photos/` (WebP) and `santiImages/` (raw exports) are git-ignored.
 
+#### 💌 Congratulations
+
+`/admin/congratulations` (admin only) shows friends' messages to Santi in a carousel: the photo or video on one side, the words on the other. The messages live in `features/congratulations/data/congratulations.data.ts`, one object per friend with `from`, `message` and an optional `media`: a photo (`src` + `alt`), a YouTube video (`video`, any YouTube link or id) or a Cloudinary video (`publicId`). Videos load as a facade: only the thumbnail until someone presses play, then the `youtube-nocookie.com` player or the Cloudinary file.
+
 ### 📁 Relevant structure
 
 ```sh
@@ -256,6 +260,10 @@ Toda imagen pasa por `photoUrl()` / `photoSrcset()` en `features/photo-posts/uti
 
 Las fotos nunca se commitean: `public/local-photos/` (WebP) y `santiImages/` (originales exportados) están ignoradas por git.
 
+#### 💌 Felicitaciones
+
+`/admin/congratulations` (solo admin) muestra los mensajes de los amigos de Santi en un carrusel: la foto o el vídeo a un lado y el texto al otro. Los mensajes están en `features/congratulations/data/congratulations.data.ts`, un objeto por amigo con `from`, `message` y un `media` opcional: una foto (`src` + `alt`), un vídeo de YouTube (`video`, cualquier enlace de YouTube o su id) o un vídeo de Cloudinary (`publicId`). Los vídeos cargan como fachada: solo la miniatura hasta que alguien pulsa reproducir, y entonces el reproductor de `youtube-nocookie.com` o el archivo de Cloudinary.
+
 ### 📁 Estructura relevante
 
 ```sh
@@ -436,6 +444,10 @@ hotfix/*   <- fixes urgentes
 Toda a imagem passa por `photoUrl()` / `photoSrcset()` em `features/photo-posts/utils/photo-url.ts`. Com um _cloud name_ do Cloudinary configurado, gera URLs de entrega (`c_limit,f_auto,q_auto` e um conjunto fixo de larguras: 480, 800, 1200, 1600, 2400) com `srcset` e `sizes`. Sem ele, recorre aos ficheiros locais de `public/local-photos/`, que é também o que os testes usam.
 
 As fotos nunca são enviadas para o repositório: `public/local-photos/` (WebP) e `santiImages/` (originais exportados) estão ignoradas pelo git.
+
+#### 💌 Felicitações
+
+`/admin/congratulations` (apenas admin) mostra as mensagens dos amigos do Santi num carrossel: a foto ou o vídeo de um lado e o texto do outro. As mensagens estão em `features/congratulations/data/congratulations.data.ts`, um objeto por amigo com `from`, `message` e um `media` opcional: uma foto (`src` + `alt`), um vídeo do YouTube (`video`, qualquer ligação do YouTube ou o seu id) ou um vídeo do Cloudinary (`publicId`). Os vídeos carregam como fachada: apenas a miniatura até alguém carregar em reproduzir, e então o leitor de `youtube-nocookie.com` ou o ficheiro do Cloudinary.
 
 ### 📁 Estrutura relevante
 
