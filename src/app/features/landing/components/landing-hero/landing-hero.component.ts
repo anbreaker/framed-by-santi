@@ -7,6 +7,7 @@ import { LanguageStore } from '@core/store/language.store';
 import { PostPhotoComponent } from '@features/photo-posts/components/post-photo/post-photo.component';
 import { LOCAL_PHOTO_POSTS } from '@features/photo-posts/data/local-photo-posts.data';
 import { ScrollRevealDirective } from '@features/scroll-reveal/directives/scroll-reveal.directive';
+import { InstagramIconComponent } from '@shared/components/instagram-icon/instagram-icon.component';
 import { LocalizedDatePipe } from '@shared/pipes/localized-date.pipe';
 import { LocalizedTextPipe } from '@shared/pipes/localized-text.pipe';
 
@@ -16,6 +17,7 @@ import { LANDING_HERO_POST_ID, LANDING_HERO_SOURCE } from '../../const/landing.c
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    InstagramIconComponent,
     LocalizedDatePipe,
     LocalizedTextPipe,
     PostPhotoComponent,

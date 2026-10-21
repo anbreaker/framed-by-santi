@@ -62,6 +62,20 @@ describe('AboutDetailsComponent', () => {
     });
   });
 
+  it('should put the Instagram logo next to the text of both Instagram links', () => {
+    const [handle, cta] = Array.from(root().querySelectorAll(`a[href="${INSTAGRAM_URL}"]`));
+
+    [handle, cta].forEach((link) => expect(link.querySelector('app-instagram-icon svg[aria-hidden="true"]')).not.toBeNull());
+    expect(handle.textContent?.trim()).toBe('@framedbysanti');
+    expect(cta.textContent?.trim()).toBe('Follow on Instagram');
+  });
+
+  it('should group the Instagram logo with the handle so both take the hover accent', () => {
+    const handle = root().querySelector(`a[href="${INSTAGRAM_URL}"]`) as HTMLAnchorElement;
+
+    expect(handle.querySelector('.link-grow > app-instagram-icon')).not.toBeNull();
+  });
+
   it('should invite visitors to the gallery and never expose a sign-in', () => {
     const hrefs = Array.from(root().querySelectorAll('a')).map((link) => link.getAttribute('href'));
 
