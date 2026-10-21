@@ -74,6 +74,7 @@ describe('ContactFormComponent', () => {
     );
     expect(field('contact-name').value).toBe('');
     expect(field('contact-message').value).toBe('');
+    expect(root().querySelector('[role="status"] .contact-form__notice--sent')).not.toBeNull();
   });
 
   it('should point at every field that is missing or wrong, and send nothing', async () => {
@@ -99,6 +100,7 @@ describe('ContactFormComponent', () => {
     expect(statusText()).toBe(
       "Well, that didn't send. Not even pressing buttons fixes this one. Try again in a moment."
     );
+    expect(root().querySelector('[role="status"] .contact-form__notice--failed')).not.toBeNull();
     expect(field('contact-name').value).toBe('  Marta  ');
   });
 

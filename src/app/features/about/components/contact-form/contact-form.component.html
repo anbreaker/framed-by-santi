@@ -85,17 +85,14 @@
       <button class="btn btn--primary" type="submit" [disabled]="status() === 'sending'">
         {{ status() === 'sending' ? t('sending') : t('send') }}
       </button>
-      <p
-        class="contact-form__status"
-        role="status"
-        [class.contact-form__status--failed]="status() === 'failed'"
-      >
+      <!-- The live region stays in place so screen readers announce what appears inside it. -->
+      <div class="contact-form__status" role="status">
         @if (status() === 'sent') {
-          {{ t('sent') }}
+          <p class="contact-form__notice contact-form__notice--sent">{{ t('sent') }}</p>
         } @else if (status() === 'failed') {
-          {{ t('failed') }}
+          <p class="contact-form__notice contact-form__notice--failed">{{ t('failed') }}</p>
         }
-      </p>
+      </div>
     </div>
   </form>
 </section>
