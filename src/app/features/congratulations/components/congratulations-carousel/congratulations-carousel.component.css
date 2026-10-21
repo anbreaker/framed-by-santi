@@ -19,8 +19,16 @@
 
   @container (min-width: 44rem) {
     gap: var(--space-6);
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   }
+}
+
+/* The description of the photo, under its frame; it keeps its line when empty so nothing jumps. */
+.congrats__caption {
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 0;
+  min-height: 1lh;
+  padding-inline: 0.875rem;
 }
 
 /* Viewfinder corners around the media, the same marks the buttons of the site draw on hover. */
@@ -132,6 +140,17 @@
 
 .congrats__viewer-photo {
   height: 100%;
+}
+
+.congrats__viewer-caption {
+  background: rgb(14 13 12 / 0.8);
+  bottom: var(--space-2);
+  color: var(--color-text);
+  left: var(--space-2);
+  margin: 0;
+  max-width: calc(100% - 16rem);
+  padding: var(--space-1) var(--space-2);
+  position: absolute;
 }
 
 .congrats__viewer-close {

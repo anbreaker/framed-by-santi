@@ -57,6 +57,8 @@ export class CongratulationsCarouselComponent {
   protected readonly current = computed(() =>
     Math.min(this.index(), Math.max(this.total() - 1, 0))
   );
+  /** The description of the photo shown, written under it; empty for a video or words alone. */
+  protected readonly caption = computed(() => this.slides()[this.current()]?.photo?.alt ?? '');
   /** The automatic pass waits while it is paused, a video plays or a photo is open full screen. */
   protected readonly halted = computed(
     () => this.paused() || this.playing() !== null || this.viewing() !== null

@@ -172,6 +172,24 @@ describe('CongratulationsCarouselComponent', () => {
     );
   });
 
+  it('should show the description of the photo under it and full screen, and none without a photo', async () => {
+    const caption = (): string =>
+      root().querySelector('.congrats__caption')?.textContent?.trim() ?? '';
+    expect(caption()).toBe('');
+
+    await press('Next');
+    expect(caption()).toBe('Bruno and Santi');
+
+    (activeMedia().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(root().querySelector('dialog .congrats__viewer-caption')?.textContent?.trim()).toBe(
+      'Bruno and Santi'
+    );
+
+    await press('Next');
+    expect(caption()).toBe('');
+  });
+
   it('should hold the automatic pass while the photo is full screen, and go on once it closes', async () => {
     await press('Next');
     (activeMedia().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
