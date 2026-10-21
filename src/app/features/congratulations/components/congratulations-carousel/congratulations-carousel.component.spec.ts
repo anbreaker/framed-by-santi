@@ -149,6 +149,27 @@ describe('CongratulationsCarouselComponent', () => {
     expect(activeMedia().querySelector('.congrats__quote')).not.toBeNull();
   });
 
+  it('should let the photo shown be zoomed, like the photos of the sets', async () => {
+    await press('Next');
+
+    const zoomable = activeMedia().querySelector('app-zoomable-photo');
+    expect(zoomable?.querySelector('img')?.getAttribute('alt')).toBe('Bruno and Santi');
+    expect(zoomable?.querySelector('button[aria-label="Zoom in"]')).not.toBeNull();
+    expect(all('app-zoomable-photo')).toHaveLength(1);
+  });
+
+  it('should hold the automatic pass while the photo is zoomed in, and zoom out on a new message', async () => {
+    await press('Next');
+    (activeMedia().querySelector('button[aria-label="Zoom in"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(fill()?.classList).toContain('congrats__fill--halted');
+
+    await press('Previous');
+    await press('Next');
+    expect(activeMedia().querySelector('.zoomable--zoomed')).toBeNull();
+    expect(fill()?.classList).not.toContain('congrats__fill--halted');
+  });
+
   it('should pass to the next message on its own when the progress bar fills up', async () => {
     fill()?.dispatchEvent(new Event('animationend'));
     await fixture.whenStable();

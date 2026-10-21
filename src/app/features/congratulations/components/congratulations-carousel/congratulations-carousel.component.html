@@ -15,7 +15,14 @@
             [class.congrats__media-slide--active]="i === current()"
             [class.congrats__media-slide--before]="i < current()"
           >
-            @if (slide.media.kind === 'photo') {
+            @if (slide.photo && i === current()) {
+              <!-- Only the photo shown can be zoomed: the zoom answers keys on the whole window. -->
+              <app-zoomable-photo
+                class="congrats__zoomable"
+                [photo]="slide.photo"
+                (zoomedChange)="zoomed.set($event)"
+              />
+            } @else if (slide.media.kind === 'photo') {
               <img
                 class="congrats__photo"
                 decoding="async"

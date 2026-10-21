@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { formatSetCounter } from '@features/photo-posts/utils/set-counter';
+import { ZoomablePhotoComponent } from '@features/post-viewer/components/zoomable-photo/zoomable-photo.component';
 
 import { Congratulation } from '../../models/congratulation.model';
 import { slideMedia } from '../../utils/slide-media';
@@ -10,12 +11,13 @@ import { VideoFacadeComponent } from '../video-facade/video-facade.component';
 /**
  * The friends' messages one at a time: the photo or video on one side, the words on the other. It passes
  * on its own when the progress bar of the current message fills up (a CSS animation, so it also stops
- * when the visitor asks the system for less motion), holds while a video plays and can be paused.
+ * when the visitor asks the system for less motion), holds while a video plays or the photo is zoomed in
+ * and can be paused.
  */
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslocoDirective, VideoFacadeComponent],
+  imports: [TranslocoDirective, VideoFacadeComponent, ZoomablePhotoComponent],
   selector: 'app-congratulations-carousel',
   styleUrl: './congratulations-carousel.component.css',
   templateUrl: './congratulations-carousel.component.html',
@@ -29,16 +31,25 @@ export class CongratulationsCarouselComponent {
   /** Index of the message whose video is playing, if any. */
   protected readonly playing = signal<number | null>(null);
 
+  /** Whether the photo shown is zoomed in. */
+  protected readonly zoomed = signal(false);
+
   protected readonly slides = computed(() =>
-    this.items().map((item) => ({ ...item, media: slideMedia(item.media) }))
+    this.items().map((item) => ({
+      ...item,
+      media: slideMedia(item.media),
+      photo: item.media?.kind === 'photo' ? item.media.photo : null,
+    }))
   );
   protected readonly total = computed(() => this.items().length);
   /** Index shown, kept inside the list when it gets shorter. */
   protected readonly current = computed(() =>
     Math.min(this.index(), Math.max(this.total() - 1, 0))
   );
-  /** The automatic pass waits while it is paused or a video plays. */
-  protected readonly halted = computed(() => this.paused() || this.playing() !== null);
+  /** The automatic pass waits while it is paused, a video plays or the photo is zoomed in. */
+  protected readonly halted = computed(
+    () => this.paused() || this.playing() !== null || this.zoomed()
+  );
   /** With less motion asked for, the progress bar does not animate, so nothing passes on its own. */
   private readonly reducedMotion =
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -54,6 +65,7 @@ export class CongratulationsCarouselComponent {
     const total = this.total();
     this.index.set(((index % total) + total) % total);
     this.playing.set(null);
+    this.zoomed.set(false);
   }
 
   protected next(): void {
