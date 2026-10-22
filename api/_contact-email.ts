@@ -58,6 +58,14 @@ const html = ({ email, message, name }: ContactEmailInput): string => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <title>Nuevo mensaje de ${safeName}</title>
+  <style>
+    /* Narrow screens: the credit stacks and centers instead of squeezing the text. */
+    @media (max-width: 480px) {
+      .credit-cell { display: block !important; padding: 0 !important; text-align: center !important; width: 100% !important; }
+      .credit-logo-cell { padding-top: 12px !important; }
+      .credit-logo { margin: 0 auto !important; }
+    }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:${COLOR.bg};">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${COLOR.bg};padding:40px 16px;">
@@ -109,12 +117,17 @@ const html = ({ email, message, name }: ContactEmailInput): string => {
               <p style="margin:8px 0 0;font-family:${FONT_BODY};font-size:12px;color:${COLOR.muted};">
                 <a href="${SITE_URL}" style="color:${COLOR.muted};">framedbysanti.rootdevs.es</a> · Nueva York · Fujifilm X100VI
               </p>
-              <p style="margin:24px 0 0;">
-                <a href="${ROOTDEVS_URL}" style="color:${COLOR.muted};font-family:${FONT_BODY};font-size:13px;text-decoration:none;">
-                  <span style="vertical-align:middle;">Hecho con cariño por un amigo</span>
-                  <img src="${ROOTDEVS_LOGO}" alt="rootdevs" width="80" height="30" style="border:0;height:30px;margin-left:8px;vertical-align:middle;width:80px;" />
-                </a>
-              </p>
+              <!-- A table keeps text and logo side by side in every mail app; the padding lowers the logo so its word, not its roots, lines up with the text. -->
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:24px 0 0;">
+                <tr>
+                  <td class="credit-cell" valign="middle" style="font-family:${FONT_BODY};font-size:13px;white-space:nowrap;width:1%;">
+                    <a href="${ROOTDEVS_URL}" style="color:${COLOR.muted};text-decoration:none;">Hecho con cariño por un amigo</a>
+                  </td>
+                  <td class="credit-cell credit-logo-cell" valign="middle" style="padding:8px 0 0 8px;">
+                    <a href="${ROOTDEVS_URL}"><img src="${ROOTDEVS_LOGO}" alt="rootdevs" width="80" height="30" class="credit-logo" style="border:0;display:block;height:30px;width:80px;" /></a>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
