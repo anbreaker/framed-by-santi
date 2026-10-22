@@ -34,7 +34,7 @@ describe('contact email', () => {
     expect(html).toContain('Hecho con cariño por un amigo');
     expect(html).toContain('href="https://rootdevs.es"');
     expect(html).toContain(
-      'src="https://framedbysanti.rootdevs.es/assets/images/rootdevs-logo.webp" alt="rootdevs"'
+      'src="https://framedbysanti.rootdevs.es/assets/email/rootdevs-logo.png" alt="rootdevs"'
     );
   });
 

@@ -13,6 +13,8 @@ export interface ContactEmail {
 
 const SITE_URL = 'https://framedbysanti.rootdevs.es';
 const ROOTDEVS_URL = 'https://rootdevs.es';
+/** PNG at 3x its 80px width: the Gmail app re-encodes WebP with transparency and it comes out pixelated. */
+const ROOTDEVS_LOGO = `${SITE_URL}/assets/email/rootdevs-logo.png`;
 
 /** The site palette (src/styles/base/tokens.css); mail apps ignore CSS variables, so the values are written out. */
 const COLOR = {
@@ -110,7 +112,7 @@ const html = ({ email, message, name }: ContactEmailInput): string => {
               <p style="margin:24px 0 0;">
                 <a href="${ROOTDEVS_URL}" style="color:${COLOR.muted};font-family:${FONT_BODY};font-size:13px;text-decoration:none;">
                   <span style="vertical-align:middle;">Hecho con cariño por un amigo</span>
-                  <img src="${SITE_URL}/assets/images/rootdevs-logo.webp" alt="rootdevs" width="80" height="30" style="border:0;height:30px;margin-left:8px;vertical-align:middle;width:80px;" />
+                  <img src="${ROOTDEVS_LOGO}" alt="rootdevs" width="80" height="30" style="border:0;height:30px;margin-left:8px;vertical-align:middle;width:80px;" />
                 </a>
               </p>
             </td>
