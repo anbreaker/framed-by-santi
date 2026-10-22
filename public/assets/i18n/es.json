@@ -5,6 +5,7 @@
     "city": "Ciudad",
     "cityValue": "Nueva York",
     "contact": {
+      "again": "Escribir otro mensaje",
       "email": "Correo",
       "errors": {
         "email": "Con ese correo no tengo dónde contestarte. Revísalo.",

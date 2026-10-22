@@ -5,6 +5,7 @@
     "city": "City",
     "cityValue": "New York",
     "contact": {
+      "again": "Write another message",
       "email": "Email",
       "errors": {
         "email": "I can't reply to that email. Mind checking it?",

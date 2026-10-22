@@ -19,6 +19,8 @@ describe('ContactFormComponent', () => {
     );
   const statusText = (): string =>
     root().querySelector('[role="status"]')?.textContent?.trim() ?? '';
+  const notice = (): HTMLButtonElement | null =>
+    root().querySelector('button.contact-form__notice--sent');
 
   const type = (id: string, value: string): void => {
     const input = field(id);
@@ -59,7 +61,7 @@ describe('ContactFormComponent', () => {
     expect(root().textContent).not.toContain('@');
   });
 
-  it('should send the trimmed message and then say it is on its way', async () => {
+  it('should send the trimmed message and then show the notice where the form was', async () => {
     await fillIn();
     await submit();
 
@@ -69,12 +71,42 @@ describe('ContactFormComponent', () => {
       name: 'Marta',
       website: '',
     });
-    expect(statusText()).toBe(
+    expect(root().querySelector('form')).toBeNull();
+    expect(statusText()).toContain(
       "Got it! I'll reply as soon as I put the camera down (so, soon… I think XD)."
     );
+    expect(notice()?.textContent).toContain('Write another message');
+    expect(document.activeElement).toBe(notice());
+  });
+
+  it('should keep the space of the form while the notice shows, so the page does not jump', async () => {
+    const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(480);
+    const body = (): HTMLElement => root().querySelector('.contact-form__body') as HTMLElement;
+
+    await fillIn();
+    await submit();
+
+    expect(body().style.minHeight).toBe('480px');
+
+    notice()?.click();
+    await fixture.whenStable();
+
+    expect(body().style.minHeight).toBe('');
+    height.mockRestore();
+  });
+
+  it('should bring back an empty form, ready to type, when the notice is clicked', async () => {
+    await fillIn();
+    await submit();
+
+    notice()?.click();
+    await fixture.whenStable();
+
+    expect(notice()).toBeNull();
     expect(field('contact-name').value).toBe('');
+    expect(field('contact-email').value).toBe('');
     expect(field('contact-message').value).toBe('');
-    expect(root().querySelector('[role="status"] .contact-form__notice--sent')).not.toBeNull();
+    expect(document.activeElement).toBe(field('contact-name'));
   });
 
   it('should point at every field that is missing or wrong, and send nothing', async () => {
@@ -101,6 +133,7 @@ describe('ContactFormComponent', () => {
       "Well, that didn't send. Not even pressing buttons fixes this one. Try again in a moment."
     );
     expect(root().querySelector('[role="status"] .contact-form__notice--failed')).not.toBeNull();
+    expect(root().querySelector('form')).not.toBeNull();
     expect(field('contact-name').value).toBe('  Marta  ');
   });
 

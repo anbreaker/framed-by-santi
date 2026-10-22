@@ -24,10 +24,16 @@
   max-width: 32rem;
 }
 
+/* While the notice shows, the body keeps the form's height and centers the notice in it. */
+.contact-form__body {
+  align-content: center;
+  display: grid;
+  max-width: 40rem;
+}
+
 .contact-form__form {
   display: grid;
   gap: var(--space-4);
-  max-width: 40rem;
 }
 
 .contact-form__field {
@@ -101,6 +107,36 @@
   font-style: italic;
   line-height: 1.3;
   padding: var(--space-3) var(--space-4);
+}
+
+/* The sent notice is a button: clicking it brings the form back. */
+button.contact-form__notice {
+  border-block: 0;
+  border-right: 0;
+  cursor: pointer;
+  display: block;
+  text-align: left;
+  width: 100%;
+
+  &:hover .contact-form__again,
+  &:focus-visible .contact-form__again {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.contact-form__again {
+  color: var(--color-text-muted);
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-style: normal;
+  margin-top: var(--space-2);
 }
 
 .contact-form__notice--failed {

@@ -5,6 +5,7 @@
     "city": "Cidade",
     "cityValue": "Nova Iorque",
     "contact": {
+      "again": "Escrever outra mensagem",
       "email": "Email",
       "errors": {
         "email": "Com esse email não tenho para onde responder. Confirma-o.",

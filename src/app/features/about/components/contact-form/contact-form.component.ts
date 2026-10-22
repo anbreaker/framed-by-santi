@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -25,6 +34,11 @@ type Status = 'failed' | 'idle' | 'sending' | 'sent';
 })
 export class ContactFormComponent {
   private readonly contactService = inject(ContactService);
+  private readonly injector = inject(Injector);
+
+  private readonly form = viewChild<ElementRef<HTMLFormElement>>('form');
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
+  private readonly notice = viewChild<ElementRef<HTMLButtonElement>>('notice');
 
   protected readonly maxEmail = MAX_CONTACT_EMAIL_LENGTH;
   protected readonly maxMessage = MAX_CONTACT_MESSAGE_LENGTH;
@@ -34,6 +48,8 @@ export class ContactFormComponent {
   protected readonly errors = signal<readonly FieldError[]>([]);
   protected readonly message = signal('');
   protected readonly name = signal('');
+  /** The form's height while the notice takes its place, so the page below does not move. */
+  protected readonly reservedHeight = signal<number | null>(null);
   protected readonly status = signal<Status>('idle');
   protected readonly website = signal('');
 
@@ -63,12 +79,27 @@ export class ContactFormComponent {
     });
 
     if (sent) {
+      this.reservedHeight.set(this.form()?.nativeElement.offsetHeight ?? null);
       this.name.set('');
       this.email.set('');
       this.message.set('');
     }
 
     this.status.set(sent ? 'sent' : 'failed');
+
+    // The form is gone, so focus moves to the notice that replaced it (and scrolls it into view).
+    if (sent) this.focusAfterRender(() => this.notice());
+  }
+
+  /** Brings back the empty form, ready for another message. */
+  protected writeAnother(): void {
+    this.status.set('idle');
+    this.reservedHeight.set(null);
+    this.focusAfterRender(() => this.nameInput());
+  }
+
+  private focusAfterRender(target: () => ElementRef<HTMLElement> | undefined): void {
+    afterNextRender(() => target()?.nativeElement.focus(), { injector: this.injector });
   }
 
   private validate(): FieldError[] {
