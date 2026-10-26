@@ -97,9 +97,15 @@ export class CongratulationsCarouselComponent {
   /** The position is announced only while nothing moves on its own, so autoplay does not chatter. */
   protected readonly announced = computed(() => this.reducedMotion || this.halted());
 
-  /** A video that reaches its end lets the automatic pass go on. */
+  /**
+   * A video that reaches its end lets the automatic pass go on, from the next photo or video of the
+   * message when it has more.
+   */
   protected finished(index: number): void {
-    if (this.playing() === index) this.playing.set(null);
+    if (this.playing() !== index) return;
+
+    this.playing.set(null);
+    if (this.currentItems().length > 1) this.nextItem();
   }
 
   protected closeViewer(): void {

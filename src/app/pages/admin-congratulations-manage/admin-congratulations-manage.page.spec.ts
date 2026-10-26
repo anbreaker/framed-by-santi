@@ -173,6 +173,9 @@ describe('AdminCongratulationsManagePageComponent', () => {
 
     expect(uploads.uploadVideo).toHaveBeenCalledWith(video);
     expect(uploads.upload).toHaveBeenCalledWith(photo);
+    expect(uploads.uploadVideo.mock.invocationCallOrder[0]).toBeLessThan(
+      uploads.upload.mock.invocationCallOrder[0]
+    );
     expect(store.save).toHaveBeenCalledWith(
       {
         from: 'Carla',
@@ -194,6 +197,20 @@ describe('AdminCongratulationsManagePageComponent', () => {
       },
       undefined
     );
+  });
+
+  it('should stop at the first upload that fails, without sending the files after it', async () => {
+    uploads.upload.mockRejectedValue(new Error('upload-failed'));
+    await type('congrats-from', 'Carla');
+    await type('congrats-message', 'Hugs');
+    await pick('congrats-photo', new File(['x'], 'carla.jpg', { type: 'image/jpeg' }));
+    await pick('congrats-video', new File(['x'], 'clip.mp4', { type: 'video/mp4' }));
+
+    await submit();
+
+    expect(uploads.upload).toHaveBeenCalledTimes(1);
+    expect(uploads.uploadVideo).not.toHaveBeenCalled();
+    expect(store.save).not.toHaveBeenCalled();
   });
 
   it('should say the file could not be uploaded, and save nothing', async () => {

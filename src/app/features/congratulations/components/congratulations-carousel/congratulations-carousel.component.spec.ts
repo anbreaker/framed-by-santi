@@ -401,6 +401,23 @@ describe('CongratulationsCarouselComponent', () => {
       expect(fill()?.classList).not.toContain('congrats__fill--halted');
     });
 
+    it('should go on to the next item of the message when the video ends', async () => {
+      photoButton('Next photo or video').click();
+      await fixture.whenStable();
+      (shownItem().querySelector('.video-facade__poster') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      const facade = fixture.debugElement
+        .queryAll(By.directive(VideoFacadeComponent))
+        .find((item) => item.nativeElement.closest('.congrats__item--shown'));
+      (facade?.componentInstance as VideoFacadeComponent).ended.emit();
+      await fixture.whenStable();
+
+      expect(shownPhoto()).toBe('Dana and Santi');
+      expect(activeText().textContent).toContain('Dana');
+      expect(fill()?.classList).not.toContain('congrats__fill--halted');
+    });
+
     it('should count the video in the time the message stays', () => {
       expect(fill()?.style.getPropertyValue('--autoplay-duration')).toBe('10s');
     });
