@@ -324,6 +324,7 @@
 .congrats__message {
   font-size: 1.1875rem;
   line-height: 1.7;
+  margin-top: var(--space-5);
   white-space: pre-line;
 
   &::before {
@@ -335,10 +336,6 @@
     height: 2.5rem;
     line-height: 0.75;
   }
-}
-
-.congrats__from {
-  margin-top: var(--space-5);
 }
 
 .congrats__name {

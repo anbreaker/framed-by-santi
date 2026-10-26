@@ -150,9 +150,10 @@
           [attr.inert]="i === current() ? null : ''"
           [class.congrats__text--active]="i === current()"
         >
-          <p class="congrats__message">{{ slide.message }}</p>
+          <!-- Who sends it comes first, so a long message never hides them. -->
           <p class="congrats__from meta">{{ t('from') }}</p>
           <h2 class="congrats__name">{{ slide.from }}</h2>
+          <p class="congrats__message">{{ slide.message }}</p>
         </article>
       }
     </div>
