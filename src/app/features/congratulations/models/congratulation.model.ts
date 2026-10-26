@@ -41,4 +41,4 @@ export interface Congratulation extends CongratulationDraft {
 
 /** Limits the security rules enforce; the form checks them first. */
 export const MAX_FROM_LENGTH = 80;
-export const MAX_MESSAGE_LENGTH = 4000;
+export const MAX_MESSAGE_LENGTH = 5000;

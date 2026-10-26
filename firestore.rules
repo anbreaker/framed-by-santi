@@ -17,7 +17,7 @@ service cloud.firestore {
       return data.keys().hasOnly(['createdAt', 'from', 'media', 'message'])
         && data.keys().hasAll(['createdAt', 'from', 'media', 'message'])
         && data.from is string && data.from.size() > 0 && data.from.size() <= 80
-        && data.message is string && data.message.size() > 0 && data.message.size() <= 4000
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 5000
         && (data.media == null || data.media is map)
         && data.createdAt is int;
     }

@@ -144,13 +144,27 @@ describe('CongratulationFormComponent', () => {
     ]);
   });
 
+  it('should take a message of up to 5000 characters and refuse a longer one', async () => {
+    await type('congrats-from', 'Ana');
+    await type('congrats-message', 'a'.repeat(5001));
+    await submit();
+
+    expect(host().values).toEqual([]);
+    expect(field('congrats-message').getAttribute('maxlength')).toBe('5000');
+
+    await type('congrats-message', 'a'.repeat(5000));
+    await submit();
+
+    expect(host().values).toEqual([{ from: 'Ana', media: [], message: 'a'.repeat(5000) }]);
+  });
+
   it('should ask for the sender and the message, marking the fields, before handing anything over', async () => {
     await submit();
 
     expect(host().values).toEqual([]);
     expect(errors()).toEqual([
       'Write who sends it (up to 80 characters).',
-      'Write the message (up to 4000 characters).',
+      'Write the message (up to 5000 characters).',
     ]);
     expect(field('congrats-from').getAttribute('aria-invalid')).toBe('true');
     expect(field('congrats-from').getAttribute('aria-describedby')).toBe('congrats-from-error');
