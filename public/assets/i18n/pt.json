@@ -90,7 +90,8 @@
           "deleted": "Felicitação eliminada.",
           "saveFailed": "Não foi possível guardar. Verifica a ligação e tenta de novo.",
           "saved": "Felicitação guardada.",
-          "uploadFailed": "Não foi possível carregar o ficheiro. Tenta de novo."
+          "uploadFailed": "Não foi possível carregar o ficheiro. Tenta de novo.",
+          "uploadRefused": "Não foi possível carregar «{{name}}»: {{reason}}."
         },
         "summary": {
           "none": "Só texto",

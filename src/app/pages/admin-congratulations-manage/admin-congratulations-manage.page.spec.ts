@@ -2,7 +2,10 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { PhotoUploadService } from '@features/admin/services/photo-upload.service';
+import {
+  PhotoUploadError,
+  PhotoUploadService,
+} from '@features/admin/services/photo-upload.service';
 import { Congratulation } from '@features/congratulations/models/congratulation.model';
 import { CongratulationsStore } from '@features/congratulations/store/congratulations.store';
 import { realTranslations } from '@shared/testing/transloco-testing';
@@ -211,6 +214,20 @@ describe('AdminCongratulationsManagePageComponent', () => {
     expect(uploads.upload).toHaveBeenCalledTimes(1);
     expect(uploads.uploadVideo).not.toHaveBeenCalled();
     expect(store.save).not.toHaveBeenCalled();
+  });
+
+  it('should name the file and the reason Cloudinary gives when it refuses an upload', async () => {
+    uploads.uploadVideo.mockRejectedValue(
+      new PhotoUploadError('upload-failed', 'Image file format mp4 not allowed')
+    );
+    await type('congrats-from', 'Carla');
+    await type('congrats-message', 'Hugs');
+    await pick('congrats-video', new File(['x'], 'party.mp4', { type: 'video/mp4' }));
+
+    await submit();
+
+    expect(store.save).not.toHaveBeenCalled();
+    expect(status$()).toBe('Could not upload “party.mp4”: Image file format mp4 not allowed.');
   });
 
   it('should say the file could not be uploaded, and save nothing', async () => {

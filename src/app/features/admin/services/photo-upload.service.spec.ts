@@ -116,4 +116,27 @@ describe('PhotoUploadService', () => {
     await expect(failure).rejects.toBeInstanceOf(PhotoUploadError);
     await expect(failure).rejects.toMatchObject({ reason: 'upload-failed' });
   });
+
+  it('should keep the reason Cloudinary gives for refusing an upload', async () => {
+    fetchFn
+      .mockResolvedValueOnce(json(200, SIGNED))
+      .mockResolvedValueOnce(
+        json(400, { error: { message: 'Image file format mp4 not allowed' } })
+      );
+
+    await expect(service.uploadVideo(new Blob(['video']))).rejects.toMatchObject({
+      detail: 'Image file format mp4 not allowed',
+      reason: 'upload-failed',
+    });
+  });
+
+  it('should have no reason to give when the refusal says none', async () => {
+    fetchFn
+      .mockResolvedValueOnce(json(200, SIGNED))
+      .mockResolvedValueOnce(new Response('Bad gateway', { status: 502 }));
+
+    const error = await service.upload(blob).catch((failure: unknown) => failure);
+    expect(error).toMatchObject({ reason: 'upload-failed' });
+    expect((error as PhotoUploadError).detail).toBeNull();
+  });
 });

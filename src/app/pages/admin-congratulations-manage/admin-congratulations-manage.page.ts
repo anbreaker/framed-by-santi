@@ -11,7 +11,10 @@ import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { AdminShellComponent } from '@features/admin/components/admin-shell/admin-shell.component';
-import { PhotoUploadService } from '@features/admin/services/photo-upload.service';
+import {
+  PhotoUploadError,
+  PhotoUploadService,
+} from '@features/admin/services/photo-upload.service';
 import {
   CongratulationFormComponent,
   CongratulationFormValue,
@@ -25,7 +28,7 @@ import { CongratulationsStore } from '@features/congratulations/store/congratula
 import { mediaThumbnail } from '@features/congratulations/utils/media-thumbnail';
 import { useNoIndex } from '@shared/utils/use-noindex';
 
-type Notice = { key: string; kind: 'error' | 'info' };
+type Notice = { key: string; kind: 'error' | 'info'; params?: Record<string, string> };
 
 /** One part of the summary of a card, such as "3 photos", as a translation key and its count. */
 type SummaryPart = { key: string; n: number };
@@ -41,8 +44,31 @@ function summaryOf(media: readonly CongratulationMedia[]): SummaryPart[] {
   return parts.length > 0 ? parts : [{ key: 'none', n: 0 }];
 }
 
-/** A file that could not reach Cloudinary, told apart from a save that Firestore refused. */
-class UploadFailed extends Error {}
+/**
+ * A file that could not reach Cloudinary, told apart from a save that Firestore refused, with the reason
+ * Cloudinary gave when it gave one.
+ */
+class UploadFailed extends Error {
+  constructor(
+    readonly fileName: string,
+    readonly detail: string | null
+  ) {
+    super('upload-failed');
+  }
+}
+
+/** What to say about a failed save: the file and Cloudinary's reason when an upload was refused. */
+function failureNotice(error: unknown): Notice {
+  if (!(error instanceof UploadFailed)) return { key: 'status.saveFailed', kind: 'error' };
+
+  return error.detail === null
+    ? { key: 'status.uploadFailed', kind: 'error' }
+    : {
+        key: 'status.uploadRefused',
+        kind: 'error',
+        params: { name: error.fileName, reason: error.detail.replace(/\.$/, '') },
+      };
+}
 
 /**
  * Where the owner writes the friends' messages: a form for a new one or the one being edited, and the list
@@ -94,10 +120,7 @@ export class AdminCongratulationsManagePageComponent {
       this.resetKey.update((key) => key + 1);
       this.notice.set({ key: 'status.saved', kind: 'info' });
     } catch (error) {
-      this.notice.set({
-        key: error instanceof UploadFailed ? 'status.uploadFailed' : 'status.saveFailed',
-        kind: 'error',
-      });
+      this.notice.set(failureNotice(error));
     } finally {
       this.saving.set(false);
     }
@@ -152,11 +175,11 @@ export class AdminCongratulationsManagePageComponent {
     if (entry.kind === 'ready') return entry.media;
 
     if (entry.kind === 'video') {
-      const uploaded = await this.upload(() => this.uploads.uploadVideo(entry.file));
+      const uploaded = await this.upload(entry.file, () => this.uploads.uploadVideo(entry.file));
       return { kind: 'cloudinary', publicId: uploaded.publicId };
     }
 
-    const uploaded = await this.upload(() => this.uploads.upload(entry.file));
+    const uploaded = await this.upload(entry.file, () => this.uploads.upload(entry.file));
     return {
       kind: 'photo',
       photo: {
@@ -169,11 +192,11 @@ export class AdminCongratulationsManagePageComponent {
     };
   }
 
-  private async upload<T>(send: () => Promise<T>): Promise<T> {
+  private async upload<T>(file: File, send: () => Promise<T>): Promise<T> {
     try {
       return await send();
-    } catch {
-      throw new UploadFailed();
+    } catch (error) {
+      throw new UploadFailed(file.name, error instanceof PhotoUploadError ? error.detail : null);
     }
   }
 }

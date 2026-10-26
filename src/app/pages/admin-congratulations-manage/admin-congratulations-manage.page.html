@@ -19,7 +19,7 @@
         [attr.role]="notice()?.kind === 'error' ? 'alert' : 'status'"
         [class.manage__status--error]="notice()?.kind === 'error'"
       >
-        @if (notice(); as current) { {{ t('manage.' + current.key) }} }
+        @if (notice(); as current) { {{ t('manage.' + current.key, current.params) }} }
       </p>
 
       <section class="manage__panel" aria-labelledby="manage-form-title">

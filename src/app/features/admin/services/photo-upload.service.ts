@@ -5,9 +5,27 @@ import { AuthStore } from '@features/auth/store/auth.store';
 export type PhotoUploadFailure = 'not-allowed' | 'sign-failed' | 'upload-failed';
 
 export class PhotoUploadError extends Error {
-  constructor(readonly reason: PhotoUploadFailure) {
+  /**
+   * @param detail Why Cloudinary refused the upload, in its own words (for example "Image file format
+   *   mp4 not allowed"), or null when it gave no reason.
+   */
+  constructor(
+    readonly reason: PhotoUploadFailure,
+    readonly detail: string | null = null
+  ) {
     super(reason);
     this.name = 'PhotoUploadError';
+  }
+}
+
+/** The message of a Cloudinary error body (`{ error: { message } }`), or null when there is none. */
+async function refusalOf(response: Response): Promise<string | null> {
+  try {
+    const body = (await response.json()) as { error?: { message?: unknown } };
+    const message = body.error?.message;
+    return typeof message === 'string' && message.trim() !== '' ? message.trim() : null;
+  } catch {
+    return null;
   }
 }
 
@@ -69,7 +87,7 @@ export class PhotoUploadService {
         { body: form, method: 'POST' }
       );
 
-      if (!response.ok) throw new PhotoUploadError('upload-failed');
+      if (!response.ok) throw new PhotoUploadError('upload-failed', await refusalOf(response));
 
       return await response.json();
     } catch (error) {

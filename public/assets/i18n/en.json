@@ -90,7 +90,8 @@
           "deleted": "Message deleted.",
           "saveFailed": "Could not save. Check your connection and try again.",
           "saved": "Message saved.",
-          "uploadFailed": "Could not upload the file. Try again."
+          "uploadFailed": "Could not upload the file. Try again.",
+          "uploadRefused": "Could not upload “{{name}}”: {{reason}}."
         },
         "summary": {
           "none": "Text only",
