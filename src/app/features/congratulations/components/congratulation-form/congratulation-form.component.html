@@ -72,35 +72,77 @@
           <p class="congrats-form__hint">{{ t('noneHint') }}</p>
         }
         @case ('photo') {
+          @if (photos().length > 0) {
+            <ol class="congrats-form__photos">
+              @for (row of photos(); track row.key; let i = $index, first = $first, last = $last) {
+                <li class="congrats-form__photo">
+                  @if (row.preview; as preview) {
+                    <img class="congrats-form__photo-preview" alt="" [src]="preview" />
+                  } @else if (row.entry.kind === 'new') {
+                    <span class="congrats-form__photo-name">{{ row.entry.file.name }}</span>
+                  }
+                  <div class="congrats-form__field congrats-form__photo-alt">
+                    <label class="congrats-form__label" [attr.for]="'congrats-alt-' + i">
+                      {{ t('alt', { n: i + 1 }) }}
+                    </label>
+                    <input
+                      class="congrats-form__input"
+                      type="text"
+                      [id]="'congrats-alt-' + i"
+                      [value]="row.entry.alt"
+                      (input)="onAlt(i, $event)"
+                    />
+                  </div>
+                  <div class="congrats-form__photo-actions">
+                    <button
+                      class="congrats-form__icon-button"
+                      type="button"
+                      [attr.aria-label]="t('photoUp', { n: i + 1 })"
+                      [disabled]="first"
+                      (click)="movePhoto(i, -1)"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      class="congrats-form__icon-button"
+                      type="button"
+                      [attr.aria-label]="t('photoDown', { n: i + 1 })"
+                      [disabled]="last"
+                      (click)="movePhoto(i, 1)"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      class="congrats-form__icon-button"
+                      type="button"
+                      [attr.aria-label]="t('photoRemove', { n: i + 1 })"
+                      (click)="removePhoto(i)"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </li>
+              }
+            </ol>
+          }
           <div class="congrats-form__field">
             <label class="congrats-form__label" for="congrats-photo">{{ t('photo') }}</label>
             <input
               class="congrats-form__file"
               accept="image/jpeg,image/png,image/webp"
               id="congrats-photo"
+              multiple
               type="file"
               [attr.aria-describedby]="
                 hasError('photo') ? 'congrats-photo-error' : 'congrats-photo-hint'
               "
               [attr.aria-invalid]="hasError('photo')"
-              (change)="onFile($event)"
+              (change)="onPhotos($event)"
             />
-            <p class="congrats-form__hint" id="congrats-photo-hint">
-              {{ keepsSaved() ? t('currentPhoto') : t('photoHint') }}
-            </p>
+            <p class="congrats-form__hint" id="congrats-photo-hint">{{ t('photoHint') }}</p>
             @if (hasError('photo')) {
               <p class="congrats-form__error" id="congrats-photo-error">{{ t('errors.photo') }}</p>
             }
-          </div>
-          <div class="congrats-form__field">
-            <label class="congrats-form__label" for="congrats-alt">{{ t('alt') }}</label>
-            <input
-              class="congrats-form__input"
-              id="congrats-alt"
-              type="text"
-              [value]="alt()"
-              (input)="onText('alt', $event)"
-            />
           </div>
         }
         @case ('youtube') {

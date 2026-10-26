@@ -31,11 +31,18 @@ const isPhoto = (value: unknown): value is Photo =>
   typeof value['height'] === 'number' &&
   typeof value['alt'] === 'string';
 
+/** The readable photos of a photo media, from the list or, in older messages, the single `photo`. */
+function photosFrom(value: Record<string, unknown>): Photo[] {
+  if (Array.isArray(value['photos'])) return value['photos'].filter(isPhoto);
+  return isPhoto(value['photo']) ? [value['photo']] : [];
+}
+
 function mediaFrom(value: unknown): CongratulationMedia | undefined {
   if (!isRecord(value)) return undefined;
 
-  if (value['kind'] === 'photo' && isPhoto(value['photo'])) {
-    return { kind: 'photo', photo: value['photo'] };
+  if (value['kind'] === 'photo') {
+    const photos = photosFrom(value);
+    return photos.length > 0 ? { kind: 'photo', photos } : undefined;
   }
   if (value['kind'] === 'youtube' && typeof value['video'] === 'string') {
     return { kind: 'youtube', video: value['video'] };
@@ -47,8 +54,8 @@ function mediaFrom(value: unknown): CongratulationMedia | undefined {
 }
 
 /**
- * A saved message, or null when the document lacks what every slide needs. Media it does not know is
- * dropped, so the words still show.
+ * A saved message, or null when the document lacks what every slide needs. Media it does not know, and
+ * photos it cannot read, are dropped, so the words still show.
  */
 export function congratulationFromDocument(id: string, data: unknown): Congratulation | null {
   if (!isRecord(data)) return null;

@@ -15,6 +15,7 @@ import { PhotoUploadService } from '@features/admin/services/photo-upload.servic
 import {
   CongratulationFormComponent,
   CongratulationFormValue,
+  PhotoEntry,
 } from '@features/congratulations/components/congratulation-form/congratulation-form.component';
 import {
   Congratulation,
@@ -22,6 +23,7 @@ import {
 } from '@features/congratulations/models/congratulation.model';
 import { CongratulationsStore } from '@features/congratulations/store/congratulations.store';
 import { mediaThumbnail } from '@features/congratulations/utils/media-thumbnail';
+import { Photo } from '@features/photo-posts/models/photo.model';
 import { useNoIndex } from '@shared/utils/use-noindex';
 
 type Notice = { key: string; kind: 'error' | 'info' };
@@ -124,7 +126,7 @@ export class AdminCongratulationsManagePageComponent {
     }
   }
 
-  /** Uploads a new file when there is one; otherwise keeps the media already saved, with its new description. */
+  /** Uploads the new files; otherwise keeps the media already saved, the photos with their new descriptions. */
   private async mediaFor(
     value: CongratulationFormValue,
     editing: Congratulation | null
@@ -135,22 +137,10 @@ export class AdminCongratulationsManagePageComponent {
       case 'youtube':
         return { kind: 'youtube', video: value.youtube };
       case 'photo': {
-        if (value.file === null) {
-          return saved?.kind === 'photo'
-            ? { kind: 'photo', photo: { ...saved.photo, alt: value.alt } }
-            : undefined;
-        }
-        const uploaded = await this.upload(() => this.uploads.upload(value.file as File));
-        return {
-          kind: 'photo',
-          photo: {
-            alt: value.alt,
-            height: uploaded.height,
-            id: uploaded.publicId,
-            publicId: uploaded.publicId,
-            width: uploaded.width,
-          },
-        };
+        // One after another, so a failed upload stops before sending the rest.
+        const photos: Photo[] = [];
+        for (const entry of value.photos) photos.push(await this.photoFor(entry));
+        return photos.length > 0 ? { kind: 'photo', photos } : undefined;
       }
       case 'cloudinary': {
         if (value.file === null) return saved?.kind === 'cloudinary' ? saved : undefined;
@@ -160,6 +150,19 @@ export class AdminCongratulationsManagePageComponent {
       default:
         return undefined;
     }
+  }
+
+  private async photoFor(entry: PhotoEntry): Promise<Photo> {
+    if (entry.kind === 'saved') return { ...entry.photo, alt: entry.alt };
+
+    const uploaded = await this.upload(() => this.uploads.upload(entry.file));
+    return {
+      alt: entry.alt,
+      height: uploaded.height,
+      id: uploaded.publicId,
+      publicId: uploaded.publicId,
+      width: uploaded.width,
+    };
   }
 
   private async upload<T>(send: () => Promise<T>): Promise<T> {

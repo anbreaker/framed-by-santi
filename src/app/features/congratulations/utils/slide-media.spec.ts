@@ -3,7 +3,7 @@ import { slideMedia } from './slide-media';
 const config = { cloudName: 'demo', publicIdPrefix: '' };
 
 describe('slideMedia', () => {
-  it('should deliver an uploaded photo from Cloudinary, with the widths it has', () => {
+  it('should deliver every uploaded photo from Cloudinary in order, with the widths each has', () => {
     const photo = {
       alt: 'Ana and Santi',
       height: 600,
@@ -12,12 +12,30 @@ describe('slideMedia', () => {
       width: 900,
     };
 
-    expect(slideMedia({ kind: 'photo', photo }, config)).toEqual({
-      alt: 'Ana and Santi',
+    const small = {
+      alt: '',
+      height: 300,
+      id: 'p2',
+      publicId: 'framed-by-santi/posts/p2',
+      width: 400,
+    };
+
+    expect(slideMedia({ kind: 'photo', photos: [photo, small] }, config)).toEqual({
       kind: 'photo',
-      src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p1',
-      srcset:
-        'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/p1 480w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_800/framed-by-santi/posts/p1 800w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_900/framed-by-santi/posts/p1 900w',
+      photos: [
+        {
+          alt: 'Ana and Santi',
+          src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p1',
+          srcset:
+            'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/p1 480w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_800/framed-by-santi/posts/p1 800w, https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_900/framed-by-santi/posts/p1 900w',
+        },
+        {
+          alt: '',
+          src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p2',
+          srcset:
+            'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_400/framed-by-santi/posts/p2 400w',
+        },
+      ],
     });
   });
 

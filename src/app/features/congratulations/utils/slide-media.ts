@@ -11,9 +11,16 @@ export type VideoSource =
   | { embedUrl: string; kind: 'youtube'; poster: string }
   | { fileUrl: string; kind: 'file'; poster: string | null };
 
+/** One photo of a slide, ready for an `img`. */
+export interface SlidePhoto {
+  alt: string;
+  src: string;
+  srcset: string | null;
+}
+
 /** What the media side of a slide shows. */
 export type SlideMedia =
-  | { alt: string; kind: 'photo'; src: string; srcset: string | null }
+  | { kind: 'photo'; photos: readonly SlidePhoto[] }
   | { kind: 'text' }
   | { kind: 'video'; video: VideoSource };
 
@@ -21,7 +28,7 @@ export type SlideMedia =
 const PHOTO_WIDTH = 1600;
 
 /**
- * Resolves a message's media into what its slide shows: a photo is delivered like the photos of the sets.
+ * Resolves a message's media into what its slide shows: its photos are delivered like the photos of the sets.
  * A message without media, a link that is not a
  * YouTube video or a Cloudinary video without a configured cloud shows its text alone.
  */
@@ -31,10 +38,12 @@ export function slideMedia(
 ): SlideMedia {
   if (media?.kind === 'photo') {
     return {
-      alt: media.photo.alt,
       kind: 'photo',
-      src: photoUrl(media.photo, PHOTO_WIDTH, cloudinary),
-      srcset: photoSrcset(media.photo, cloudinary),
+      photos: media.photos.map((photo) => ({
+        alt: photo.alt,
+        src: photoUrl(photo, PHOTO_WIDTH, cloudinary),
+        srcset: photoSrcset(photo, cloudinary),
+      })),
     };
   }
 

@@ -6,7 +6,14 @@
 >
   <div class="congrats__stage">
     <div class="congrats__visual">
-      <div class="congrats__media">
+      <!-- Resting the pointer on the photos, or the keyboard on their arrows, holds every automatic pass. -->
+      <div
+        class="congrats__media"
+        (focusin)="onMediaFocusIn($event)"
+        (focusout)="onMediaFocusOut($event)"
+        (pointerenter)="onMediaPointer($event, true)"
+        (pointerleave)="onMediaPointer($event, false)"
+      >
         <div class="congrats__frame">
           @for (slide of slides(); track slide.id; let i = $index) {
             <div
@@ -16,22 +23,25 @@
               [class.congrats__media-slide--active]="i === current()"
               [class.congrats__media-slide--before]="i < current()"
             >
-              @if (slide.media.kind === 'photo' && slide.photo; as photo) {
+              @if (slide.media.kind === 'photo') {
                 <button
                   class="congrats__enlarge"
                   type="button"
                   [attr.aria-label]="t('enlarge', { name: slide.from })"
-                  (click)="enlarge(slide.from, photo)"
+                  (click)="enlarge(slide.from, slide.photos[shownPhoto(i)])"
                 >
-                  <img
-                    class="congrats__photo"
-                    decoding="async"
-                    sizes="(min-width: 1100px) 50vw, 100vw"
-                    [alt]="slide.media.alt"
-                    [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-                    [attr.srcset]="slide.media.srcset"
-                    [src]="slide.media.src"
-                  />
+                  @for (shot of slide.media.photos; track $index; let p = $index) {
+                    <img
+                      class="congrats__photo"
+                      decoding="async"
+                      sizes="(min-width: 1100px) 50vw, 100vw"
+                      [alt]="shot.alt"
+                      [attr.loading]="i === 0 && p === 0 ? 'eager' : 'lazy'"
+                      [attr.srcset]="shot.srcset"
+                      [class.congrats__photo--shown]="p === shownPhoto(i)"
+                      [src]="shot.src"
+                    />
+                  }
                 </button>
               } @else if (slide.media.kind === 'video') {
                 <app-video-facade
@@ -48,12 +58,84 @@
             </div>
           }
         </div>
+
+        <!-- Drawn for the message shown only, so its bars always start afresh when it comes in. -->
+        @for (slide of slides(); track slide.id; let i = $index) {
+          @if (i === current() && slide.photos.length > 1) {
+            <div
+              class="congrats__photo-nav"
+              role="group"
+              [attr.aria-label]="
+                t('photoCount', { n: shownPhoto(i) + 1, total: slide.photos.length })
+              "
+            >
+              <button
+                class="congrats__button congrats__photo-arrow"
+                type="button"
+                [attr.aria-label]="t('previousPhoto')"
+                (click)="previousPhoto()"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  height="20"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  viewBox="0 0 24 24"
+                  width="20"
+                >
+                  <path d="M15 6l-6 6 6 6" />
+                </svg>
+              </button>
+              <button
+                class="congrats__button congrats__photo-arrow"
+                type="button"
+                [attr.aria-label]="t('nextPhoto')"
+                (click)="nextPhoto()"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  height="20"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  viewBox="0 0 24 24"
+                  width="20"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- One bar per photo; the bar of the photo shown fills up and then the next photo comes in. -->
+            <div class="congrats__photo-steps" aria-hidden="true">
+              @for (step of slide.photos; track $index; let p = $index) {
+                <span class="congrats__photo-step">
+                  @if (p === shownPhoto(i)) {
+                    <span
+                      class="congrats__photo-fill"
+                      [class.congrats__photo-fill--halted]="halted()"
+                      [style.--photo-duration]="photoSeconds + 's'"
+                      (animationend)="nextPhoto()"
+                    ></span>
+                  } @else if (p < shownPhoto(i)) {
+                    <span class="congrats__photo-fill congrats__photo-fill--done"></span>
+                  }
+                </span>
+              }
+            </div>
+          }
+        }
       </div>
       <!-- Screen readers already get the description as the photo's alternative text. -->
       <p class="congrats__caption meta" aria-hidden="true">{{ caption() }}</p>
     </div>
 
-    <div class="congrats__texts">
+    <div class="congrats__texts" #texts>
       @for (slide of slides(); track slide.id; let i = $index) {
         <article
           class="congrats__text"
@@ -129,6 +211,7 @@
                 <span
                   class="congrats__fill"
                   [class.congrats__fill--halted]="halted()"
+                  [style.--autoplay-duration]="slide.duration + 's'"
                   (animationend)="next()"
                 ></span>
               }

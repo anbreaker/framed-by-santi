@@ -16,7 +16,7 @@ export function mediaThumbnail(
 ): string | null {
   switch (media?.kind) {
     case 'photo':
-      return photoUrl(media.photo, THUMBNAIL_WIDTH, cloudinary);
+      return photoUrl(media.photos[0], THUMBNAIL_WIDTH, cloudinary);
     case 'youtube': {
       const id = youtubeVideoId(media.video);
       return id === null ? null : youtubePoster(id);

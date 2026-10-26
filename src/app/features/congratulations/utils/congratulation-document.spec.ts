@@ -34,7 +34,10 @@ describe('congratulationFromDocument', () => {
     ).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
 
     for (const media of [
-      { kind: 'photo', photo },
+      {
+        kind: 'photo',
+        photos: [photo, { ...photo, id: 'p2', publicId: 'framed-by-santi/posts/p2' }],
+      },
       { kind: 'youtube', video: 'dQw4w9WgXcQ' },
       { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' },
     ]) {
@@ -42,6 +45,31 @@ describe('congratulationFromDocument', () => {
         congratulationFromDocument('c1', { createdAt: 1, from: 'Ana', media, message: 'Hi' })?.media
       ).toEqual(media);
     }
+  });
+
+  it('should read a message saved with a single photo as a list of one', () => {
+    const read = congratulationFromDocument('c1', {
+      createdAt: 1,
+      from: 'Ana',
+      media: { kind: 'photo', photo },
+      message: 'Hi',
+    });
+
+    expect(read?.media).toEqual({ kind: 'photo', photos: [photo] });
+  });
+
+  it('should drop the photos it cannot read and the photo media left with none', () => {
+    const read = (photos: unknown) =>
+      congratulationFromDocument('c1', {
+        createdAt: 1,
+        from: 'Ana',
+        media: { kind: 'photo', photos },
+        message: 'Hi',
+      });
+
+    expect(read([{ id: 'broken' }, photo])?.media).toEqual({ kind: 'photo', photos: [photo] });
+    expect(read([])).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
+    expect(read('p1')).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
   });
 
   it('should keep the words when the media is not one it knows', () => {

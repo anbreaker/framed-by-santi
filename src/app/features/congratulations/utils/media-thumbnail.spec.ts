@@ -3,10 +3,11 @@ import { mediaThumbnail } from './media-thumbnail';
 const config = { cloudName: 'demo', publicIdPrefix: '' };
 
 describe('mediaThumbnail', () => {
-  it('should show a small version of a photo', () => {
+  it('should show a small version of the first photo', () => {
     const photo = { alt: '', height: 600, id: 'p1', publicId: 'posts/p1', width: 900 };
+    const second = { ...photo, id: 'p2', publicId: 'posts/p2' };
 
-    expect(mediaThumbnail({ kind: 'photo', photo }, config)).toBe(
+    expect(mediaThumbnail({ kind: 'photo', photos: [photo, second] }, config)).toBe(
       'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/posts/p1'
     );
   });

@@ -36,7 +36,10 @@ const photoMessage: Congratulation = {
   id: 'ana',
   media: {
     kind: 'photo',
-    photo: { alt: 'Ana and Santi', height: 600, id: 'p1', publicId: 'p1', width: 900 },
+    photos: [
+      { alt: 'Ana and Santi', height: 600, id: 'p1', publicId: 'p1', width: 900 },
+      { alt: '', height: 600, id: 'p2', publicId: 'p2', width: 900 },
+    ],
   },
   message: 'Happy birthday!',
 };
@@ -69,10 +72,24 @@ describe('CongratulationFormComponent', () => {
     await fixture.whenStable();
   };
 
-  const pick = async (id: string, file: File): Promise<void> => {
+  const pick = async (id: string, ...files: File[]): Promise<void> => {
     const input = field<HTMLInputElement>(id);
-    Object.defineProperty(input, 'files', { configurable: true, value: { item: () => file } });
+    const list = Object.assign([...files], { item: (index: number) => files[index] ?? null });
+    Object.defineProperty(input, 'files', { configurable: true, value: list });
     input.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+  };
+
+  const photoNames = (): string[] =>
+    Array.from(root().querySelectorAll('.congrats-form__photo-name')).map(
+      (name) => name.textContent?.trim() ?? ''
+    );
+
+  const button = (label: string): HTMLButtonElement =>
+    root().querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+
+  const press = async (label: string): Promise<void> => {
+    button(label).click();
     await fixture.whenStable();
   };
 
@@ -100,7 +117,7 @@ describe('CongratulationFormComponent', () => {
       Array.from(root().querySelectorAll('.congrats-form__kind')).map((item) =>
         item.textContent?.trim()
       )
-    ).toEqual(['Text only', 'Photo', 'YouTube video', 'Cloudinary video']);
+    ).toEqual(['Text only', 'Photos', 'YouTube video', 'Cloudinary video']);
     expect((root().querySelector('.congrats-form__kind input') as HTMLInputElement).checked).toBe(
       true
     );
@@ -113,11 +130,11 @@ describe('CongratulationFormComponent', () => {
 
     expect(host().values).toEqual([
       {
-        alt: '',
         file: null,
         from: 'Ana',
         kind: 'none',
         message: 'Happy birthday!\nSee you.',
+        photos: [],
         youtube: '',
       },
     ]);
@@ -149,19 +166,58 @@ describe('CongratulationFormComponent', () => {
     expect(host().values[0]).toMatchObject({ kind: 'youtube', youtube: 'dQw4w9WgXcQ' });
   });
 
-  it('should need a photo file for a new photo, and hand it over with its description', async () => {
+  it('should need at least one photo, and hand over every photo chosen with its description', async () => {
     await type('congrats-from', 'Ana');
     await type('congrats-message', 'Hi');
-    await choose('Photo');
+    await choose('Photos');
 
     await submit();
-    expect(errors()).toEqual(['Choose a photo.']);
+    expect(errors()).toEqual(['Choose at least one photo.']);
 
-    const photo = new File(['x'], 'ana.jpg', { type: 'image/jpeg' });
-    await pick('congrats-photo', photo);
-    await type('congrats-alt', 'Ana in Lisbon');
+    const lisbon = new File(['x'], 'lisbon.jpg', { type: 'image/jpeg' });
+    const porto = new File(['x'], 'porto.jpg', { type: 'image/jpeg' });
+    await pick('congrats-photo', lisbon);
+    await pick('congrats-photo', porto);
+    expect(photoNames()).toEqual(['lisbon.jpg', 'porto.jpg']);
+
+    await type('congrats-alt-0', 'Ana in Lisbon');
     await submit();
-    expect(host().values[0]).toMatchObject({ alt: 'Ana in Lisbon', file: photo, kind: 'photo' });
+    expect(host().values[0]).toMatchObject({
+      file: null,
+      kind: 'photo',
+      photos: [
+        { alt: 'Ana in Lisbon', file: lisbon, kind: 'new' },
+        { alt: '', file: porto, kind: 'new' },
+      ],
+    });
+  });
+
+  it('should add several photos at once, and let them be put in order or taken out', async () => {
+    await type('congrats-from', 'Ana');
+    await type('congrats-message', 'Hi');
+    await choose('Photos');
+
+    const files = ['one.jpg', 'two.jpg', 'three.jpg'].map(
+      (name) => new File(['x'], name, { type: 'image/jpeg' })
+    );
+    await pick('congrats-photo', ...files);
+    expect(photoNames()).toEqual(['one.jpg', 'two.jpg', 'three.jpg']);
+
+    await press('Move photo 3 up');
+    expect(photoNames()).toEqual(['one.jpg', 'three.jpg', 'two.jpg']);
+    await press('Move photo 1 down');
+    expect(photoNames()).toEqual(['three.jpg', 'one.jpg', 'two.jpg']);
+    await press('Remove photo 3');
+    expect(photoNames()).toEqual(['three.jpg', 'one.jpg']);
+
+    expect(button('Move photo 1 up').disabled).toBe(true);
+    expect(button('Move photo 2 down').disabled).toBe(true);
+
+    await submit();
+    expect(host().values[0].photos.map((entry) => entry.kind === 'new' && entry.file)).toEqual([
+      files[2],
+      files[0],
+    ]);
   });
 
   it('should refuse a video larger than Cloudinary takes in one upload', async () => {
@@ -178,16 +234,40 @@ describe('CongratulationFormComponent', () => {
     expect(host().values).toEqual([]);
   });
 
-  it('should fill in the message being edited and keep its photo when no new one is chosen', async () => {
+  it('should fill in the message being edited and keep its photos, adding the new ones after them', async () => {
     host().editing.set(photoMessage);
     await fixture.whenStable();
 
     expect(field<HTMLInputElement>('congrats-from').value).toBe('Ana');
-    expect(field<HTMLInputElement>('congrats-alt').value).toBe('Ana and Santi');
-    expect(root().textContent).toContain('The current photo stays unless you choose another.');
+    expect(field<HTMLInputElement>('congrats-alt-0').value).toBe('Ana and Santi');
+    expect(field<HTMLInputElement>('congrats-alt-1').value).toBe('');
 
+    const added = new File(['x'], 'added.jpg', { type: 'image/jpeg' });
+    await pick('congrats-photo', added);
+    await type('congrats-alt-1', 'Ana at the beach');
     await submit();
-    expect(host().values[0]).toMatchObject({ alt: 'Ana and Santi', file: null, kind: 'photo' });
+
+    const [first, second] = photoMessage.media?.kind === 'photo' ? photoMessage.media.photos : [];
+    expect(host().values[0]).toMatchObject({
+      kind: 'photo',
+      photos: [
+        { alt: 'Ana and Santi', kind: 'saved', photo: first },
+        { alt: 'Ana at the beach', kind: 'saved', photo: second },
+        { alt: '', file: added, kind: 'new' },
+      ],
+    });
+  });
+
+  it('should still need a photo when every saved one is taken out', async () => {
+    host().editing.set(photoMessage);
+    await fixture.whenStable();
+
+    await press('Remove photo 1');
+    await press('Remove photo 1');
+    await submit();
+
+    expect(errors()).toEqual(['Choose at least one photo.']);
+    expect(host().values).toEqual([]);
   });
 
   it('should offer to cancel only while editing', async () => {

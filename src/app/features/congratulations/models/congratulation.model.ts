@@ -1,9 +1,13 @@
 import { Photo } from '@features/photo-posts/models/photo.model';
 
-/** A photo uploaded to Cloudinary from the dashboard, delivered like the photos of the sets. */
+/**
+ * Photos uploaded to Cloudinary from the dashboard, delivered like the photos of the sets and shown one
+ * after another. Never empty. Messages saved before there could be several hold a single `photo` instead,
+ * which is read as a list of one.
+ */
 export interface CongratulationPhoto {
   kind: 'photo';
-  photo: Photo;
+  photos: readonly Photo[];
 }
 
 /** A YouTube video by its id. */
@@ -21,7 +25,7 @@ export interface CongratulationCloudinaryVideo {
 export type CongratulationMedia =
   CongratulationCloudinaryVideo | CongratulationPhoto | CongratulationYoutube;
 
-/** What the owner writes in the dashboard: who sends it, the words and an optional photo or video. */
+/** What the owner writes in the dashboard: who sends it, the words and an optional photos or video. */
 export interface CongratulationDraft {
   /** Who sends it, as it should read. */
   from: string;

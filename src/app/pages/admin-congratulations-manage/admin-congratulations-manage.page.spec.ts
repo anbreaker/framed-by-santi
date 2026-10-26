@@ -22,13 +22,15 @@ const bruno: Congratulation = {
   id: 'bruno',
   media: {
     kind: 'photo',
-    photo: {
-      alt: 'Bruno',
-      height: 600,
-      id: 'p1',
-      publicId: 'framed-by-santi/posts/p1',
-      width: 900,
-    },
+    photos: [
+      {
+        alt: 'Bruno',
+        height: 600,
+        id: 'p1',
+        publicId: 'framed-by-santi/posts/p1',
+        width: 900,
+      },
+    ],
   },
   message: 'Cheers',
 };
@@ -133,12 +135,10 @@ describe('AdminCongratulationsManagePageComponent', () => {
     expect((root().querySelector('#congrats-from') as HTMLInputElement).value).toBe('');
   });
 
-  it('should upload a new photo first and save it as the photos of the sets are saved', async () => {
-    uploads.upload.mockResolvedValue({
-      height: 600,
-      publicId: 'framed-by-santi/posts/new',
-      width: 900,
-    });
+  it('should upload every new photo first, in order, and save them as the photos of the sets are saved', async () => {
+    uploads.upload
+      .mockResolvedValueOnce({ height: 600, publicId: 'framed-by-santi/posts/new', width: 900 })
+      .mockResolvedValueOnce({ height: 800, publicId: 'framed-by-santi/posts/other', width: 600 });
     await type('congrats-from', 'Carla');
     await type('congrats-message', 'Hugs');
     const photo = Array.from(
@@ -148,26 +148,37 @@ describe('AdminCongratulationsManagePageComponent', () => {
     photo.dispatchEvent(new Event('change'));
     await fixture.whenStable();
     const file = new File(['x'], 'carla.jpg', { type: 'image/jpeg' });
+    const other = new File(['x'], 'other.jpg', { type: 'image/jpeg' });
     const input = root().querySelector('#congrats-photo') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: { item: () => file } });
+    Object.defineProperty(input, 'files', { value: [file, other] });
     input.dispatchEvent(new Event('change'));
-    await type('congrats-alt', 'Carla');
+    await fixture.whenStable();
+    await type('congrats-alt-0', 'Carla');
 
     await submit();
 
-    expect(uploads.upload).toHaveBeenCalledWith(file);
+    expect(uploads.upload.mock.calls).toEqual([[file], [other]]);
     expect(store.save).toHaveBeenCalledWith(
       {
         from: 'Carla',
         media: {
           kind: 'photo',
-          photo: {
-            alt: 'Carla',
-            height: 600,
-            id: 'framed-by-santi/posts/new',
-            publicId: 'framed-by-santi/posts/new',
-            width: 900,
-          },
+          photos: [
+            {
+              alt: 'Carla',
+              height: 600,
+              id: 'framed-by-santi/posts/new',
+              publicId: 'framed-by-santi/posts/new',
+              width: 900,
+            },
+            {
+              alt: '',
+              height: 800,
+              id: 'framed-by-santi/posts/other',
+              publicId: 'framed-by-santi/posts/other',
+              width: 600,
+            },
+          ],
         },
         message: 'Hugs',
       },
@@ -195,7 +206,7 @@ describe('AdminCongratulationsManagePageComponent', () => {
     expect(status$()).toBe('Could not upload the file. Try again.');
   });
 
-  it('should edit a message in place, keeping its photo when no new one is chosen', async () => {
+  it('should edit a message in place, keeping its photos when no new one is chosen', async () => {
     button('Edit the message from Bruno').click();
     await fixture.whenStable();
     expect(root().querySelector('#manage-form-title')?.textContent).toContain('Edit message');

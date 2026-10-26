@@ -8,6 +8,9 @@ import {
 } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
+import { Photo } from '@features/photo-posts/models/photo.model';
+import { photoUrl } from '@features/photo-posts/utils/photo-url';
+
 import {
   Congratulation,
   MAX_FROM_LENGTH,
@@ -17,15 +20,22 @@ import { youtubeVideoId } from '../../utils/youtube';
 
 export type MediaKind = 'cloudinary' | 'none' | 'photo' | 'youtube';
 
-/** What the form hands over; the page uploads the file, if any, and saves. */
+/**
+ * One photo of the message, in the order they are shown, with its description: a file to upload or a
+ * photo already saved.
+ */
+export type PhotoEntry =
+  { alt: string; file: File; kind: 'new' } | { alt: string; kind: 'saved'; photo: Photo };
+
+/** What the form hands over; the page uploads the new files, if any, and saves. */
 export interface CongratulationFormValue {
-  /** Description of the photo for screen readers. */
-  alt: string;
-  /** A new photo or video to upload; null keeps the one already saved. */
+  /** A new video to upload; null keeps the one already saved. */
   file: File | null;
   from: string;
   kind: MediaKind;
   message: string;
+  /** The photos, empty unless the kind is `photo`. */
+  photos: readonly PhotoEntry[];
   /** The YouTube video id, already read from the link. */
   youtube: string;
 }
@@ -37,12 +47,23 @@ export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 
 const KINDS: readonly MediaKind[] = ['none', 'photo', 'youtube', 'cloudinary'];
 
+/** Width of the small preview of a saved photo in the list. */
+const PREVIEW_WIDTH = 160;
+
+/** A photo of the list, with a key that keeps its row while the list is put in order. */
+interface PhotoRow {
+  entry: PhotoEntry;
+  key: number;
+  /** The small preview of a saved photo; a new file shows its name instead. */
+  preview: string | null;
+}
+
 const youtubeLink = (item: Congratulation | null): string =>
   item?.media?.kind === 'youtube' ? `https://youtu.be/${item.media.video}` : '';
 
 /**
- * Writes or edits one message: who sends it, the words and an optional photo, YouTube video or Cloudinary
- * video. It checks what the security rules will check, so a refusal never comes as a surprise.
+ * Writes or edits one message: who sends it, the words and optional photos, a YouTube video or a
+ * Cloudinary video. It checks what the security rules will check, so a refusal never comes as a surprise.
  */
 @Component({
   standalone: true,
@@ -73,10 +94,8 @@ export class CongratulationFormComponent {
   protected readonly kind = linkedSignal<MediaKind>(
     () => this.source().item?.media?.kind ?? 'none'
   );
-  protected readonly alt = linkedSignal(() => {
-    const media = this.source().item?.media;
-    return media?.kind === 'photo' ? media.photo.alt : '';
-  });
+  private rowKey = 0;
+  protected readonly photos = linkedSignal(() => this.savedRows(this.source().item));
   protected readonly youtube = linkedSignal(() => youtubeLink(this.source().item));
   protected readonly file = linkedSignal<{ key: unknown }, File | null>({
     computation: () => null,
@@ -87,7 +106,7 @@ export class CongratulationFormComponent {
     source: () => ({ key: this.source() }),
   });
 
-  /** The saved media of this kind is kept unless a new file replaces it. */
+  /** The saved video is kept unless a new file replaces it. */
   protected readonly keepsSaved = computed(
     () => this.file() === null && this.editing()?.media?.kind === this.kind()
   );
@@ -99,8 +118,43 @@ export class CongratulationFormComponent {
     return this.errors().includes(error);
   }
 
-  protected onText(target: 'alt' | 'from' | 'message' | 'youtube', event: Event): void {
+  protected onText(target: 'from' | 'message' | 'youtube', event: Event): void {
     this[target].set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+  }
+
+  protected onAlt(index: number, event: Event): void {
+    const alt = (event.target as HTMLInputElement).value;
+    this.photos.update((rows) =>
+      rows.map((row, i) => (i === index ? { ...row, entry: { ...row.entry, alt } } : row))
+    );
+  }
+
+  /** Every file chosen goes after the photos already in the list. */
+  protected onPhotos(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const added = Array.from(input.files ?? []).map((file): PhotoRow => ({
+      entry: { alt: '', file, kind: 'new' },
+      key: this.rowKey++,
+      preview: null,
+    }));
+    this.photos.update((rows) => [...rows, ...added]);
+    // Empty the picker, so the same file can be chosen again after taking it out.
+    input.value = '';
+  }
+
+  protected movePhoto(index: number, step: -1 | 1): void {
+    this.photos.update((rows) => {
+      const target = index + step;
+      if (target < 0 || target >= rows.length) return rows;
+
+      const moved = [...rows];
+      [moved[index], moved[target]] = [moved[target], moved[index]];
+      return moved;
+    });
+  }
+
+  protected removePhoto(index: number): void {
+    this.photos.update((rows) => rows.filter((_row, i) => i !== index));
   }
 
   protected onKind(kind: MediaKind): void {
@@ -121,13 +175,26 @@ export class CongratulationFormComponent {
     if (errors.length > 0) return;
 
     this.submitted.emit({
-      alt: this.alt().trim(),
-      file: this.kind() === 'photo' || this.kind() === 'cloudinary' ? this.file() : null,
+      file: this.kind() === 'cloudinary' ? this.file() : null,
       from: this.from().trim(),
       kind: this.kind(),
       message: this.message().trim(),
+      photos:
+        this.kind() === 'photo'
+          ? this.photos().map(({ entry }) => ({ ...entry, alt: entry.alt.trim() }))
+          : [],
       youtube: this.kind() === 'youtube' ? (youtubeVideoId(this.youtube()) ?? '') : '',
     });
+  }
+
+  private savedRows(item: Congratulation | null): PhotoRow[] {
+    if (item?.media?.kind !== 'photo') return [];
+
+    return item.media.photos.map((photo) => ({
+      entry: { alt: photo.alt, kind: 'saved', photo },
+      key: this.rowKey++,
+      preview: photoUrl(photo, PREVIEW_WIDTH),
+    }));
   }
 
   private validate(): FormError[] {
@@ -141,7 +208,7 @@ export class CongratulationFormComponent {
 
     switch (this.kind()) {
       case 'photo':
-        if (file === null && !this.keepsSaved()) errors.push('photo');
+        if (this.photos().length === 0) errors.push('photo');
         break;
       case 'youtube':
         if (youtubeVideoId(this.youtube()) === null) errors.push('youtube');

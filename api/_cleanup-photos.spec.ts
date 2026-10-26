@@ -45,17 +45,17 @@ const post = (...publicIds: string[]): Record<string, unknown> => ({
 });
 
 /** A plain object as the Firestore REST API sends it. */
+const toRestValue = (value: unknown): Record<string, unknown> =>
+  typeof value === 'number'
+    ? { integerValue: String(value) }
+    : Array.isArray(value)
+      ? { arrayValue: { values: value.map(toRestValue) } }
+      : typeof value === 'object' && value !== null
+        ? { mapValue: { fields: toRestFields(value as Record<string, unknown>) } }
+        : { stringValue: String(value) };
+
 const toRestFields = (data: Record<string, unknown>): Record<string, unknown> =>
-  Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [
-      key,
-      typeof value === 'number'
-        ? { integerValue: String(value) }
-        : typeof value === 'object' && value !== null
-          ? { mapValue: { fields: toRestFields(value as Record<string, unknown>) } }
-          : { stringValue: String(value) },
-    ])
-  );
+  Object.fromEntries(Object.entries(data).map(([key, value]) => [key, toRestValue(value)]));
 
 interface World {
   /** Pages of Firestore documents; each inner array is one page. */
@@ -313,7 +313,25 @@ describe('cleanup-photos', () => {
   });
 
   describe('congratulations', () => {
-    /** A message as the dashboard saves it, with a photo uploaded to the posts folder. */
+    /** A message as the dashboard saves it, with its photos uploaded to the posts folder. */
+    const withPhotos = (...publicIds: string[]): Record<string, unknown> => ({
+      fields: toRestFields({
+        createdAt: 1,
+        from: 'Ana',
+        media: {
+          kind: 'photo',
+          photos: publicIds.map((publicId) => ({
+            alt: '',
+            height: 600,
+            id: publicId,
+            publicId,
+            width: 900,
+          })),
+        },
+        message: 'Hi',
+      }),
+    });
+    /** A message saved before there could be several photos, with a single `photo`. */
     const withPhoto = (publicId: string): Record<string, unknown> => ({
       fields: toRestFields({
         createdAt: 1,
@@ -343,6 +361,25 @@ describe('cleanup-photos', () => {
         postPages: [[post(`${FOLDER}/used`)]],
         resourcePages: [
           [photo('used', 40), photo('ana', 40), photo('bruno', 40), photo('orphan', 40)],
+        ],
+      });
+      await response;
+
+      expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
+    });
+
+    it('should keep every photo of a congratulation with several', async () => {
+      const { net, response } = run({
+        congratulationPages: [[withPhotos(`${FOLDER}/one`, `${FOLDER}/two`, `${FOLDER}/three`)]],
+        postPages: [[post(`${FOLDER}/used`)]],
+        resourcePages: [
+          [
+            photo('used', 40),
+            photo('one', 40),
+            photo('two', 40),
+            photo('three', 40),
+            photo('orphan', 40),
+          ],
         ],
       });
       await response;

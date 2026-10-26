@@ -144,11 +144,15 @@ const readCongratulationPhotos = async (
     'congratulations-unavailable'
   );
 
+  // Messages hold a list of `photos`; older ones a single `photo`. Both are kept.
   return congratulations.flatMap((fields) => {
     const media = fields['media']?.mapValue?.fields;
-    return media?.['kind']?.stringValue === 'photo'
-      ? photoIds(media['photo']?.mapValue?.fields)
-      : [];
+    if (media?.['kind']?.stringValue !== 'photo') return [];
+
+    const listed = (media['photos']?.arrayValue?.values ?? []).flatMap((value) =>
+      photoIds(value.mapValue?.fields)
+    );
+    return [...listed, ...photoIds(media['photo']?.mapValue?.fields)];
   });
 };
 

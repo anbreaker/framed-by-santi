@@ -22,7 +22,10 @@ const messages: Congratulation[] = [
     id: 'bruno',
     media: {
       kind: 'photo',
-      photo: { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 },
+      photos: [
+        { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 },
+        { alt: 'At the lake', height: 600, id: 'lake', width: 900 },
+      ],
     },
     message: 'Line one\nLine two',
   },
@@ -51,6 +54,13 @@ describe('CongratulationsCarouselComponent', () => {
   const counter = (): string =>
     root().querySelector('.congrats__counter')?.textContent?.trim() ?? '';
   const fill = (): HTMLElement | null => root().querySelector('.congrats__fill');
+  const photoFill = (): HTMLElement | null => root().querySelector('.congrats__photo-fill');
+  const photoButton = (label: string): HTMLButtonElement =>
+    root().querySelector(`.congrats__photo-nav button[aria-label="${label}"]`) as HTMLButtonElement;
+  const caption = (): string =>
+    root().querySelector('.congrats__caption')?.textContent?.trim() ?? '';
+  const shownPhoto = (): string | null | undefined =>
+    activeMedia().querySelector('.congrats__photo--shown')?.getAttribute('alt');
 
   const press = async (label: string): Promise<void> => {
     button(label).click();
@@ -173,8 +183,6 @@ describe('CongratulationsCarouselComponent', () => {
   });
 
   it('should show the description of the photo under it and full screen, and none without a photo', async () => {
-    const caption = (): string =>
-      root().querySelector('.congrats__caption')?.textContent?.trim() ?? '';
     expect(caption()).toBe('');
 
     await press('Next');
@@ -240,6 +248,134 @@ describe('CongratulationsCarouselComponent', () => {
 
     await press('Pause autoplay');
     expect(root().querySelector('.congrats__counter')?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  describe('with several photos in one message', () => {
+    beforeEach(async () => {
+      await press('Next');
+    });
+
+    it('should show the first photo, and say which one of how many it is', () => {
+      expect(shownPhoto()).toBe('Bruno and Santi');
+      expect(caption()).toBe('Bruno and Santi');
+      expect(root().querySelector('.congrats__photo-nav')?.getAttribute('aria-label')).toBe(
+        'Photo 1 of 2'
+      );
+    });
+
+    it('should go through the photos with their own arrows, wrapping at both ends, without changing the message', async () => {
+      photoButton('Next photo').click();
+      await fixture.whenStable();
+      expect(shownPhoto()).toBe('At the lake');
+      expect(caption()).toBe('At the lake');
+      expect(root().querySelector('.congrats__photo-nav')?.getAttribute('aria-label')).toBe(
+        'Photo 2 of 2'
+      );
+
+      photoButton('Next photo').click();
+      await fixture.whenStable();
+      expect(shownPhoto()).toBe('Bruno and Santi');
+
+      photoButton('Previous photo').click();
+      await fixture.whenStable();
+      expect(shownPhoto()).toBe('At the lake');
+      expect(activeText().textContent).toContain('Bruno');
+    });
+
+    it('should pass to the next photo on its own when its bar fills up', async () => {
+      photoFill()?.dispatchEvent(new Event('animationend'));
+      await fixture.whenStable();
+
+      expect(shownPhoto()).toBe('At the lake');
+      expect(activeText().textContent).toContain('Bruno');
+    });
+
+    it('should stop the photos and the message while the pointer rests on the photo, and go on when it leaves', async () => {
+      const media = root().querySelector('.congrats__media') as HTMLElement;
+
+      media.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      await fixture.whenStable();
+      expect(photoFill()?.classList).toContain('congrats__photo-fill--halted');
+      expect(fill()?.classList).toContain('congrats__fill--halted');
+
+      media.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      await fixture.whenStable();
+      expect(photoFill()?.classList).not.toContain('congrats__photo-fill--halted');
+      expect(fill()?.classList).not.toContain('congrats__fill--halted');
+    });
+
+    it('should open full screen the photo being shown', async () => {
+      photoButton('Next photo').click();
+      await fixture.whenStable();
+      (activeMedia().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(root().querySelector('dialog app-zoomable-photo img')?.getAttribute('alt')).toBe(
+        'At the lake'
+      );
+    });
+
+    it('should start again from the first photo when the message comes back', async () => {
+      photoButton('Next photo').click();
+      await fixture.whenStable();
+      await press('Next');
+      await press('Previous');
+
+      expect(shownPhoto()).toBe('Bruno and Santi');
+    });
+  });
+
+  it('should give the first photo of the next message its full time, even when it comes from another first photo', async () => {
+    fixture.componentInstance.items.set([messages[1], { ...messages[1], id: 'again' }]);
+    await fixture.whenStable();
+    const before = photoFill();
+
+    await press('Next');
+
+    expect(photoFill()).not.toBeNull();
+    expect(photoFill()).not.toBe(before);
+  });
+
+  it('should not hold the automatic pass when the photo is tapped on a touch screen', async () => {
+    await press('Next');
+    const media = root().querySelector('.congrats__media') as HTMLElement;
+
+    media.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }));
+    await fixture.whenStable();
+    expect(fill()?.classList).not.toContain('congrats__fill--halted');
+
+    media.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+    await fixture.whenStable();
+    expect(fill()?.classList).toContain('congrats__fill--halted');
+  });
+
+  it('should have no photo arrows for a message with a single photo', async () => {
+    const single = { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 };
+    fixture.componentInstance.items.set([
+      { ...messages[1], media: { kind: 'photo', photos: [single] } },
+    ]);
+    await fixture.whenStable();
+
+    expect(root().querySelector('.congrats__photo-nav')).toBeNull();
+    expect(shownPhoto()).toBe('Bruno and Santi');
+  });
+
+  it('should give each message time to read its words and see its photos', async () => {
+    const duration = (): string => fill()?.style.getPropertyValue('--autoplay-duration') ?? '';
+    expect(duration()).toBe('7s');
+
+    const long = 'word '.repeat(360);
+    const photo = { alt: '', height: 600, id: 'p', width: 900 };
+    fixture.componentInstance.items.set([
+      { ...messages[2], message: long.trim() },
+      { ...messages[2], id: 'many', media: { kind: 'photo', photos: Array(4).fill(photo) } },
+      messages[2],
+    ]);
+    await fixture.whenStable();
+    expect(duration()).toBe('100s');
+
+    await press('Next');
+    expect(duration()).toBe('20s');
   });
 
   it('should leave out the controls when there is a single message', async () => {
