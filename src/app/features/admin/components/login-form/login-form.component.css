@@ -55,6 +55,44 @@
   }
 }
 
+/* The eye button sits inside the right end of the password field. */
+.login-form__secret {
+  display: grid;
+
+  > * {
+    grid-area: 1 / 1;
+  }
+
+  .login-form__input {
+    padding-inline-end: calc(var(--touch-target) + var(--space-2));
+  }
+}
+
+.login-form__reveal {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  justify-self: end;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: 0;
+
+  &:hover,
+  &[aria-pressed='true'] {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+}
+
 .login-form__notice {
   color: var(--color-text-muted);
   font-size: 0.875rem;

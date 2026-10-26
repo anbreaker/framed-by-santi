@@ -70,6 +70,28 @@ describe('LoginFormComponent', () => {
     expect(field('password').autocomplete).toBe('current-password');
   });
 
+  it('should show and hide the password with the eye button', async () => {
+    await create();
+    type('password', 'secret');
+    const toggle = root().querySelector('.login-form__reveal') as HTMLButtonElement;
+
+    expect(toggle.getAttribute('aria-label')).toBe('Show password');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+
+    toggle.click();
+    await fixture.whenStable();
+
+    expect(field('password').type).toBe('text');
+    expect(field('password').value).toBe('secret');
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+
+    toggle.click();
+    await fixture.whenStable();
+
+    expect(field('password').type).toBe('password');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+  });
+
   it('should ask for both fields before calling Firebase', async () => {
     await create();
     type('email', 'a@b.c');

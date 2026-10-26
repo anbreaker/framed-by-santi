@@ -265,6 +265,7 @@
       "missing": "Introduza o seu e-mail e a palavra-passe.",
       "password": "Palavra-passe",
       "resetSent": "Se esse endereço puder entrar, enviámos uma ligação para repor a palavra-passe.",
+      "showPassword": "Mostrar palavra-passe",
       "submit": "Entrar",
       "submitting": "A entrar…",
       "title": "Iniciar sessão",

@@ -265,6 +265,7 @@
       "missing": "Escribe tu correo y tu contraseña.",
       "password": "Contraseña",
       "resetSent": "Si esa dirección puede entrar, te hemos enviado un enlace para restablecer la contraseña.",
+      "showPassword": "Mostrar contraseña",
       "submit": "Entrar",
       "submitting": "Entrando…",
       "title": "Iniciar sesión",

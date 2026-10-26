@@ -265,6 +265,7 @@
       "missing": "Enter your email and password.",
       "password": "Password",
       "resetSent": "If that address can sign in, we sent a link to reset the password.",
+      "showPassword": "Show password",
       "submit": "Sign in",
       "submitting": "Signing in…",
       "title": "Sign in",

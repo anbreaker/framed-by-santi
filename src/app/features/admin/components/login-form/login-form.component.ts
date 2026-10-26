@@ -23,6 +23,7 @@ export class LoginFormComponent {
   protected readonly email = signal('');
   protected readonly notice = signal<Notice | null>(null);
   protected readonly password = signal('');
+  protected readonly passwordShown = signal(false);
   protected readonly submitting = signal(false);
   protected readonly unavailable = computed(() => this.authStore.status() === 'unavailable');
 
@@ -36,6 +37,10 @@ export class LoginFormComponent {
 
   protected onPassword(event: Event): void {
     this.password.set((event.target as HTMLInputElement).value);
+  }
+
+  protected togglePassword(): void {
+    this.passwordShown.update((shown) => !shown);
   }
 
   protected async submit(event: Event): Promise<void> {
