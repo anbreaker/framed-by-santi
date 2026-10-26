@@ -2,29 +2,37 @@
   display: block;
 }
 
-/* A compact row on a phone; a column of sections beside the content on a wide screen. */
+/*
+ * A compact row on a phone that scrolls sideways when the sections do not fit; a column of sections
+ * beside the content on a wide screen. The hairline under the row is a shadow, so the underline of the
+ * open section sits on it without overflowing the scrolling row.
+ */
 .admin-nav {
-  border-bottom: 1px solid var(--color-hairline);
+  box-shadow: inset 0 -1px var(--color-hairline);
   display: flex;
   gap: var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
 
   @media (min-width: 900px) {
-    border-bottom: 0;
     border-left: 1px solid var(--color-hairline);
+    box-shadow: none;
     flex-direction: column;
     gap: 0;
+    overflow-x: visible;
   }
 }
 
 .admin-nav__link {
   border-bottom: 2px solid transparent;
   color: var(--color-text-muted);
+  flex: none;
   font-size: 0.875rem;
   font-variant-caps: all-small-caps;
   letter-spacing: 0.1em;
-  margin-bottom: -1px;
   padding-block: var(--space-2);
   text-decoration: none;
+  white-space: nowrap;
 
   &:hover {
     color: var(--color-text);
@@ -41,6 +49,7 @@
     font-size: 1rem;
     margin: 0 0 0 -1px;
     padding: var(--space-2) var(--space-3);
+    white-space: normal;
   }
 }
 
