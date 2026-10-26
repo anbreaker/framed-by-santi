@@ -7,9 +7,11 @@
   gap: var(--space-4);
 }
 
+/* One column no wider than the form, so a file picker never pushes the page sideways on a phone. */
 .congrats-form__field {
   display: grid;
   gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .congrats-form__label {
@@ -66,6 +68,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+
+  & > * {
+    max-width: 100%;
+  }
 }
 
 /* Drawn like the buttons of the file pickers next to it. */
