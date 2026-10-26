@@ -10,6 +10,8 @@
   container-type: inline-size;
   display: grid;
   gap: var(--space-5);
+  /* Brought into view below the sticky header, not under it. */
+  scroll-margin-top: calc(var(--header-height) + var(--space-4));
 }
 
 /*

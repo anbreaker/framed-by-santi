@@ -1,5 +1,6 @@
 <section
   class="congrats"
+  #carousel
   *transloco="let t; prefix: 'admin.congratulations'"
   [attr.aria-label]="t('title')"
   [attr.aria-roledescription]="t('carousel')"
@@ -215,7 +216,7 @@
                   class="congrats__fill"
                   [class.congrats__fill--halted]="halted()"
                   [style.--autoplay-duration]="slide.duration + 's'"
-                  (animationend)="next()"
+                  (animationend)="advance()"
                 ></span>
               }
             </span>

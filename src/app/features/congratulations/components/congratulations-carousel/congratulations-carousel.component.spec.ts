@@ -215,6 +215,59 @@ describe('CongratulationsCarouselComponent', () => {
     expect(fill()?.classList).not.toContain('congrats__fill--halted');
   });
 
+  describe('when the visitor has read down past its top, as on a phone', () => {
+    let scrollIntoView: ReturnType<typeof vi.fn>;
+
+    /** jsdom lays nothing out: the top of the carousel is `top` pixels from the top of the screen. */
+    const placeTop = (top: number): void => {
+      const section = root().querySelector('.congrats') as HTMLElement;
+      scrollIntoView = vi.fn();
+      section.scrollIntoView = scrollIntoView;
+      section.getBoundingClientRect = () => new DOMRect(0, top, 390, 900);
+    };
+
+    it('should glide back up to its top when the visitor moves to another message', async () => {
+      placeTop(-600);
+
+      await press('Next');
+      await press('Previous');
+      await press('Go to message 3');
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(3);
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    });
+
+    it('should jump up without gliding when the visitor asks for less motion', async () => {
+      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
+      fixture.destroy();
+      fixture = TestBed.createComponent(HostComponent);
+      await fixture.whenStable();
+      placeTop(-600);
+
+      await press('Next');
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'instant', block: 'start' });
+    });
+
+    it('should leave the page still when its top is already in view', async () => {
+      placeTop(120);
+
+      await press('Next');
+
+      expect(scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it('should leave the page still when a message passes on its own', async () => {
+      placeTop(-600);
+
+      fill()?.dispatchEvent(new Event('animationend'));
+      await fixture.whenStable();
+
+      expect(activeText().textContent).toContain('Bruno');
+      expect(scrollIntoView).not.toHaveBeenCalled();
+    });
+  });
+
   it('should pass to the next message on its own when the progress bar fills up', async () => {
     fill()?.dispatchEvent(new Event('animationend'));
     await fixture.whenStable();

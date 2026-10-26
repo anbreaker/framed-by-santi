@@ -47,6 +47,7 @@ const wrap = (index: number, total: number): number => ((index % total) + total)
   templateUrl: './congratulations-carousel.component.html',
 })
 export class CongratulationsCarouselComponent {
+  private readonly carousel = viewChild.required<ElementRef<HTMLElement>>('carousel');
   private readonly texts = viewChild.required<ElementRef<HTMLElement>>('texts');
   private readonly viewer = viewChild.required<ElementRef<HTMLDialogElement>>('viewer');
 
@@ -117,7 +118,18 @@ export class CongratulationsCarouselComponent {
     this.viewer().nativeElement.showModal();
   }
 
+  /** The progress bar of the message filled up: the next one comes in where the visitor is. */
+  protected advance(): void {
+    this.show(this.current() + 1);
+  }
+
+  /** A message chosen by the visitor, brought into view from wherever they were reading. */
   protected goTo(index: number): void {
+    this.show(index);
+    this.revealTop();
+  }
+
+  private show(index: number): void {
     const target = wrap(index, this.total());
     this.index.set(target);
     // A long message scrolls inside its column; the next one starts from its first line.
@@ -127,6 +139,22 @@ export class CongratulationsCarouselComponent {
       const next = [...indexes];
       next[target] = 0;
       return next;
+    });
+  }
+
+  /**
+   * On a phone the words sit under the media and the arrows under the words, so the visitor reads down
+   * past the top of the carousel; the next message glides back up so it is seen from its start. Nothing
+   * moves when its top is already in view.
+   */
+  private revealTop(): void {
+    const carousel = this.carousel().nativeElement;
+    const margin = parseFloat(getComputedStyle(carousel).scrollMarginTop) || 0;
+    if (carousel.getBoundingClientRect().top >= margin) return;
+
+    carousel.scrollIntoView({
+      behavior: this.reducedMotion ? 'instant' : 'smooth',
+      block: 'start',
     });
   }
 
