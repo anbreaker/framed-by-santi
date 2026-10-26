@@ -1,35 +1,43 @@
 <nav class="admin-nav" *transloco="let t" [attr.aria-label]="t('admin.nav.ariaLabel')">
   <a
     class="admin-nav__link"
+    #sets
     ariaCurrentWhenActive="page"
     routerLink="/admin/dashboard"
     routerLinkActive="admin-nav__link--active"
+    (isActiveChange)="$event && reveal(sets)"
   >
     {{ t('admin.nav.sets') }}
   </a>
   <a
     class="admin-nav__link"
+    #settings
     ariaCurrentWhenActive="page"
     routerLink="/admin/settings"
     routerLinkActive="admin-nav__link--active"
+    (isActiveChange)="$event && reveal(settings)"
   >
     {{ t('admin.nav.settings') }}
   </a>
   <a
     class="admin-nav__link"
+    #congratulations
     ariaCurrentWhenActive="page"
     routerLink="/admin/congratulations"
     routerLinkActive="admin-nav__link--active"
     [routerLinkActiveOptions]="{ exact: true }"
+    (isActiveChange)="$event && reveal(congratulations)"
   >
     {{ t('admin.nav.congratulations') }}
   </a>
   @if (isOwner()) {
     <a
       class="admin-nav__link"
+      #manage
       ariaCurrentWhenActive="page"
       routerLink="/admin/congratulations/manage"
       routerLinkActive="admin-nav__link--active"
+      (isActiveChange)="$event && reveal(manage)"
     >
       {{ t('admin.nav.manageCongratulations') }}
     </a>

@@ -75,4 +75,33 @@ describe('AdminNavComponent', () => {
     expect(link('/admin/congratulations/manage').getAttribute('aria-current')).toBe('page');
     expect(link('/admin/congratulations').getAttribute('aria-current')).toBeNull();
   });
+
+  it('should scroll the row of sections to the open one when it does not fit on a phone', async () => {
+    // jsdom lays nothing out: the row is 300px wide and the manage link starts past its end.
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element
+    ) {
+      const manage = this.getAttribute('href') === '/admin/congratulations/manage';
+      return manage
+        ? new DOMRect(350, 0, 150, 40)
+        : this.matches('nav')
+          ? new DOMRect(0, 0, 300, 40)
+          : new DOMRect();
+    });
+
+    isOwner.set(true);
+    await fixture.whenStable();
+    const row = root().querySelector('nav') as HTMLElement;
+    let scrollLeft = 0;
+    Object.defineProperty(row, 'scrollLeft', {
+      get: () => scrollLeft,
+      set: (value: number) => (scrollLeft = value),
+    });
+
+    await TestBed.inject(Router).navigateByUrl('/admin/congratulations/manage');
+    await fixture.whenStable();
+
+    expect(row.scrollLeft).toBe(275);
+    vi.restoreAllMocks();
+  });
 });
