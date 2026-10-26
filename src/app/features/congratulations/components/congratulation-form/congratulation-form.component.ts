@@ -2,9 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  effect,
+  inject,
   input,
   linkedSignal,
   output,
+  untracked,
 } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -54,7 +58,7 @@ const PREVIEW_WIDTH = 160;
 interface PhotoRow {
   entry: PhotoEntry;
   key: number;
-  /** The small preview of a saved photo; a new file shows its name instead. */
+  /** A small preview: from Cloudinary for a saved photo, an object URL of the file for a new one. */
   preview: string | null;
 }
 
@@ -95,6 +99,8 @@ export class CongratulationFormComponent {
     () => this.source().item?.media?.kind ?? 'none'
   );
   private rowKey = 0;
+  /** Object URLs of the new files' previews, freed when their rows go. */
+  private readonly objectUrls = new Set<string>();
   protected readonly photos = linkedSignal(() => this.savedRows(this.source().item));
   protected readonly youtube = linkedSignal(() => youtubeLink(this.source().item));
   protected readonly file = linkedSignal<{ key: unknown }, File | null>({
@@ -129,13 +135,22 @@ export class CongratulationFormComponent {
     );
   }
 
-  /** Every file chosen goes after the photos already in the list. */
+  constructor() {
+    // The list starts again on every reset or edit, so the previews of the files chosen before go.
+    effect(() => {
+      this.source();
+      untracked(() => this.freePreviews());
+    });
+    inject(DestroyRef).onDestroy(() => this.freePreviews());
+  }
+
+  /** Every file chosen goes after the photos already in the list, each with a preview of the file. */
   protected onPhotos(event: Event): void {
     const input = event.target as HTMLInputElement;
     const added = Array.from(input.files ?? []).map((file): PhotoRow => ({
       entry: { alt: '', file, kind: 'new' },
       key: this.rowKey++,
-      preview: null,
+      preview: this.previewOf(file),
     }));
     this.photos.update((rows) => [...rows, ...added]);
     // Empty the picker, so the same file can be chosen again after taking it out.
@@ -154,6 +169,8 @@ export class CongratulationFormComponent {
   }
 
   protected removePhoto(index: number): void {
+    const preview = this.photos()[index]?.preview;
+    if (preview && this.objectUrls.delete(preview)) URL.revokeObjectURL(preview);
     this.photos.update((rows) => rows.filter((_row, i) => i !== index));
   }
 
@@ -185,6 +202,20 @@ export class CongratulationFormComponent {
           : [],
       youtube: this.kind() === 'youtube' ? (youtubeVideoId(this.youtube()) ?? '') : '',
     });
+  }
+
+  /** An object URL showing the file, or null where the browser cannot make one. */
+  private previewOf(file: File): string | null {
+    if (typeof URL.createObjectURL !== 'function') return null;
+
+    const url = URL.createObjectURL(file);
+    this.objectUrls.add(url);
+    return url;
+  }
+
+  private freePreviews(): void {
+    for (const url of this.objectUrls) URL.revokeObjectURL(url);
+    this.objectUrls.clear();
   }
 
   private savedRows(item: Congratulation | null): PhotoRow[] {

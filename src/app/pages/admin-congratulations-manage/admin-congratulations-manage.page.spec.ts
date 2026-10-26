@@ -73,6 +73,9 @@ describe('AdminCongratulationsManagePageComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    // jsdom files are not Node blobs, so the previews get a stand-in object URL.
+    URL.createObjectURL = vi.fn(() => 'blob:preview');
+    URL.revokeObjectURL = vi.fn();
     document.head.querySelectorAll('meta[name="robots"]').forEach((meta) => meta.remove());
     items.set([ana, bruno]);
     status.set('ready');

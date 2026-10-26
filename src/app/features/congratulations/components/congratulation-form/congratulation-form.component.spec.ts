@@ -80,9 +80,10 @@ describe('CongratulationFormComponent', () => {
     await fixture.whenStable();
   };
 
+  /** The file names of the new photos, read from the alternative text of their previews. */
   const photoNames = (): string[] =>
-    Array.from(root().querySelectorAll('.congrats-form__photo-name')).map(
-      (name) => name.textContent?.trim() ?? ''
+    Array.from(root().querySelectorAll('.congrats-form__photo-preview--new')).map(
+      (preview) => preview.getAttribute('alt') ?? ''
     );
 
   const button = (label: string): HTMLButtonElement =>
@@ -102,6 +103,9 @@ describe('CongratulationFormComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    // jsdom has no object URLs; each file is given one named after it.
+    URL.createObjectURL = vi.fn((file: Blob) => `blob:${(file as File).name}`);
+    URL.revokeObjectURL = vi.fn();
     await TestBed.configureTestingModule({
       imports: [HostComponent, realTranslations()],
     }).compileComponents();
@@ -190,6 +194,44 @@ describe('CongratulationFormComponent', () => {
         { alt: '', file: porto, kind: 'new' },
       ],
     });
+  });
+
+  it('should show a small preview of every new photo before it is uploaded', async () => {
+    await choose('Photos');
+    await pick(
+      'congrats-photo',
+      new File(['x'], 'lisbon.jpg', { type: 'image/jpeg' }),
+      new File(['x'], 'porto.jpg', { type: 'image/jpeg' })
+    );
+
+    const previews = Array.from(
+      root().querySelectorAll<HTMLImageElement>('.congrats-form__photo-preview--new')
+    );
+    expect(previews.map((preview) => preview.getAttribute('src'))).toEqual([
+      'blob:lisbon.jpg',
+      'blob:porto.jpg',
+    ]);
+  });
+
+  it('should free the preview of a new photo when it is taken out, when the form empties and when it goes away', async () => {
+    await choose('Photos');
+    const files = ['one.jpg', 'two.jpg', 'three.jpg'].map(
+      (name) => new File(['x'], name, { type: 'image/jpeg' })
+    );
+    await pick('congrats-photo', ...files);
+
+    await press('Remove photo 1');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:one.jpg');
+
+    host().resetKey.set(1);
+    await fixture.whenStable();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:two.jpg');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:three.jpg');
+
+    await choose('Photos');
+    await pick('congrats-photo', new File(['x'], 'four.jpg', { type: 'image/jpeg' }));
+    fixture.destroy();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:four.jpg');
   });
 
   it('should add several photos at once, and let them be put in order or taken out', async () => {

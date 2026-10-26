@@ -76,7 +76,13 @@
             <ol class="congrats-form__photos">
               @for (row of photos(); track row.key; let i = $index, first = $first, last = $last) {
                 <li class="congrats-form__photo">
-                  @if (row.preview; as preview) {
+                  @if (row.entry.kind === 'new' && row.preview) {
+                    <img
+                      class="congrats-form__photo-preview congrats-form__photo-preview--new"
+                      [alt]="row.entry.file.name"
+                      [src]="row.preview"
+                    />
+                  } @else if (row.preview; as preview) {
                     <img class="congrats-form__photo-preview" alt="" [src]="preview" />
                   } @else if (row.entry.kind === 'new') {
                     <span class="congrats-form__photo-name">{{ row.entry.file.name }}</span>
