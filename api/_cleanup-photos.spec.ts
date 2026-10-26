@@ -387,6 +387,53 @@ describe('cleanup-photos', () => {
       expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
     });
 
+    it('should keep the photos of a gallery that mixes photos and videos', async () => {
+      const gallery = {
+        fields: toRestFields({
+          createdAt: 3,
+          from: 'Carla',
+          media: {
+            items: [
+              { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+              {
+                kind: 'photo',
+                photo: {
+                  alt: '',
+                  height: 600,
+                  id: `${FOLDER}/first`,
+                  publicId: `${FOLDER}/first`,
+                  width: 900,
+                },
+              },
+              { kind: 'cloudinary', publicId: `${FOLDER}/clip` },
+              {
+                kind: 'photo',
+                photo: {
+                  alt: '',
+                  height: 600,
+                  id: `${FOLDER}/last`,
+                  publicId: `${FOLDER}/last`,
+                  width: 900,
+                },
+              },
+            ],
+            kind: 'gallery',
+          },
+          message: 'Hi',
+        }),
+      };
+      const { net, response } = run({
+        congratulationPages: [[gallery]],
+        postPages: [[post(`${FOLDER}/used`)]],
+        resourcePages: [
+          [photo('used', 40), photo('first', 40), photo('last', 40), photo('orphan', 40)],
+        ],
+      });
+      await response;
+
+      expect(net.deleted).toEqual([`${FOLDER}/orphan`]);
+    });
+
     it('should read only the media of the congratulations, with the caller token', async () => {
       const { net, response } = run({
         postPages: [[post(`${FOLDER}/used`)]],

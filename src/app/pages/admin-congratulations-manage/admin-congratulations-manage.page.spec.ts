@@ -13,25 +13,26 @@ const ana: Congratulation = {
   createdAt: 1,
   from: 'Ana',
   id: 'ana',
-  media: { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+  media: [{ kind: 'youtube', video: 'dQw4w9WgXcQ' }],
   message: 'Happy birthday!',
 };
 const bruno: Congratulation = {
   createdAt: 2,
   from: 'Bruno',
   id: 'bruno',
-  media: {
-    kind: 'photo',
-    photos: [
-      {
+  media: [
+    {
+      kind: 'photo',
+      photo: {
         alt: 'Bruno',
         height: 600,
         id: 'p1',
         publicId: 'framed-by-santi/posts/p1',
         width: 900,
       },
-    ],
-  },
+    },
+    { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' },
+  ],
   message: 'Cheers',
 };
 
@@ -54,6 +55,13 @@ describe('AdminCongratulationsManagePageComponent', () => {
     Array.from(root().querySelectorAll('.manage__card h3')).map(
       (title) => title.textContent?.trim() ?? ''
     );
+
+  const pick = async (id: string, ...files: File[]): Promise<void> => {
+    const input = root().querySelector(`#${id}`) as HTMLInputElement;
+    Object.defineProperty(input, 'files', { configurable: true, value: files });
+    input.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+  };
 
   const type = async (id: string, value: string): Promise<void> => {
     const input = root().querySelector(`#${id}`) as HTMLInputElement;
@@ -117,72 +125,71 @@ describe('AdminCongratulationsManagePageComponent', () => {
     );
   });
 
+  it('should sum up what each saved message holds', () => {
+    expect(
+      Array.from(root().querySelectorAll('.manage__card .meta')).map((meta) =>
+        meta.textContent?.replace(/\s+/g, ' ').trim()
+      )
+    ).toEqual(['1 video', '1 photo · 1 video']);
+  });
+
   it('should save a new message with its YouTube video and say so', async () => {
     await type('congrats-from', 'Carla');
     await type('congrats-message', 'Hugs');
-    const youtube = Array.from(
-      root().querySelectorAll('.congrats-form__kind input')
-    )[2] as HTMLInputElement;
-    youtube.checked = true;
-    youtube.dispatchEvent(new Event('change'));
+    buttonWithText('Add a YouTube link').click();
     await fixture.whenStable();
-    await type('congrats-youtube', 'https://youtu.be/dQw4w9WgXcQ');
+    await type('congrats-youtube-0', 'https://youtu.be/dQw4w9WgXcQ');
 
     await submit();
 
     expect(store.save).toHaveBeenCalledWith(
-      { from: 'Carla', media: { kind: 'youtube', video: 'dQw4w9WgXcQ' }, message: 'Hugs' },
+      { from: 'Carla', media: [{ kind: 'youtube', video: 'dQw4w9WgXcQ' }], message: 'Hugs' },
       undefined
     );
     expect(status$()).toBe('Message saved.');
     expect((root().querySelector('#congrats-from') as HTMLInputElement).value).toBe('');
   });
 
-  it('should upload every new photo first, in order, and save them as the photos of the sets are saved', async () => {
-    uploads.upload
-      .mockResolvedValueOnce({ height: 600, publicId: 'framed-by-santi/posts/new', width: 900 })
-      .mockResolvedValueOnce({ height: 800, publicId: 'framed-by-santi/posts/other', width: 600 });
+  it('should upload new photos and videos first, in order, and save them mixed with a YouTube link', async () => {
+    uploads.upload.mockResolvedValue({
+      height: 600,
+      publicId: 'framed-by-santi/posts/new',
+      width: 900,
+    });
+    uploads.uploadVideo.mockResolvedValue({ publicId: 'framed-by-santi/posts/clip' });
     await type('congrats-from', 'Carla');
     await type('congrats-message', 'Hugs');
-    const photo = Array.from(
-      root().querySelectorAll('.congrats-form__kind input')
-    )[1] as HTMLInputElement;
-    photo.checked = true;
-    photo.dispatchEvent(new Event('change'));
+
+    const photo = new File(['x'], 'carla.jpg', { type: 'image/jpeg' });
+    const video = new File(['x'], 'clip.mp4', { type: 'video/mp4' });
+    await pick('congrats-video', video);
+    buttonWithText('Add a YouTube link').click();
     await fixture.whenStable();
-    const file = new File(['x'], 'carla.jpg', { type: 'image/jpeg' });
-    const other = new File(['x'], 'other.jpg', { type: 'image/jpeg' });
-    const input = root().querySelector('#congrats-photo') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: [file, other] });
-    input.dispatchEvent(new Event('change'));
-    await fixture.whenStable();
-    await type('congrats-alt-0', 'Carla');
+    await type('congrats-youtube-1', 'https://youtu.be/dQw4w9WgXcQ');
+    await pick('congrats-photo', photo);
+    await type('congrats-alt-2', 'Carla');
 
     await submit();
 
-    expect(uploads.upload.mock.calls).toEqual([[file], [other]]);
+    expect(uploads.uploadVideo).toHaveBeenCalledWith(video);
+    expect(uploads.upload).toHaveBeenCalledWith(photo);
     expect(store.save).toHaveBeenCalledWith(
       {
         from: 'Carla',
-        media: {
-          kind: 'photo',
-          photos: [
-            {
+        media: [
+          { kind: 'cloudinary', publicId: 'framed-by-santi/posts/clip' },
+          { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+          {
+            kind: 'photo',
+            photo: {
               alt: 'Carla',
               height: 600,
               id: 'framed-by-santi/posts/new',
               publicId: 'framed-by-santi/posts/new',
               width: 900,
             },
-            {
-              alt: '',
-              height: 800,
-              id: 'framed-by-santi/posts/other',
-              publicId: 'framed-by-santi/posts/other',
-              width: 600,
-            },
-          ],
-        },
+          },
+        ],
         message: 'Hugs',
       },
       undefined
@@ -193,15 +200,7 @@ describe('AdminCongratulationsManagePageComponent', () => {
     uploads.uploadVideo.mockRejectedValue(new Error('upload-failed'));
     await type('congrats-from', 'Carla');
     await type('congrats-message', 'Hugs');
-    const video = Array.from(
-      root().querySelectorAll('.congrats-form__kind input')
-    )[3] as HTMLInputElement;
-    video.checked = true;
-    video.dispatchEvent(new Event('change'));
-    await fixture.whenStable();
-    const input = root().querySelector('#congrats-video') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: { item: () => new File(['x'], 'v.mp4') } });
-    input.dispatchEvent(new Event('change'));
+    await pick('congrats-video', new File(['x'], 'v.mp4', { type: 'video/mp4' }));
 
     await submit();
 
@@ -209,7 +208,7 @@ describe('AdminCongratulationsManagePageComponent', () => {
     expect(status$()).toBe('Could not upload the file. Try again.');
   });
 
-  it('should edit a message in place, keeping its photos when no new one is chosen', async () => {
+  it('should edit a message in place, keeping its photos and videos when nothing new is chosen', async () => {
     button('Edit the message from Bruno').click();
     await fixture.whenStable();
     expect(root().querySelector('#manage-form-title')?.textContent).toContain('Edit message');

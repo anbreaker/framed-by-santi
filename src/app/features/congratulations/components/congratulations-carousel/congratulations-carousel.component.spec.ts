@@ -13,23 +13,20 @@ const messages: Congratulation[] = [
     from: 'Ana',
     createdAt: 1,
     id: 'ana',
-    media: { kind: 'youtube', video: 'https://youtu.be/dQw4w9WgXcQ' },
+    media: [{ kind: 'youtube', video: 'https://youtu.be/dQw4w9WgXcQ' }],
     message: 'Happy birthday!',
   },
   {
     from: 'Bruno',
     createdAt: 2,
     id: 'bruno',
-    media: {
-      kind: 'photo',
-      photos: [
-        { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 },
-        { alt: 'At the lake', height: 600, id: 'lake', width: 900 },
-      ],
-    },
+    media: [
+      { kind: 'photo', photo: { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 } },
+      { kind: 'photo', photo: { alt: 'At the lake', height: 600, id: 'lake', width: 900 } },
+    ],
     message: 'Line one\nLine two',
   },
-  { createdAt: 3, from: 'Carla', id: 'carla', message: 'Just words.' },
+  { createdAt: 3, from: 'Carla', id: 'carla', media: [], message: 'Just words.' },
 ];
 
 @Component({
@@ -54,13 +51,16 @@ describe('CongratulationsCarouselComponent', () => {
   const counter = (): string =>
     root().querySelector('.congrats__counter')?.textContent?.trim() ?? '';
   const fill = (): HTMLElement | null => root().querySelector('.congrats__fill');
-  const photoFill = (): HTMLElement | null => root().querySelector('.congrats__photo-fill');
+  const photoFill = (): HTMLElement | null =>
+    root().querySelector('.congrats__item-fill:not(.congrats__item-fill--done)');
   const photoButton = (label: string): HTMLButtonElement =>
-    root().querySelector(`.congrats__photo-nav button[aria-label="${label}"]`) as HTMLButtonElement;
+    root().querySelector(`.congrats__item-nav button[aria-label="${label}"]`) as HTMLButtonElement;
+  const shownItem = (): HTMLElement =>
+    activeMedia().querySelector('.congrats__item--shown') as HTMLElement;
   const caption = (): string =>
     root().querySelector('.congrats__caption')?.textContent?.trim() ?? '';
   const shownPhoto = (): string | null | undefined =>
-    activeMedia().querySelector('.congrats__photo--shown')?.getAttribute('alt');
+    shownItem()?.querySelector('img')?.getAttribute('alt');
 
   const press = async (label: string): Promise<void> => {
     button(label).click();
@@ -258,25 +258,25 @@ describe('CongratulationsCarouselComponent', () => {
     it('should show the first photo, and say which one of how many it is', () => {
       expect(shownPhoto()).toBe('Bruno and Santi');
       expect(caption()).toBe('Bruno and Santi');
-      expect(root().querySelector('.congrats__photo-nav')?.getAttribute('aria-label')).toBe(
-        'Photo 1 of 2'
+      expect(root().querySelector('.congrats__item-nav')?.getAttribute('aria-label')).toBe(
+        'Photo or video 1 of 2'
       );
     });
 
     it('should go through the photos with their own arrows, wrapping at both ends, without changing the message', async () => {
-      photoButton('Next photo').click();
+      photoButton('Next photo or video').click();
       await fixture.whenStable();
       expect(shownPhoto()).toBe('At the lake');
       expect(caption()).toBe('At the lake');
-      expect(root().querySelector('.congrats__photo-nav')?.getAttribute('aria-label')).toBe(
-        'Photo 2 of 2'
+      expect(root().querySelector('.congrats__item-nav')?.getAttribute('aria-label')).toBe(
+        'Photo or video 2 of 2'
       );
 
-      photoButton('Next photo').click();
+      photoButton('Next photo or video').click();
       await fixture.whenStable();
       expect(shownPhoto()).toBe('Bruno and Santi');
 
-      photoButton('Previous photo').click();
+      photoButton('Previous photo or video').click();
       await fixture.whenStable();
       expect(shownPhoto()).toBe('At the lake');
       expect(activeText().textContent).toContain('Bruno');
@@ -295,19 +295,19 @@ describe('CongratulationsCarouselComponent', () => {
 
       media.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
       await fixture.whenStable();
-      expect(photoFill()?.classList).toContain('congrats__photo-fill--halted');
+      expect(photoFill()?.classList).toContain('congrats__item-fill--halted');
       expect(fill()?.classList).toContain('congrats__fill--halted');
 
       media.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
       await fixture.whenStable();
-      expect(photoFill()?.classList).not.toContain('congrats__photo-fill--halted');
+      expect(photoFill()?.classList).not.toContain('congrats__item-fill--halted');
       expect(fill()?.classList).not.toContain('congrats__fill--halted');
     });
 
     it('should open full screen the photo being shown', async () => {
-      photoButton('Next photo').click();
+      photoButton('Next photo or video').click();
       await fixture.whenStable();
-      (activeMedia().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
+      (shownItem().querySelector('.congrats__enlarge') as HTMLButtonElement).click();
       await fixture.whenStable();
 
       expect(root().querySelector('dialog app-zoomable-photo img')?.getAttribute('alt')).toBe(
@@ -316,7 +316,7 @@ describe('CongratulationsCarouselComponent', () => {
     });
 
     it('should start again from the first photo when the message comes back', async () => {
-      photoButton('Next photo').click();
+      photoButton('Next photo or video').click();
       await fixture.whenStable();
       await press('Next');
       await press('Previous');
@@ -349,14 +349,71 @@ describe('CongratulationsCarouselComponent', () => {
     expect(fill()?.classList).toContain('congrats__fill--halted');
   });
 
+  describe('with photos and a video in one message', () => {
+    beforeEach(async () => {
+      fixture.componentInstance.items.set([
+        {
+          createdAt: 1,
+          from: 'Dana',
+          id: 'dana',
+          media: [
+            {
+              kind: 'photo',
+              photo: { alt: 'Dana and Santi', height: 600, id: 'dana', width: 900 },
+            },
+            { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+          ],
+          message: 'Hugs',
+        },
+        messages[2],
+      ]);
+      await fixture.whenStable();
+    });
+
+    it('should pass from the photo to the video, with no description under the video', async () => {
+      expect(caption()).toBe('Dana and Santi');
+
+      photoButton('Next photo or video').click();
+      await fixture.whenStable();
+
+      expect(shownItem().querySelector('app-video-facade')).not.toBeNull();
+      expect(caption()).toBe('');
+      expect(root().querySelector('.congrats__item-nav')?.getAttribute('aria-label')).toBe(
+        'Photo or video 2 of 2'
+      );
+    });
+
+    it('should hold every automatic pass while the video plays, and stop it when another item comes in', async () => {
+      photoButton('Next photo or video').click();
+      await fixture.whenStable();
+      (shownItem().querySelector('.video-facade__poster') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(shownItem().querySelector('iframe')).not.toBeNull();
+      expect(photoFill()?.classList).toContain('congrats__item-fill--halted');
+      expect(fill()?.classList).toContain('congrats__fill--halted');
+
+      photoButton('Next photo or video').click();
+      await fixture.whenStable();
+
+      expect(root().querySelector('iframe')).toBeNull();
+      expect(shownPhoto()).toBe('Dana and Santi');
+      expect(fill()?.classList).not.toContain('congrats__fill--halted');
+    });
+
+    it('should count the video in the time the message stays', () => {
+      expect(fill()?.style.getPropertyValue('--autoplay-duration')).toBe('10s');
+    });
+  });
+
   it('should have no photo arrows for a message with a single photo', async () => {
     const single = { alt: 'Bruno and Santi', height: 600, id: 'bruno', width: 900 };
     fixture.componentInstance.items.set([
-      { ...messages[1], media: { kind: 'photo', photos: [single] } },
+      { ...messages[1], media: [{ kind: 'photo', photo: single }] },
     ]);
     await fixture.whenStable();
 
-    expect(root().querySelector('.congrats__photo-nav')).toBeNull();
+    expect(root().querySelector('.congrats__item-nav')).toBeNull();
     expect(shownPhoto()).toBe('Bruno and Santi');
   });
 
@@ -368,7 +425,7 @@ describe('CongratulationsCarouselComponent', () => {
     const photo = { alt: '', height: 600, id: 'p', width: 900 };
     fixture.componentInstance.items.set([
       { ...messages[2], message: long.trim() },
-      { ...messages[2], id: 'many', media: { kind: 'photo', photos: Array(4).fill(photo) } },
+      { ...messages[2], id: 'many', media: Array(4).fill({ kind: 'photo', photo }) },
       messages[2],
     ]);
     await fixture.whenStable();

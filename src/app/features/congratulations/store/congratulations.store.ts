@@ -68,7 +68,6 @@ export class CongratulationsStore {
     });
 
     const saved: Congratulation = { ...draft, createdAt, id: savedId };
-    if (saved.media === undefined) delete saved.media;
 
     this._items.update((items) =>
       [...items.filter((item) => item.id !== savedId), saved].sort(byCreation)

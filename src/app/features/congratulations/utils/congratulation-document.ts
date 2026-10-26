@@ -6,11 +6,17 @@ import {
   CongratulationMedia,
 } from '../models/congratulation.model';
 
+/** The photos and videos of a message, in order, as they are saved. */
+export interface CongratulationGallery {
+  items: readonly CongratulationMedia[];
+  kind: 'gallery';
+}
+
 /** The fields of `congratulations/{id}`, exactly the ones the security rules accept. */
 export interface CongratulationDocument {
   createdAt: number;
   from: string;
-  media: CongratulationMedia | null;
+  media: CongratulationGallery | null;
   message: string;
 }
 
@@ -18,7 +24,12 @@ export function congratulationToDocument(
   draft: CongratulationDraft,
   createdAt: number
 ): CongratulationDocument {
-  return { createdAt, from: draft.from, media: draft.media ?? null, message: draft.message };
+  return {
+    createdAt,
+    from: draft.from,
+    media: draft.media.length > 0 ? { items: draft.media, kind: 'gallery' } : null,
+    message: draft.message,
+  };
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -31,18 +42,15 @@ const isPhoto = (value: unknown): value is Photo =>
   typeof value['height'] === 'number' &&
   typeof value['alt'] === 'string';
 
-/** The readable photos of a photo media, from the list or, in older messages, the single `photo`. */
-function photosFrom(value: Record<string, unknown>): Photo[] {
-  if (Array.isArray(value['photos'])) return value['photos'].filter(isPhoto);
-  return isPhoto(value['photo']) ? [value['photo']] : [];
-}
+const asPhotos = (photos: readonly Photo[]): CongratulationMedia[] =>
+  photos.map((photo) => ({ kind: 'photo', photo }));
 
-function mediaFrom(value: unknown): CongratulationMedia | undefined {
-  if (!isRecord(value)) return undefined;
+/** One photo or video, or null when it is not one it knows. */
+function itemFrom(value: unknown): CongratulationMedia | null {
+  if (!isRecord(value)) return null;
 
-  if (value['kind'] === 'photo') {
-    const photos = photosFrom(value);
-    return photos.length > 0 ? { kind: 'photo', photos } : undefined;
+  if (value['kind'] === 'photo' && isPhoto(value['photo'])) {
+    return { kind: 'photo', photo: value['photo'] };
   }
   if (value['kind'] === 'youtube' && typeof value['video'] === 'string') {
     return { kind: 'youtube', video: value['video'] };
@@ -50,7 +58,27 @@ function mediaFrom(value: unknown): CongratulationMedia | undefined {
   if (value['kind'] === 'cloudinary' && typeof value['publicId'] === 'string') {
     return { kind: 'cloudinary', publicId: value['publicId'] };
   }
-  return undefined;
+  return null;
+}
+
+/**
+ * The photos and videos of a saved message. Messages hold a gallery of items; older ones hold a list of
+ * `photos`, a single `photo` or a single video, which are read as a list too.
+ */
+function mediaFrom(value: unknown): CongratulationMedia[] {
+  if (!isRecord(value)) return [];
+
+  if (value['kind'] === 'gallery') {
+    const items = Array.isArray(value['items']) ? value['items'] : [];
+    return items.map(itemFrom).filter((item): item is CongratulationMedia => item !== null);
+  }
+  if (value['kind'] === 'photo') {
+    if (Array.isArray(value['photos'])) return asPhotos(value['photos'].filter(isPhoto));
+    return isPhoto(value['photo']) ? asPhotos([value['photo']]) : [];
+  }
+
+  const item = itemFrom(value);
+  return item === null ? [] : [item];
 }
 
 /**
@@ -65,8 +93,5 @@ export function congratulationFromDocument(id: string, data: unknown): Congratul
     return null;
   }
 
-  const media = mediaFrom(data['media']);
-  return media === undefined
-    ? { createdAt, from, id, message }
-    : { createdAt, from, id, media, message };
+  return { createdAt, from, id, media: mediaFrom(data['media']), message };
 }

@@ -15,7 +15,7 @@ import { PhotoUploadService } from '@features/admin/services/photo-upload.servic
 import {
   CongratulationFormComponent,
   CongratulationFormValue,
-  PhotoEntry,
+  MediaEntry,
 } from '@features/congratulations/components/congratulation-form/congratulation-form.component';
 import {
   Congratulation,
@@ -23,10 +23,23 @@ import {
 } from '@features/congratulations/models/congratulation.model';
 import { CongratulationsStore } from '@features/congratulations/store/congratulations.store';
 import { mediaThumbnail } from '@features/congratulations/utils/media-thumbnail';
-import { Photo } from '@features/photo-posts/models/photo.model';
 import { useNoIndex } from '@shared/utils/use-noindex';
 
 type Notice = { key: string; kind: 'error' | 'info' };
+
+/** One part of the summary of a card, such as "3 photos", as a translation key and its count. */
+type SummaryPart = { key: string; n: number };
+
+/** What a message holds, for its card: "2 photos · 1 video", or text only. */
+function summaryOf(media: readonly CongratulationMedia[]): SummaryPart[] {
+  const photos = media.filter((item) => item.kind === 'photo').length;
+  const videos = media.length - photos;
+  const parts: SummaryPart[] = [];
+
+  if (photos > 0) parts.push({ key: photos === 1 ? 'photo' : 'photos', n: photos });
+  if (videos > 0) parts.push({ key: videos === 1 ? 'video' : 'videos', n: videos });
+  return parts.length > 0 ? parts : [{ key: 'none', n: 0 }];
+}
 
 /** A file that could not reach Cloudinary, told apart from a save that Firestore refused. */
 class UploadFailed extends Error {}
@@ -56,7 +69,11 @@ export class AdminCongratulationsManagePageComponent {
 
   protected readonly status = this.store.status;
   protected readonly cards = computed(() =>
-    this.store.items().map((item) => ({ ...item, thumbnail: mediaThumbnail(item.media) }))
+    this.store.items().map((item) => ({
+      ...item,
+      summary: summaryOf(item.media),
+      thumbnail: mediaThumbnail(item.media),
+    }))
   );
 
   constructor() {
@@ -70,13 +87,8 @@ export class AdminCongratulationsManagePageComponent {
     this.notice.set(null);
 
     try {
-      const media = await this.mediaFor(value, editing);
-      await this.store.save(
-        media === undefined
-          ? { from: value.from, message: value.message }
-          : { from: value.from, media, message: value.message },
-        editing?.id
-      );
+      const media = await this.mediaFor(value.media);
+      await this.store.save({ from: value.from, media, message: value.message }, editing?.id);
 
       this.editing.set(null);
       this.resetKey.update((key) => key + 1);
@@ -126,42 +138,34 @@ export class AdminCongratulationsManagePageComponent {
     }
   }
 
-  /** Uploads the new files; otherwise keeps the media already saved, the photos with their new descriptions. */
-  private async mediaFor(
-    value: CongratulationFormValue,
-    editing: Congratulation | null
-  ): Promise<CongratulationMedia | undefined> {
-    const saved = editing?.media;
-
-    switch (value.kind) {
-      case 'youtube':
-        return { kind: 'youtube', video: value.youtube };
-      case 'photo': {
-        // One after another, so a failed upload stops before sending the rest.
-        const photos: Photo[] = [];
-        for (const entry of value.photos) photos.push(await this.photoFor(entry));
-        return photos.length > 0 ? { kind: 'photo', photos } : undefined;
-      }
-      case 'cloudinary': {
-        if (value.file === null) return saved?.kind === 'cloudinary' ? saved : undefined;
-        const uploaded = await this.upload(() => this.uploads.uploadVideo(value.file as File));
-        return { kind: 'cloudinary', publicId: uploaded.publicId };
-      }
-      default:
-        return undefined;
-    }
+  /**
+   * Uploads the new photos and videos one after another, in order, so a failed upload stops before
+   * sending the rest; media already saved or ready, like a YouTube link, is kept as it is.
+   */
+  private async mediaFor(entries: readonly MediaEntry[]): Promise<CongratulationMedia[]> {
+    const media: CongratulationMedia[] = [];
+    for (const entry of entries) media.push(await this.itemFor(entry));
+    return media;
   }
 
-  private async photoFor(entry: PhotoEntry): Promise<Photo> {
-    if (entry.kind === 'saved') return { ...entry.photo, alt: entry.alt };
+  private async itemFor(entry: MediaEntry): Promise<CongratulationMedia> {
+    if (entry.kind === 'ready') return entry.media;
+
+    if (entry.kind === 'video') {
+      const uploaded = await this.upload(() => this.uploads.uploadVideo(entry.file));
+      return { kind: 'cloudinary', publicId: uploaded.publicId };
+    }
 
     const uploaded = await this.upload(() => this.uploads.upload(entry.file));
     return {
-      alt: entry.alt,
-      height: uploaded.height,
-      id: uploaded.publicId,
-      publicId: uploaded.publicId,
-      width: uploaded.width,
+      kind: 'photo',
+      photo: {
+        alt: entry.alt,
+        height: uploaded.height,
+        id: uploaded.publicId,
+        publicId: uploaded.publicId,
+        width: uploaded.width,
+      },
     };
   }
 

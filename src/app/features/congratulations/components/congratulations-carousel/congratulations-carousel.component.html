@@ -6,7 +6,7 @@
 >
   <div class="congrats__stage">
     <div class="congrats__visual">
-      <!-- Resting the pointer on the photos, or the keyboard on their arrows, holds every automatic pass. -->
+      <!-- Resting the pointer on the media, or the keyboard on their arrows, holds every automatic pass. -->
       <div
         class="congrats__media"
         (focusin)="onMediaFocusIn($event)"
@@ -23,36 +23,41 @@
               [class.congrats__media-slide--active]="i === current()"
               [class.congrats__media-slide--before]="i < current()"
             >
-              @if (slide.media.kind === 'photo') {
-                <button
-                  class="congrats__enlarge"
-                  type="button"
-                  [attr.aria-label]="t('enlarge', { name: slide.from })"
-                  (click)="enlarge(slide.from, slide.photos[shownPhoto(i)])"
+              @for (item of slide.shown; track $index; let p = $index) {
+                <div
+                  class="congrats__item"
+                  [attr.inert]="p === shownItem(i) ? null : ''"
+                  [class.congrats__item--shown]="p === shownItem(i)"
                 >
-                  @for (shot of slide.media.photos; track $index; let p = $index) {
-                    <img
-                      class="congrats__photo"
-                      decoding="async"
-                      sizes="(min-width: 1100px) 50vw, 100vw"
-                      [alt]="shot.alt"
-                      [attr.loading]="i === 0 && p === 0 ? 'eager' : 'lazy'"
-                      [attr.srcset]="shot.srcset"
-                      [class.congrats__photo--shown]="p === shownPhoto(i)"
-                      [src]="shot.src"
+                  @if (item.kind === 'photo') {
+                    <button
+                      class="congrats__enlarge"
+                      type="button"
+                      [attr.aria-label]="t('enlarge', { name: slide.from })"
+                      (click)="enlarge(slide.from, item.photo)"
+                    >
+                      <img
+                        class="congrats__photo"
+                        decoding="async"
+                        sizes="(min-width: 1100px) 50vw, 100vw"
+                        [alt]="item.alt"
+                        [attr.loading]="i === 0 && p === 0 ? 'eager' : 'lazy'"
+                        [attr.srcset]="item.srcset"
+                        [src]="item.src"
+                      />
+                    </button>
+                  } @else {
+                    <app-video-facade
+                      [playing]="playing() === i && p === shownItem(i)"
+                      [playLabel]="t('play', { name: slide.from })"
+                      [title]="t('videoTitle', { name: slide.from })"
+                      [video]="item.video"
+                      (ended)="finished(i)"
+                      (play)="play(i)"
                     />
                   }
-                </button>
-              } @else if (slide.media.kind === 'video') {
-                <app-video-facade
-                  [playing]="playing() === i"
-                  [playLabel]="t('play', { name: slide.from })"
-                  [title]="t('videoTitle', { name: slide.from })"
-                  [video]="slide.media.video"
-                  (ended)="finished(i)"
-                  (play)="play(i)"
-                />
-              } @else {
+                </div>
+              } @empty {
                 <div class="congrats__quote" aria-hidden="true">“</div>
               }
             </div>
@@ -61,19 +66,17 @@
 
         <!-- Drawn for the message shown only, so its bars always start afresh when it comes in. -->
         @for (slide of slides(); track slide.id; let i = $index) {
-          @if (i === current() && slide.photos.length > 1) {
+          @if (i === current() && slide.shown.length > 1) {
             <div
-              class="congrats__photo-nav"
+              class="congrats__item-nav"
               role="group"
-              [attr.aria-label]="
-                t('photoCount', { n: shownPhoto(i) + 1, total: slide.photos.length })
-              "
+              [attr.aria-label]="t('itemCount', { n: shownItem(i) + 1, total: slide.shown.length })"
             >
               <button
-                class="congrats__button congrats__photo-arrow"
+                class="congrats__button congrats__item-arrow"
                 type="button"
-                [attr.aria-label]="t('previousPhoto')"
-                (click)="previousPhoto()"
+                [attr.aria-label]="t('previousItem')"
+                (click)="previousItem()"
               >
                 <svg
                   aria-hidden="true"
@@ -90,10 +93,10 @@
                 </svg>
               </button>
               <button
-                class="congrats__button congrats__photo-arrow"
+                class="congrats__button congrats__item-arrow"
                 type="button"
-                [attr.aria-label]="t('nextPhoto')"
-                (click)="nextPhoto()"
+                [attr.aria-label]="t('nextItem')"
+                (click)="nextItem()"
               >
                 <svg
                   aria-hidden="true"
@@ -111,19 +114,19 @@
               </button>
             </div>
 
-            <!-- One bar per photo; the bar of the photo shown fills up and then the next photo comes in. -->
-            <div class="congrats__photo-steps" aria-hidden="true">
-              @for (step of slide.photos; track $index; let p = $index) {
-                <span class="congrats__photo-step">
-                  @if (p === shownPhoto(i)) {
+            <!-- One bar per photo or video; the bar of the one shown fills up and then the next comes in. -->
+            <div class="congrats__item-steps" aria-hidden="true">
+              @for (step of slide.shown; track $index; let p = $index) {
+                <span class="congrats__item-step">
+                  @if (p === shownItem(i)) {
                     <span
-                      class="congrats__photo-fill"
-                      [class.congrats__photo-fill--halted]="halted()"
-                      [style.--photo-duration]="photoSeconds + 's'"
-                      (animationend)="nextPhoto()"
+                      class="congrats__item-fill"
+                      [class.congrats__item-fill--halted]="halted()"
+                      [style.--item-duration]="itemSeconds + 's'"
+                      (animationend)="nextItem()"
                     ></span>
-                  } @else if (p < shownPhoto(i)) {
-                    <span class="congrats__photo-fill congrats__photo-fill--done"></span>
+                  } @else if (p < shownItem(i)) {
+                    <span class="congrats__item-fill congrats__item-fill--done"></span>
                   }
                 </span>
               }

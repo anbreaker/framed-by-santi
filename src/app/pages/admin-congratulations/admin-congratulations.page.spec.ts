@@ -43,7 +43,9 @@ describe('AdminCongratulationsPageComponent', () => {
   };
 
   it('should be its own page, with the admin navigation, a heading and the saved messages', async () => {
-    await render('ready', [{ createdAt: 1, from: 'Ana', id: 'ana', message: 'Happy birthday!' }]);
+    await render('ready', [
+      { createdAt: 1, from: 'Ana', id: 'ana', media: [], message: 'Happy birthday!' },
+    ]);
 
     expect(root().querySelector('main#main-content')).not.toBeNull();
     expect(root().querySelector('app-admin-shell app-admin-nav')).not.toBeNull();

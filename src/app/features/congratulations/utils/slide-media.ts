@@ -1,5 +1,6 @@
 import { environment } from '@environments/environment';
 import { CloudinaryEnvironment } from '@environments/environment.model';
+import { Photo } from '@features/photo-posts/models/photo.model';
 import { photoSrcset, photoUrl } from '@features/photo-posts/utils/photo-url';
 
 import { CongratulationMedia } from '../models/congratulation.model';
@@ -11,45 +12,35 @@ export type VideoSource =
   | { embedUrl: string; kind: 'youtube'; poster: string }
   | { fileUrl: string; kind: 'file'; poster: string | null };
 
-/** One photo of a slide, ready for an `img`. */
-export interface SlidePhoto {
-  alt: string;
-  src: string;
-  srcset: string | null;
-}
-
-/** What the media side of a slide shows. */
-export type SlideMedia =
-  | { kind: 'photo'; photos: readonly SlidePhoto[] }
-  | { kind: 'text' }
+/**
+ * One photo or video of a slide: a photo ready for an `img`, with the saved photo it comes from to open
+ * it full screen, or a video with its still image first.
+ */
+export type SlideItem =
+  | { alt: string; kind: 'photo'; photo: Photo; src: string; srcset: string | null }
   | { kind: 'video'; video: VideoSource };
 
 /** Width of the plain `src`; the browser picks a better one from `srcset`. */
 const PHOTO_WIDTH = 1600;
 
-/**
- * Resolves a message's media into what its slide shows: its photos are delivered like the photos of the sets.
- * A message without media, a link that is not a
- * YouTube video or a Cloudinary video without a configured cloud shows its text alone.
- */
-export function slideMedia(
-  media: CongratulationMedia | undefined,
-  cloudinary: CloudinaryEnvironment = environment.cloudinary
-): SlideMedia {
-  if (media?.kind === 'photo') {
+/** What one photo or video shows, or null for a link that is not a YouTube video or an unconfigured cloud. */
+function slideItem(
+  media: CongratulationMedia,
+  cloudinary: CloudinaryEnvironment
+): SlideItem | null {
+  if (media.kind === 'photo') {
     return {
+      alt: media.photo.alt,
       kind: 'photo',
-      photos: media.photos.map((photo) => ({
-        alt: photo.alt,
-        src: photoUrl(photo, PHOTO_WIDTH, cloudinary),
-        srcset: photoSrcset(photo, cloudinary),
-      })),
+      photo: media.photo,
+      src: photoUrl(media.photo, PHOTO_WIDTH, cloudinary),
+      srcset: photoSrcset(media.photo, cloudinary),
     };
   }
 
-  if (media?.kind === 'youtube') {
+  if (media.kind === 'youtube') {
     const id = youtubeVideoId(media.video);
-    if (id === null) return { kind: 'text' };
+    if (id === null) return null;
 
     return {
       kind: 'video',
@@ -57,15 +48,25 @@ export function slideMedia(
     };
   }
 
-  if (media?.kind === 'cloudinary') {
-    const fileUrl = cloudinaryVideoUrl(media.publicId, cloudinary);
-    if (fileUrl === null) return { kind: 'text' };
+  const fileUrl = cloudinaryVideoUrl(media.publicId, cloudinary);
+  if (fileUrl === null) return null;
 
-    return {
-      kind: 'video',
-      video: { fileUrl, kind: 'file', poster: cloudinaryVideoPoster(media.publicId, cloudinary) },
-    };
-  }
+  return {
+    kind: 'video',
+    video: { fileUrl, kind: 'file', poster: cloudinaryVideoPoster(media.publicId, cloudinary) },
+  };
+}
 
-  return { kind: 'text' };
+/**
+ * Resolves a message's photos and videos into what its slide shows, in order: photos are delivered like
+ * the photos of the sets. A link that is not a YouTube video, or a Cloudinary video without a configured
+ * cloud, is left out; a slide left with nothing shows its words alone.
+ */
+export function slideItems(
+  media: readonly CongratulationMedia[],
+  cloudinary: CloudinaryEnvironment = environment.cloudinary
+): SlideItem[] {
+  return media
+    .map((item) => slideItem(item, cloudinary))
+    .filter((item): item is SlideItem => item !== null);
 }

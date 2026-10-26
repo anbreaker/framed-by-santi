@@ -59,7 +59,10 @@
               }
             </div>
             <div class="manage__card-body">
-              <span class="meta">{{ t('manage.kinds.' + (card.media?.kind ?? 'none')) }}</span>
+              <span class="meta">
+                @for (part of card.summary; track part.key; let last = $last) { {{
+                t('manage.summary.' + part.key, { n: part.n }) }}{{ last ? '' : ' · ' }} }
+              </span>
               <h3 class="manage__name">{{ card.from }}</h3>
               <p class="manage__excerpt">{{ card.message }}</p>
 

@@ -30,18 +30,27 @@ class HostComponent {
   readonly values: CongratulationFormValue[] = [];
 }
 
-const photoMessage: Congratulation = {
+const firstPhoto = { alt: 'Ana and Santi', height: 600, id: 'p1', publicId: 'p1', width: 900 };
+const secondPhoto = { alt: '', height: 600, id: 'p2', publicId: 'p2', width: 900 };
+
+const mixedMessage: Congratulation = {
   createdAt: 1,
   from: 'Ana',
   id: 'ana',
-  media: {
-    kind: 'photo',
-    photos: [
-      { alt: 'Ana and Santi', height: 600, id: 'p1', publicId: 'p1', width: 900 },
-      { alt: '', height: 600, id: 'p2', publicId: 'p2', width: 900 },
-    ],
-  },
+  media: [
+    { kind: 'photo', photo: firstPhoto },
+    { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+    { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' },
+    { kind: 'photo', photo: secondPhoto },
+  ],
   message: 'Happy birthday!',
+};
+
+const image = (name: string): File => new File(['x'], name, { type: 'image/jpeg' });
+const clip = (name: string, size = 10): File => {
+  const file = new File(['x'], name, { type: 'video/mp4' });
+  Object.defineProperty(file, 'size', { value: size });
+  return file;
 };
 
 describe('CongratulationFormComponent', () => {
@@ -55,20 +64,16 @@ describe('CongratulationFormComponent', () => {
       (error) => error.textContent?.trim() ?? ''
     );
 
+  /** What each row of the list holds, read from its preview or its fields. */
+  const rows = (): string[] =>
+    Array.from(root().querySelectorAll('.congrats-form__photo')).map(
+      (row) => row.getAttribute('data-kind') ?? ''
+    );
+
   const type = async (id: string, value: string): Promise<void> => {
     const input = field<HTMLInputElement>(id);
     input.value = value;
     input.dispatchEvent(new Event('input'));
-    await fixture.whenStable();
-  };
-
-  const choose = async (label: string): Promise<void> => {
-    const option = Array.from(root().querySelectorAll('.congrats-form__kind')).find((item) =>
-      item.textContent?.includes(label)
-    );
-    const radio = option?.querySelector('input') as HTMLInputElement;
-    radio.checked = true;
-    radio.dispatchEvent(new Event('change'));
     await fixture.whenStable();
   };
 
@@ -80,14 +85,11 @@ describe('CongratulationFormComponent', () => {
     await fixture.whenStable();
   };
 
-  /** The file names of the new photos, read from the alternative text of their previews. */
-  const photoNames = (): string[] =>
-    Array.from(root().querySelectorAll('.congrats-form__photo-preview--new')).map(
-      (preview) => preview.getAttribute('alt') ?? ''
-    );
-
   const button = (label: string): HTMLButtonElement =>
-    root().querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+    (root().querySelector(`button[aria-label="${label}"]`) ??
+      Array.from(root().querySelectorAll('button')).find(
+        (item) => item.textContent?.trim() === label
+      )) as HTMLButtonElement;
 
   const press = async (label: string): Promise<void> => {
     button(label).click();
@@ -99,6 +101,11 @@ describe('CongratulationFormComponent', () => {
       .querySelector('form')
       ?.dispatchEvent(new Event('submit', { cancelable: true }));
     await fixture.whenStable();
+  };
+
+  const writeMessage = async (): Promise<void> => {
+    await type('congrats-from', 'Ana');
+    await type('congrats-message', 'Hi');
   };
 
   beforeEach(async () => {
@@ -114,33 +121,26 @@ describe('CongratulationFormComponent', () => {
     await fixture.whenStable();
   });
 
-  it('should label every field and offer the four kinds of attachment, text only first', () => {
+  it('should label every field and offer to add photos, videos and YouTube links', () => {
     expect(root().querySelector('label[for="congrats-from"]')?.textContent).toContain('Name');
     expect(root().querySelector('label[for="congrats-message"]')?.textContent).toContain('Message');
-    expect(
-      Array.from(root().querySelectorAll('.congrats-form__kind')).map((item) =>
-        item.textContent?.trim()
-      )
-    ).toEqual(['Text only', 'Photos', 'YouTube video', 'Cloudinary video']);
-    expect((root().querySelector('.congrats-form__kind input') as HTMLInputElement).checked).toBe(
-      true
+    expect(root().querySelector('label[for="congrats-photo"]')?.textContent).toContain(
+      'Add photos'
     );
+    expect(root().querySelector('label[for="congrats-video"]')?.textContent).toContain(
+      'Add videos'
+    );
+    expect(button('Add a YouTube link')).toBeTruthy();
+    expect(rows()).toEqual([]);
   });
 
-  it('should hand over a text-only message, trimmed', async () => {
+  it('should hand over a text-only message, trimmed, with no media', async () => {
     await type('congrats-from', '  Ana ');
     await type('congrats-message', ' Happy birthday!\nSee you. ');
     await submit();
 
     expect(host().values).toEqual([
-      {
-        file: null,
-        from: 'Ana',
-        kind: 'none',
-        message: 'Happy birthday!\nSee you.',
-        photos: [],
-        youtube: '',
-      },
+      { from: 'Ana', media: [], message: 'Happy birthday!\nSee you.' },
     ]);
   });
 
@@ -156,166 +156,135 @@ describe('CongratulationFormComponent', () => {
     expect(field('congrats-from').getAttribute('aria-describedby')).toBe('congrats-from-error');
   });
 
-  it('should read the YouTube id from the link, and refuse a link that is not a video', async () => {
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
-    await choose('YouTube video');
+  it('should mix photos, videos and YouTube links in one message, in the order they are added', async () => {
+    await writeMessage();
+    const lisbon = image('lisbon.jpg');
+    const party = clip('party.mp4');
 
-    await type('congrats-youtube', 'https://vimeo.com/1');
-    await submit();
-    expect(errors()).toEqual(['Paste a valid YouTube link.']);
-
-    await type('congrats-youtube', 'https://youtu.be/dQw4w9WgXcQ?si=x');
-    await submit();
-    expect(host().values[0]).toMatchObject({ kind: 'youtube', youtube: 'dQw4w9WgXcQ' });
-  });
-
-  it('should need at least one photo, and hand over every photo chosen with its description', async () => {
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
-    await choose('Photos');
-
-    await submit();
-    expect(errors()).toEqual(['Choose at least one photo.']);
-
-    const lisbon = new File(['x'], 'lisbon.jpg', { type: 'image/jpeg' });
-    const porto = new File(['x'], 'porto.jpg', { type: 'image/jpeg' });
     await pick('congrats-photo', lisbon);
-    await pick('congrats-photo', porto);
-    expect(photoNames()).toEqual(['lisbon.jpg', 'porto.jpg']);
-
+    await press('Add a YouTube link');
+    await type('congrats-youtube-1', 'https://youtu.be/dQw4w9WgXcQ?si=x');
+    await pick('congrats-video', party);
     await type('congrats-alt-0', 'Ana in Lisbon');
+    expect(rows()).toEqual(['photo', 'youtube', 'video']);
+
     await submit();
-    expect(host().values[0]).toMatchObject({
-      file: null,
-      kind: 'photo',
-      photos: [
-        { alt: 'Ana in Lisbon', file: lisbon, kind: 'new' },
-        { alt: '', file: porto, kind: 'new' },
-      ],
-    });
-  });
-
-  it('should show a small preview of every new photo before it is uploaded', async () => {
-    await choose('Photos');
-    await pick(
-      'congrats-photo',
-      new File(['x'], 'lisbon.jpg', { type: 'image/jpeg' }),
-      new File(['x'], 'porto.jpg', { type: 'image/jpeg' })
-    );
-
-    const previews = Array.from(
-      root().querySelectorAll<HTMLImageElement>('.congrats-form__photo-preview--new')
-    );
-    expect(previews.map((preview) => preview.getAttribute('src'))).toEqual([
-      'blob:lisbon.jpg',
-      'blob:porto.jpg',
+    expect(host().values[0].media).toEqual([
+      { alt: 'Ana in Lisbon', file: lisbon, kind: 'photo' },
+      { kind: 'ready', media: { kind: 'youtube', video: 'dQw4w9WgXcQ' } },
+      { file: party, kind: 'video' },
     ]);
   });
 
-  it('should free the preview of a new photo when it is taken out, when the form empties and when it goes away', async () => {
-    await choose('Photos');
-    const files = ['one.jpg', 'two.jpg', 'three.jpg'].map(
-      (name) => new File(['x'], name, { type: 'image/jpeg' })
-    );
-    await pick('congrats-photo', ...files);
-
-    await press('Remove photo 1');
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:one.jpg');
-
-    host().resetKey.set(1);
-    await fixture.whenStable();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:two.jpg');
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:three.jpg');
-
-    await choose('Photos');
-    await pick('congrats-photo', new File(['x'], 'four.jpg', { type: 'image/jpeg' }));
-    fixture.destroy();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:four.jpg');
-  });
-
-  it('should add several photos at once, and let them be put in order or taken out', async () => {
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
-    await choose('Photos');
-
-    const files = ['one.jpg', 'two.jpg', 'three.jpg'].map(
-      (name) => new File(['x'], name, { type: 'image/jpeg' })
-    );
-    await pick('congrats-photo', ...files);
-    expect(photoNames()).toEqual(['one.jpg', 'two.jpg', 'three.jpg']);
-
-    await press('Move photo 3 up');
-    expect(photoNames()).toEqual(['one.jpg', 'three.jpg', 'two.jpg']);
-    await press('Move photo 1 down');
-    expect(photoNames()).toEqual(['three.jpg', 'one.jpg', 'two.jpg']);
-    await press('Remove photo 3');
-    expect(photoNames()).toEqual(['three.jpg', 'one.jpg']);
-
-    expect(button('Move photo 1 up').disabled).toBe(true);
-    expect(button('Move photo 2 down').disabled).toBe(true);
-
+  it('should refuse a link that is not a YouTube video, under its own field', async () => {
+    await writeMessage();
+    await press('Add a YouTube link');
+    await type('congrats-youtube-0', 'https://vimeo.com/1');
     await submit();
-    expect(host().values[0].photos.map((entry) => entry.kind === 'new' && entry.file)).toEqual([
-      files[2],
-      files[0],
-    ]);
+
+    expect(errors()).toEqual(['Paste a valid YouTube link.']);
+    expect(field('congrats-youtube-0').getAttribute('aria-invalid')).toBe('true');
+    expect(host().values).toEqual([]);
   });
 
   it('should refuse a video larger than Cloudinary takes in one upload', async () => {
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
-    await choose('Cloudinary video');
-
-    const video = new File(['x'], 'ana.mp4', { type: 'video/mp4' });
-    Object.defineProperty(video, 'size', { value: MAX_VIDEO_BYTES + 1 });
-    await pick('congrats-video', video);
+    await writeMessage();
+    await pick('congrats-video', clip('huge.mp4', MAX_VIDEO_BYTES + 1));
     await submit();
 
     expect(errors()).toEqual(['The video is larger than 100 MB.']);
     expect(host().values).toEqual([]);
   });
 
-  it('should fill in the message being edited and keep its photos, adding the new ones after them', async () => {
-    host().editing.set(photoMessage);
+  it('should show a small preview of every new photo and video before it is uploaded', async () => {
+    await pick('congrats-photo', image('lisbon.jpg'));
+    await pick('congrats-video', clip('party.mp4'));
+
+    expect(root().querySelector('.congrats-form__photo-preview--new')?.getAttribute('src')).toBe(
+      'blob:lisbon.jpg'
+    );
+    expect(root().querySelector('video.congrats-form__photo-preview')?.getAttribute('src')).toBe(
+      'blob:party.mp4'
+    );
+  });
+
+  it('should let the items be put in order or taken out', async () => {
+    await writeMessage();
+    const files = ['one.jpg', 'two.jpg', 'three.jpg'].map(image);
+    await pick('congrats-photo', ...files);
+
+    await press('Move attachment 3 up');
+    await press('Move attachment 1 down');
+    await press('Remove attachment 3');
+
+    expect(button('Move attachment 1 up').disabled).toBe(true);
+    expect(button('Move attachment 2 down').disabled).toBe(true);
+
+    await submit();
+    expect(host().values[0].media.map((entry) => 'file' in entry && entry.file)).toEqual([
+      files[2],
+      files[0],
+    ]);
+  });
+
+  it('should free the preview of a new file when it is taken out, when the form empties and when it goes away', async () => {
+    await pick('congrats-photo', image('one.jpg'), image('two.jpg'));
+
+    await press('Remove attachment 1');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:one.jpg');
+
+    host().resetKey.set(1);
+    await fixture.whenStable();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:two.jpg');
+    expect(rows()).toEqual([]);
+
+    await pick('congrats-video', clip('four.mp4'));
+    fixture.destroy();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:four.mp4');
+  });
+
+  it('should fill in the message being edited and keep its media in order, adding new items after them', async () => {
+    host().editing.set(mixedMessage);
     await fixture.whenStable();
 
     expect(field<HTMLInputElement>('congrats-from').value).toBe('Ana');
+    expect(rows()).toEqual(['saved-photo', 'youtube', 'saved-video', 'saved-photo']);
     expect(field<HTMLInputElement>('congrats-alt-0').value).toBe('Ana and Santi');
-    expect(field<HTMLInputElement>('congrats-alt-1').value).toBe('');
+    expect(field<HTMLInputElement>('congrats-youtube-1').value).toBe(
+      'https://youtu.be/dQw4w9WgXcQ'
+    );
 
-    const added = new File(['x'], 'added.jpg', { type: 'image/jpeg' });
+    const added = image('added.jpg');
     await pick('congrats-photo', added);
-    await type('congrats-alt-1', 'Ana at the beach');
+    await type('congrats-alt-3', 'Ana at the beach');
     await submit();
 
-    const [first, second] = photoMessage.media?.kind === 'photo' ? photoMessage.media.photos : [];
-    expect(host().values[0]).toMatchObject({
-      kind: 'photo',
-      photos: [
-        { alt: 'Ana and Santi', kind: 'saved', photo: first },
-        { alt: 'Ana at the beach', kind: 'saved', photo: second },
-        { alt: '', file: added, kind: 'new' },
-      ],
-    });
+    expect(host().values[0].media).toEqual([
+      { kind: 'ready', media: { kind: 'photo', photo: firstPhoto } },
+      { kind: 'ready', media: { kind: 'youtube', video: 'dQw4w9WgXcQ' } },
+      { kind: 'ready', media: { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' } },
+      {
+        kind: 'ready',
+        media: { kind: 'photo', photo: { ...secondPhoto, alt: 'Ana at the beach' } },
+      },
+      { alt: '', file: added, kind: 'photo' },
+    ]);
   });
 
-  it('should still need a photo when every saved one is taken out', async () => {
-    host().editing.set(photoMessage);
+  it('should save words alone when every saved item is taken out', async () => {
+    host().editing.set(mixedMessage);
     await fixture.whenStable();
 
-    await press('Remove photo 1');
-    await press('Remove photo 1');
+    for (let i = 0; i < 4; i++) await press('Remove attachment 1');
     await submit();
 
-    expect(errors()).toEqual(['Choose at least one photo.']);
-    expect(host().values).toEqual([]);
+    expect(host().values[0].media).toEqual([]);
   });
 
   it('should offer to cancel only while editing', async () => {
     expect(root().querySelector('button.btn--ghost')).toBeNull();
 
-    host().editing.set(photoMessage);
+    host().editing.set(mixedMessage);
     await fixture.whenStable();
     (root().querySelector('button.btn--ghost') as HTMLButtonElement).click();
 
@@ -323,8 +292,7 @@ describe('CongratulationFormComponent', () => {
   });
 
   it('should empty itself when asked to reset, after a save', async () => {
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
+    await writeMessage();
 
     host().resetKey.set(1);
     await fixture.whenStable();
@@ -336,13 +304,12 @@ describe('CongratulationFormComponent', () => {
   it('should not hand anything over while saving, and say it is saving', async () => {
     host().saving.set(true);
     await fixture.whenStable();
-    await type('congrats-from', 'Ana');
-    await type('congrats-message', 'Hi');
+    await writeMessage();
     await submit();
 
-    const button = root().querySelector('button[type="submit"]') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
-    expect(button.textContent?.trim()).toBe('Saving…');
+    const save = root().querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    expect(save.textContent?.trim()).toBe('Saving…');
     expect(host().values).toEqual([]);
   });
 });

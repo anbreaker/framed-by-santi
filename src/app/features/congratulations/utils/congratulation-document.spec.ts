@@ -7,10 +7,14 @@ const photo = {
   publicId: 'framed-by-santi/posts/p1',
   width: 1200,
 };
+const second = { ...photo, id: 'p2', publicId: 'framed-by-santi/posts/p2' };
+
+const read = (media: unknown) =>
+  congratulationFromDocument('c1', { createdAt: 1, from: 'Ana', media, message: 'Hi' });
 
 describe('congratulationToDocument', () => {
   it('should save exactly the fields the rules accept, with no media as null', () => {
-    expect(congratulationToDocument({ from: 'Ana', message: 'Hi' }, 42)).toEqual({
+    expect(congratulationToDocument({ from: 'Ana', media: [], message: 'Hi' }, 42)).toEqual({
       createdAt: 42,
       from: 'Ana',
       media: null,
@@ -18,69 +22,74 @@ describe('congratulationToDocument', () => {
     });
   });
 
-  it('should keep the media as it is', () => {
-    const media = { kind: 'youtube' as const, video: 'dQw4w9WgXcQ' };
+  it('should save photos and videos together, in order, as one gallery', () => {
+    const media = [
+      { kind: 'photo' as const, photo },
+      { kind: 'youtube' as const, video: 'dQw4w9WgXcQ' },
+      { kind: 'cloudinary' as const, publicId: 'framed-by-santi/posts/v1' },
+    ];
 
-    expect(congratulationToDocument({ from: 'Ana', media, message: 'Hi' }, 42).media).toEqual(
-      media
-    );
+    expect(congratulationToDocument({ from: 'Ana', media, message: 'Hi' }, 42).media).toEqual({
+      items: media,
+      kind: 'gallery',
+    });
   });
 });
 
 describe('congratulationFromDocument', () => {
-  it('should read a saved message with each kind of media', () => {
-    expect(
-      congratulationFromDocument('c1', { createdAt: 1, from: 'Ana', media: null, message: 'Hi' })
-    ).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
+  it('should read a message without media as one with an empty list', () => {
+    expect(read(null)).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', media: [], message: 'Hi' });
+  });
 
+  it('should read a gallery of photos and videos in order', () => {
+    const items = [
+      { kind: 'youtube', video: 'dQw4w9WgXcQ' },
+      { kind: 'photo', photo },
+      { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' },
+    ];
+
+    expect(read({ items, kind: 'gallery' })?.media).toEqual(items);
+  });
+
+  it('should drop the items of a gallery it cannot read and keep the rest', () => {
+    const media = read({
+      items: [
+        { kind: 'vimeo', video: '1' },
+        { kind: 'photo', photo: { id: 'broken' } },
+        'x',
+        { kind: 'photo', photo },
+      ],
+      kind: 'gallery',
+    })?.media;
+
+    expect(media).toEqual([{ kind: 'photo', photo }]);
+    expect(read({ items: 'x', kind: 'gallery' })?.media).toEqual([]);
+  });
+
+  it.each([
+    ['several photos', { kind: 'photo', photos: [photo, second] }, [photo, second]],
+    ['a single photo', { kind: 'photo', photo }, [photo]],
+  ])('should read a message saved earlier with %s as photo items', (_case, media, photos) => {
+    expect(read(media)?.media).toEqual(photos.map((item) => ({ kind: 'photo', photo: item })));
+  });
+
+  it('should read a message saved earlier with one video as a list of one', () => {
     for (const media of [
-      {
-        kind: 'photo',
-        photos: [photo, { ...photo, id: 'p2', publicId: 'framed-by-santi/posts/p2' }],
-      },
       { kind: 'youtube', video: 'dQw4w9WgXcQ' },
       { kind: 'cloudinary', publicId: 'framed-by-santi/posts/v1' },
     ]) {
-      expect(
-        congratulationFromDocument('c1', { createdAt: 1, from: 'Ana', media, message: 'Hi' })?.media
-      ).toEqual(media);
+      expect(read(media)?.media).toEqual([media]);
     }
   });
 
-  it('should read a message saved with a single photo as a list of one', () => {
-    const read = congratulationFromDocument('c1', {
-      createdAt: 1,
-      from: 'Ana',
-      media: { kind: 'photo', photo },
-      message: 'Hi',
-    });
-
-    expect(read?.media).toEqual({ kind: 'photo', photos: [photo] });
-  });
-
-  it('should drop the photos it cannot read and the photo media left with none', () => {
-    const read = (photos: unknown) =>
-      congratulationFromDocument('c1', {
-        createdAt: 1,
-        from: 'Ana',
-        media: { kind: 'photo', photos },
-        message: 'Hi',
-      });
-
-    expect(read([{ id: 'broken' }, photo])?.media).toEqual({ kind: 'photo', photos: [photo] });
-    expect(read([])).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
-    expect(read('p1')).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
-  });
-
   it('should keep the words when the media is not one it knows', () => {
-    const read = congratulationFromDocument('c1', {
+    expect(read({ kind: 'vimeo', video: '1' })).toEqual({
       createdAt: 1,
       from: 'Ana',
-      media: { kind: 'vimeo', video: '1' },
+      id: 'c1',
+      media: [],
       message: 'Hi',
     });
-
-    expect(read).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', message: 'Hi' });
   });
 
   it.each([

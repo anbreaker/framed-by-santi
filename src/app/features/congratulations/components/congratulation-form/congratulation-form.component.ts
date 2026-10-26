@@ -1,10 +1,12 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   effect,
   inject,
+  Injector,
   input,
   linkedSignal,
   output,
@@ -17,57 +19,55 @@ import { photoUrl } from '@features/photo-posts/utils/photo-url';
 
 import {
   Congratulation,
+  CongratulationMedia,
   MAX_FROM_LENGTH,
   MAX_MESSAGE_LENGTH,
 } from '../../models/congratulation.model';
-import { youtubeVideoId } from '../../utils/youtube';
-
-export type MediaKind = 'cloudinary' | 'none' | 'photo' | 'youtube';
+import { cloudinaryVideoPoster } from '../../utils/cloudinary-video';
+import { youtubePoster, youtubeVideoId } from '../../utils/youtube';
 
 /**
- * One photo of the message, in the order they are shown, with its description: a file to upload or a
- * photo already saved.
+ * One photo or video of the message, in the order they are shown: a new photo or video file to upload,
+ * or media ready to save as it is (a saved item or a YouTube link).
  */
-export type PhotoEntry =
-  { alt: string; file: File; kind: 'new' } | { alt: string; kind: 'saved'; photo: Photo };
+export type MediaEntry =
+  | { alt: string; file: File; kind: 'photo' }
+  | { file: File; kind: 'video' }
+  | { kind: 'ready'; media: CongratulationMedia };
 
 /** What the form hands over; the page uploads the new files, if any, and saves. */
 export interface CongratulationFormValue {
-  /** A new video to upload; null keeps the one already saved. */
-  file: File | null;
   from: string;
-  kind: MediaKind;
+  /** The photos and videos, in order; empty for words alone. */
+  media: readonly MediaEntry[];
   message: string;
-  /** The photos, empty unless the kind is `photo`. */
-  photos: readonly PhotoEntry[];
-  /** The YouTube video id, already read from the link. */
-  youtube: string;
 }
 
-type FormError = 'from' | 'message' | 'photo' | 'video' | 'videoTooLarge' | 'youtube';
+type FormError = 'from' | 'message';
+type RowError = 'videoTooLarge' | 'youtube';
 
 /** Cloudinary takes videos up to this size in a single upload on the plan the site uses. */
 export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 
-const KINDS: readonly MediaKind[] = ['none', 'photo', 'youtube', 'cloudinary'];
-
 /** Width of the small preview of a saved photo in the list. */
 const PREVIEW_WIDTH = 160;
 
-/** A photo of the list, with a key that keeps its row while the list is put in order. */
-interface PhotoRow {
-  entry: PhotoEntry;
-  key: number;
-  /** A small preview: from Cloudinary for a saved photo, an object URL of the file for a new one. */
-  preview: string | null;
-}
-
-const youtubeLink = (item: Congratulation | null): string =>
-  item?.media?.kind === 'youtube' ? `https://youtu.be/${item.media.video}` : '';
+/**
+ * A row of the list, with a key that keeps it while the list is put in order. New files carry an object
+ * URL of the file as their preview; saved items a small image from Cloudinary.
+ */
+type MediaRow = { key: number } & (
+  | { alt: string; file: File; kind: 'photo'; preview: string | null }
+  | { file: File; kind: 'video'; preview: string | null }
+  | { kind: 'youtube'; link: string }
+  | { alt: string; kind: 'saved-photo'; photo: Photo; preview: string }
+  | { kind: 'saved-video'; preview: string | null; publicId: string }
+);
 
 /**
- * Writes or edits one message: who sends it, the words and optional photos, a YouTube video or a
- * Cloudinary video. It checks what the security rules will check, so a refusal never comes as a surprise.
+ * Writes or edits one message: who sends it, the words and any number of photos, YouTube videos and
+ * Cloudinary videos, mixed in the order they should be shown. It checks what the security rules will
+ * check, so a refusal never comes as a surprise.
  */
 @Component({
   standalone: true,
@@ -78,6 +78,8 @@ const youtubeLink = (item: Congratulation | null): string =>
   templateUrl: './congratulation-form.component.html',
 })
 export class CongratulationFormComponent {
+  private readonly injector = inject(Injector);
+
   /** The message being edited, or null to write a new one. */
   readonly editing = input<Congratulation | null>(null);
   /** Changing it empties the form, for example after a save. */
@@ -87,7 +89,6 @@ export class CongratulationFormComponent {
   readonly cancelled = output<void>();
   readonly submitted = output<CongratulationFormValue>();
 
-  protected readonly kinds = KINDS;
   protected readonly maxFrom = MAX_FROM_LENGTH;
   protected readonly maxMessage = MAX_MESSAGE_LENGTH;
 
@@ -95,45 +96,23 @@ export class CongratulationFormComponent {
 
   protected readonly from = linkedSignal(() => this.source().item?.from ?? '');
   protected readonly message = linkedSignal(() => this.source().item?.message ?? '');
-  protected readonly kind = linkedSignal<MediaKind>(
-    () => this.source().item?.media?.kind ?? 'none'
-  );
   private rowKey = 0;
   /** Object URLs of the new files' previews, freed when their rows go. */
   private readonly objectUrls = new Set<string>();
-  protected readonly photos = linkedSignal(() => this.savedRows(this.source().item));
-  protected readonly youtube = linkedSignal(() => youtubeLink(this.source().item));
-  protected readonly file = linkedSignal<{ key: unknown }, File | null>({
-    computation: () => null,
-    source: () => ({ key: this.source() }),
-  });
+  protected readonly rows = linkedSignal(() => this.savedRows(this.source().item));
   protected readonly errors = linkedSignal<{ key: unknown }, readonly FormError[]>({
     computation: () => [],
     source: () => ({ key: this.source() }),
   });
+  /** The problem of each row that has one, by its key. */
+  protected readonly rowErrors = linkedSignal<{ key: unknown }, ReadonlyMap<number, RowError>>({
+    computation: () => new Map(),
+    source: () => ({ key: this.source() }),
+  });
 
-  /** The saved video is kept unless a new file replaces it. */
-  protected readonly keepsSaved = computed(
-    () => this.file() === null && this.editing()?.media?.kind === this.kind()
-  );
   protected readonly isEditing = computed(() => this.editing() !== null);
   /** A fresh object on every reset, so the file pickers are drawn again with nothing chosen. */
   protected readonly fileInputs = computed(() => [this.source()]);
-
-  protected hasError(error: FormError): boolean {
-    return this.errors().includes(error);
-  }
-
-  protected onText(target: 'from' | 'message' | 'youtube', event: Event): void {
-    this[target].set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
-  }
-
-  protected onAlt(index: number, event: Event): void {
-    const alt = (event.target as HTMLInputElement).value;
-    this.photos.update((rows) =>
-      rows.map((row, i) => (i === index ? { ...row, entry: { ...row.entry, alt } } : row))
-    );
-  }
 
   constructor() {
     // The list starts again on every reset or edit, so the previews of the files chosen before go.
@@ -144,21 +123,66 @@ export class CongratulationFormComponent {
     inject(DestroyRef).onDestroy(() => this.freePreviews());
   }
 
-  /** Every file chosen goes after the photos already in the list, each with a preview of the file. */
-  protected onPhotos(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const added = Array.from(input.files ?? []).map((file): PhotoRow => ({
-      entry: { alt: '', file, kind: 'new' },
-      key: this.rowKey++,
-      preview: this.previewOf(file),
-    }));
-    this.photos.update((rows) => [...rows, ...added]);
-    // Empty the picker, so the same file can be chosen again after taking it out.
-    input.value = '';
+  protected hasError(error: FormError): boolean {
+    return this.errors().includes(error);
   }
 
-  protected movePhoto(index: number, step: -1 | 1): void {
-    this.photos.update((rows) => {
+  protected rowError(row: MediaRow): RowError | null {
+    return this.rowErrors().get(row.key) ?? null;
+  }
+
+  /** The YouTube thumbnail of a link, once it is a valid one. */
+  protected youtubeThumbnail(link: string): string | null {
+    const id = youtubeVideoId(link);
+    return id === null ? null : youtubePoster(id);
+  }
+
+  protected onText(target: 'from' | 'message', event: Event): void {
+    this[target].set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+  }
+
+  protected onAlt(index: number, event: Event): void {
+    const alt = (event.target as HTMLInputElement).value;
+    this.updateRow(index, (row) => ('alt' in row ? { ...row, alt } : row));
+  }
+
+  protected onLink(index: number, event: Event): void {
+    const link = (event.target as HTMLInputElement).value;
+    this.updateRow(index, (row) => (row.kind === 'youtube' ? { ...row, link } : row));
+  }
+
+  /** Every photo chosen goes after the items already in the list, each with a preview of the file. */
+  protected onPhotos(event: Event): void {
+    this.addFiles(event, (file) => ({
+      alt: '',
+      file,
+      key: this.rowKey++,
+      kind: 'photo',
+      preview: this.previewOf(file),
+    }));
+  }
+
+  /** Every video chosen goes after the items already in the list, each with a preview of the file. */
+  protected onVideos(event: Event): void {
+    this.addFiles(event, (file) => ({
+      file,
+      key: this.rowKey++,
+      kind: 'video',
+      preview: this.previewOf(file),
+    }));
+  }
+
+  /** A new empty YouTube link at the end of the list, focused to paste into. */
+  protected addYoutube(): void {
+    const index = this.rows().length;
+    this.rows.update((rows) => [...rows, { key: this.rowKey++, kind: 'youtube', link: '' }]);
+    afterNextRender(() => document.getElementById(`congrats-youtube-${index}`)?.focus(), {
+      injector: this.injector,
+    });
+  }
+
+  protected move(index: number, step: -1 | 1): void {
+    this.rows.update((rows) => {
       const target = index + step;
       if (target < 0 || target >= rows.length) return rows;
 
@@ -168,19 +192,11 @@ export class CongratulationFormComponent {
     });
   }
 
-  protected removePhoto(index: number): void {
-    const preview = this.photos()[index]?.preview;
+  protected remove(index: number): void {
+    const row = this.rows()[index];
+    const preview = row && 'preview' in row ? row.preview : null;
     if (preview && this.objectUrls.delete(preview)) URL.revokeObjectURL(preview);
-    this.photos.update((rows) => rows.filter((_row, i) => i !== index));
-  }
-
-  protected onKind(kind: MediaKind): void {
-    this.kind.set(kind);
-    this.file.set(null);
-  }
-
-  protected onFile(event: Event): void {
-    this.file.set((event.target as HTMLInputElement).files?.item(0) ?? null);
+    this.rows.update((rows) => rows.filter((_row, i) => i !== index));
   }
 
   protected submit(event: Event): void {
@@ -188,20 +204,47 @@ export class CongratulationFormComponent {
     if (this.saving()) return;
 
     const errors = this.validate();
+    const rowErrors = this.validateRows();
     this.errors.set(errors);
-    if (errors.length > 0) return;
+    this.rowErrors.set(rowErrors);
+    if (errors.length > 0 || rowErrors.size > 0) return;
 
     this.submitted.emit({
-      file: this.kind() === 'cloudinary' ? this.file() : null,
       from: this.from().trim(),
-      kind: this.kind(),
+      media: this.rows().map((row) => this.entryOf(row)),
       message: this.message().trim(),
-      photos:
-        this.kind() === 'photo'
-          ? this.photos().map(({ entry }) => ({ ...entry, alt: entry.alt.trim() }))
-          : [],
-      youtube: this.kind() === 'youtube' ? (youtubeVideoId(this.youtube()) ?? '') : '',
     });
+  }
+
+  private addFiles(event: Event, toRow: (file: File) => MediaRow): void {
+    const input = event.target as HTMLInputElement;
+    const added = Array.from(input.files ?? []).map(toRow);
+    this.rows.update((rows) => [...rows, ...added]);
+    // Empty the picker, so the same file can be chosen again after taking it out.
+    input.value = '';
+  }
+
+  private updateRow(index: number, change: (row: MediaRow) => MediaRow): void {
+    this.rows.update((rows) => rows.map((row, i) => (i === index ? change(row) : row)));
+  }
+
+  /** What a row hands over; a YouTube link is already checked to hold a video id. */
+  private entryOf(row: MediaRow): MediaEntry {
+    switch (row.kind) {
+      case 'photo':
+        return { alt: row.alt.trim(), file: row.file, kind: 'photo' };
+      case 'video':
+        return { file: row.file, kind: 'video' };
+      case 'youtube':
+        return { kind: 'ready', media: { kind: 'youtube', video: youtubeVideoId(row.link) ?? '' } };
+      case 'saved-photo':
+        return {
+          kind: 'ready',
+          media: { kind: 'photo', photo: { ...row.photo, alt: row.alt.trim() } },
+        };
+      case 'saved-video':
+        return { kind: 'ready', media: { kind: 'cloudinary', publicId: row.publicId } };
+    }
   }
 
   /** An object URL showing the file, or null where the browser cannot make one. */
@@ -218,38 +261,51 @@ export class CongratulationFormComponent {
     this.objectUrls.clear();
   }
 
-  private savedRows(item: Congratulation | null): PhotoRow[] {
-    if (item?.media?.kind !== 'photo') return [];
-
-    return item.media.photos.map((photo) => ({
-      entry: { alt: photo.alt, kind: 'saved', photo },
-      key: this.rowKey++,
-      preview: photoUrl(photo, PREVIEW_WIDTH),
-    }));
+  private savedRows(item: Congratulation | null): MediaRow[] {
+    return (item?.media ?? []).map((media): MediaRow => {
+      const key = this.rowKey++;
+      switch (media.kind) {
+        case 'photo':
+          return {
+            alt: media.photo.alt,
+            key,
+            kind: 'saved-photo',
+            photo: media.photo,
+            preview: photoUrl(media.photo, PREVIEW_WIDTH),
+          };
+        case 'youtube':
+          return { key, kind: 'youtube', link: `https://youtu.be/${media.video}` };
+        case 'cloudinary':
+          return {
+            key,
+            kind: 'saved-video',
+            preview: cloudinaryVideoPoster(media.publicId),
+            publicId: media.publicId,
+          };
+      }
+    });
   }
 
   private validate(): FormError[] {
     const errors: FormError[] = [];
     const from = this.from().trim();
     const message = this.message().trim();
-    const file = this.file();
 
     if (from === '' || from.length > MAX_FROM_LENGTH) errors.push('from');
     if (message === '' || message.length > MAX_MESSAGE_LENGTH) errors.push('message');
+    return errors;
+  }
 
-    switch (this.kind()) {
-      case 'photo':
-        if (this.photos().length === 0) errors.push('photo');
-        break;
-      case 'youtube':
-        if (youtubeVideoId(this.youtube()) === null) errors.push('youtube');
-        break;
-      case 'cloudinary':
-        if (file === null && !this.keepsSaved()) errors.push('video');
-        else if (file !== null && file.size > MAX_VIDEO_BYTES) errors.push('videoTooLarge');
-        break;
+  private validateRows(): Map<number, RowError> {
+    const errors = new Map<number, RowError>();
+    for (const row of this.rows()) {
+      if (row.kind === 'youtube' && youtubeVideoId(row.link) === null) {
+        errors.set(row.key, 'youtube');
+      }
+      if (row.kind === 'video' && row.file.size > MAX_VIDEO_BYTES) {
+        errors.set(row.key, 'videoTooLarge');
+      }
     }
-
     return errors;
   }
 }

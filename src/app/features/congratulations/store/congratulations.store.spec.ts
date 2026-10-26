@@ -79,13 +79,19 @@ describe('CongratulationsStore', () => {
     );
     await store.load();
 
-    const saved = await store.save({ from: 'Bruno', message: 'Two' });
+    const saved = await store.save({ from: 'Bruno', media: [], message: 'Two' });
 
     expect(mocks.setDoc).toHaveBeenCalledWith(
       { id: 'new-id', name: 'congratulations' },
       { createdAt: 5000, from: 'Bruno', media: null, message: 'Two' }
     );
-    expect(saved).toEqual({ createdAt: 5000, from: 'Bruno', id: 'new-id', message: 'Two' });
+    expect(saved).toEqual({
+      createdAt: 5000,
+      from: 'Bruno',
+      id: 'new-id',
+      media: [],
+      message: 'Two',
+    });
     expect(store.items().map((item) => item.id)).toEqual(['a', 'new-id']);
   });
 
@@ -94,13 +100,13 @@ describe('CongratulationsStore', () => {
       snapshot([{ data: { createdAt: 1, from: 'Ana', media: null, message: 'One' }, id: 'a' }])
     );
     await store.load();
-    const media = { kind: 'youtube' as const, video: 'dQw4w9WgXcQ' };
+    const media = [{ kind: 'youtube' as const, video: 'dQw4w9WgXcQ' }];
 
     await store.save({ from: 'Ana B.', media, message: 'Edited' }, 'a');
 
     expect(mocks.setDoc).toHaveBeenCalledWith(
       { id: 'a', name: 'congratulations' },
-      { createdAt: 1, from: 'Ana B.', media, message: 'Edited' }
+      { createdAt: 1, from: 'Ana B.', media: { items: media, kind: 'gallery' }, message: 'Edited' }
     );
     expect(store.items()).toEqual([
       { createdAt: 1, from: 'Ana B.', id: 'a', media, message: 'Edited' },
@@ -110,7 +116,7 @@ describe('CongratulationsStore', () => {
   it('should leave the list as it was when saving fails', async () => {
     mocks.setDoc.mockRejectedValue(new Error('permission-denied'));
 
-    await expect(store.save({ from: 'Bruno', message: 'Two' })).rejects.toMatchObject({
+    await expect(store.save({ from: 'Bruno', media: [], message: 'Two' })).rejects.toMatchObject({
       reason: 'request-failed',
     });
     expect(store.items()).toEqual([]);

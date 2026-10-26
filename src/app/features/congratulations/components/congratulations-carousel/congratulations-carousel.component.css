@@ -102,20 +102,24 @@
   z-index: 1;
 }
 
-/* The photos of a message lie one on top of another; the one shown fades in over the rest. */
-.congrats__photo {
-  display: block;
-  height: 100%;
+/* The photos and videos of a message lie one on top of another; the one shown fades in over the rest. */
+.congrats__item {
   inset: 0;
-  object-fit: cover;
   opacity: 0;
   position: absolute;
   transition: opacity 900ms var(--ease-out);
-  width: 100%;
 }
 
-.congrats__photo--shown {
+.congrats__item--shown {
   opacity: 1;
+  z-index: 1;
+}
+
+.congrats__photo {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 /* The whole photo is the button that opens it full screen. */
@@ -126,7 +130,6 @@
   display: block;
   height: 100%;
   padding: 0;
-  position: relative;
   width: 100%;
 
   &:focus-visible {
@@ -177,8 +180,8 @@
   top: var(--space-3);
 }
 
-/* Arrows for the photos of a message, on both sides of the frame; shown while the pointer is on it. */
-.congrats__photo-nav {
+/* Arrows for the photos and videos of a message, on both sides of the frame; shown while the pointer is on it. */
+.congrats__item-nav {
   display: flex;
   inset: 50% 0.875rem auto;
   justify-content: space-between;
@@ -189,7 +192,7 @@
 }
 
 /* Scoped to the nav, so it wins over the plain look of `.congrats__button` further down. */
-.congrats__photo-nav .congrats__photo-arrow {
+.congrats__item-nav .congrats__item-arrow {
   background: rgb(14 13 12 / 0.7);
   border-color: rgb(244 239 230 / 0.35);
   opacity: 0;
@@ -210,8 +213,8 @@
   }
 }
 
-/* One thin bar per photo along the bottom of the frame. */
-.congrats__photo-steps {
+/* One thin bar per photo or video along the bottom of the frame. */
+.congrats__item-steps {
   bottom: calc(0.875rem + var(--space-2));
   display: flex;
   gap: var(--space-1);
@@ -221,7 +224,7 @@
   z-index: 2;
 }
 
-.congrats__photo-step {
+.congrats__item-step {
   background: rgb(244 239 230 / 0.35);
   flex: 1;
   height: 2px;
@@ -229,24 +232,24 @@
   position: relative;
 }
 
-.congrats__photo-fill {
-  animation: congrats-fill var(--photo-duration) linear forwards;
+.congrats__item-fill {
+  animation: congrats-fill var(--item-duration) linear forwards;
   background: var(--color-accent);
   inset: 0 auto 0 0;
   position: absolute;
 }
 
-.congrats__photo-fill--halted {
+.congrats__item-fill--halted {
   animation-play-state: paused;
 }
 
-.congrats__photo-fill--done {
+.congrats__item-fill--done {
   animation: none;
   width: 100%;
 }
 
 /* A slow push in on the photo shown, so a still image keeps breathing. */
-.congrats__media-slide--active .congrats__photo--shown {
+.congrats__media-slide--active .congrats__item--shown .congrats__photo {
   animation: congrats-push-in 9s var(--ease-out) forwards;
 }
 
@@ -470,13 +473,13 @@
     transition: none;
   }
 
-  .congrats__photo {
+  .congrats__item {
     transition: none;
   }
 
-  .congrats__media-slide--active .congrats__photo--shown,
+  .congrats__media-slide--active .congrats__item--shown .congrats__photo,
   .congrats__fill,
-  .congrats__photo-fill {
+  .congrats__item-fill {
     animation: none;
   }
 }
