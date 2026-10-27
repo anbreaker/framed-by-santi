@@ -37,6 +37,17 @@
                       [attr.aria-label]="t('enlarge', { name: slide.from })"
                       (click)="enlarge(slide.from, item.photo)"
                     >
+                      <!-- A photo marked to show whole is not cropped; a blurred copy of it fills the rest of the frame. -->
+                      @if (item.backdrop) {
+                        <img
+                          class="congrats__backdrop"
+                          alt=""
+                          aria-hidden="true"
+                          decoding="async"
+                          loading="lazy"
+                          [src]="item.backdrop"
+                        />
+                      }
                       <img
                         class="congrats__photo"
                         decoding="async"
@@ -44,6 +55,7 @@
                         [alt]="item.alt"
                         [attr.loading]="i === 0 && p === 0 ? 'eager' : 'lazy'"
                         [attr.srcset]="item.srcset"
+                        [class.congrats__photo--whole]="item.backdrop !== null"
                         [src]="item.src"
                       />
                     </button>

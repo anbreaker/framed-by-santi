@@ -103,6 +103,7 @@
         "title": "Manage congratulations",
         "video": "Cloudinary video (attachment {{n}})",
         "viewLink": "View as Santi",
+        "whole": "Full portrait photo (with blurred frame)",
         "youtube": "YouTube link (attachment {{n}})",
         "youtubeHint": "The video can be public or unlisted."
       },

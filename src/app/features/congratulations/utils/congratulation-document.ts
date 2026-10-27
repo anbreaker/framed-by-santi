@@ -4,6 +4,7 @@ import {
   Congratulation,
   CongratulationDraft,
   CongratulationMedia,
+  photoMedia,
 } from '../models/congratulation.model';
 
 /** The photos and videos of a message, in order, as they are saved. */
@@ -43,14 +44,14 @@ const isPhoto = (value: unknown): value is Photo =>
   typeof value['alt'] === 'string';
 
 const asPhotos = (photos: readonly Photo[]): CongratulationMedia[] =>
-  photos.map((photo) => ({ kind: 'photo', photo }));
+  photos.map((photo) => photoMedia(photo, false));
 
 /** One photo or video, or null when it is not one it knows. */
 function itemFrom(value: unknown): CongratulationMedia | null {
   if (!isRecord(value)) return null;
 
   if (value['kind'] === 'photo' && isPhoto(value['photo'])) {
-    return { kind: 'photo', photo: value['photo'] };
+    return photoMedia(value['photo'], value['whole'] === true);
   }
   if (value['kind'] === 'youtube' && typeof value['video'] === 'string') {
     return { kind: 'youtube', video: value['video'] };

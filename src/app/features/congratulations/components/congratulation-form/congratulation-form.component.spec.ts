@@ -184,7 +184,7 @@ describe('CongratulationFormComponent', () => {
 
     await submit();
     expect(host().values[0].media).toEqual([
-      { alt: 'Ana in Lisbon', file: lisbon, kind: 'photo' },
+      { alt: 'Ana in Lisbon', file: lisbon, kind: 'photo', whole: false },
       { kind: 'ready', media: { kind: 'youtube', video: 'dQw4w9WgXcQ' } },
       { file: party, kind: 'video' },
     ]);
@@ -281,7 +281,37 @@ describe('CongratulationFormComponent', () => {
         kind: 'ready',
         media: { kind: 'photo', photo: { ...secondPhoto, alt: 'Ana at the beach' } },
       },
-      { alt: '', file: added, kind: 'photo' },
+      { alt: '', file: added, kind: 'photo', whole: false },
+    ]);
+  });
+
+  it('should let each photo be marked to show whole, new or saved, and keep the mark when editing', async () => {
+    host().editing.set({
+      ...mixedMessage,
+      media: [
+        { kind: 'photo', photo: firstPhoto, whole: true },
+        { kind: 'photo', photo: secondPhoto },
+      ],
+    });
+    await fixture.whenStable();
+    const added = image('added.jpg');
+    await pick('congrats-photo', added);
+
+    expect(field<HTMLInputElement>('congrats-whole-0').checked).toBe(true);
+    expect(field<HTMLInputElement>('congrats-whole-1').checked).toBe(false);
+    expect(root().querySelector('label[for="congrats-whole-2"]')?.textContent).toContain(
+      'Full portrait photo (with blurred frame)'
+    );
+
+    field<HTMLInputElement>('congrats-whole-0').click();
+    field<HTMLInputElement>('congrats-whole-2').click();
+    await fixture.whenStable();
+    await submit();
+
+    expect(host().values[0].media).toEqual([
+      { kind: 'ready', media: { kind: 'photo', photo: firstPhoto } },
+      { kind: 'ready', media: { kind: 'photo', photo: secondPhoto } },
+      { alt: '', file: added, kind: 'photo', whole: true },
     ]);
   });
 

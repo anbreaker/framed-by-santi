@@ -23,6 +23,7 @@ import {
 import {
   Congratulation,
   CongratulationMedia,
+  photoMedia,
 } from '@features/congratulations/models/congratulation.model';
 import { CongratulationsStore } from '@features/congratulations/store/congratulations.store';
 import { mediaThumbnail } from '@features/congratulations/utils/media-thumbnail';
@@ -180,16 +181,16 @@ export class AdminCongratulationsManagePageComponent {
     }
 
     const uploaded = await this.upload(entry.file, () => this.uploads.upload(entry.file));
-    return {
-      kind: 'photo',
-      photo: {
+    return photoMedia(
+      {
         alt: entry.alt,
         height: uploaded.height,
         id: uploaded.publicId,
         publicId: uploaded.publicId,
         width: uploaded.width,
       },
-    };
+      entry.whole
+    );
   }
 
   private async upload<T>(file: File, send: () => Promise<T>): Promise<T> {

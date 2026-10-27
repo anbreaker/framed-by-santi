@@ -4,6 +4,13 @@ import { Photo } from '@features/photo-posts/models/photo.model';
 export interface CongratulationPhoto {
   kind: 'photo';
   photo: Photo;
+  /** Shown whole over a blurred copy of itself instead of cropped to the frame; saved only when set. */
+  whole?: true;
+}
+
+/** A photo of a message; the `whole` mark is left out when unset, as Firestore refuses `undefined`. */
+export function photoMedia(photo: Photo, whole: boolean): CongratulationPhoto {
+  return whole ? { kind: 'photo', photo, whole: true } : { kind: 'photo', photo };
 }
 
 /** A YouTube video by its id. */
