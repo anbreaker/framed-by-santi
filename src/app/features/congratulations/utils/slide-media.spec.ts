@@ -33,7 +33,6 @@ describe('slideItems', () => {
       },
       {
         alt: 'Ana and Santi',
-        backdrop: null,
         kind: 'photo',
         photo,
         src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p1',
@@ -50,24 +49,6 @@ describe('slideItems', () => {
         },
       },
     ]);
-  });
-
-  it('should give an upright photo a tiny copy of itself to blur behind it', () => {
-    const upright = {
-      alt: '',
-      height: 1200,
-      id: 'p2',
-      publicId: 'framed-by-santi/posts/p2',
-      width: 900,
-    };
-
-    const [item] = slideItems([{ kind: 'photo', photo: upright }], config);
-
-    expect(item).toMatchObject({
-      backdrop:
-        'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/p2',
-      kind: 'photo',
-    });
   });
 
   it('should leave out a link that is not a YouTube video and a Cloudinary video without a cloud', () => {
