@@ -1,7 +1,7 @@
 import { environment } from '@environments/environment';
 import { CloudinaryEnvironment } from '@environments/environment.model';
 import { Photo } from '@features/photo-posts/models/photo.model';
-import { photoSrcset, photoUrl } from '@features/photo-posts/utils/photo-url';
+import { PHOTO_WIDTHS, photoSrcset, photoUrl } from '@features/photo-posts/utils/photo-url';
 
 import { CongratulationMedia } from '../models/congratulation.model';
 import { cloudinaryVideoPoster, cloudinaryVideoUrl } from './cloudinary-video';
@@ -17,11 +17,22 @@ export type VideoSource =
  * it full screen, or a video with its still image first.
  */
 export type SlideItem =
-  | { alt: string; kind: 'photo'; photo: Photo; src: string; srcset: string | null }
+  | {
+      alt: string;
+      /** A tiny copy to blur behind an upright photo shown whole; null for one that fills the frame. */
+      backdrop: string | null;
+      kind: 'photo';
+      photo: Photo;
+      src: string;
+      srcset: string | null;
+    }
   | { kind: 'video'; video: VideoSource };
 
 /** Width of the plain `src`; the browser picks a better one from `srcset`. */
 const PHOTO_WIDTH = 1600;
+
+/** The copy blurred behind an upright photo takes the smallest fixed width, already in its `srcset`. */
+const BACKDROP_WIDTH = PHOTO_WIDTHS[0];
 
 /** What one photo or video shows, or null for a link that is not a YouTube video or an unconfigured cloud. */
 function slideItem(
@@ -29,8 +40,11 @@ function slideItem(
   cloudinary: CloudinaryEnvironment
 ): SlideItem | null {
   if (media.kind === 'photo') {
+    const upright = media.photo.height > media.photo.width;
+
     return {
       alt: media.photo.alt,
+      backdrop: upright ? photoUrl(media.photo, BACKDROP_WIDTH, cloudinary) : null,
       kind: 'photo',
       photo: media.photo,
       src: photoUrl(media.photo, PHOTO_WIDTH, cloudinary),
