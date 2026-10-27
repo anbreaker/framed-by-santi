@@ -171,6 +171,8 @@ describe('AdminCongratulationsManagePageComponent', () => {
     await type('congrats-youtube-1', 'https://youtu.be/dQw4w9WgXcQ');
     await pick('congrats-photo', photo);
     await type('congrats-alt-2', 'Carla');
+    (root().querySelector('#congrats-whole-2') as HTMLInputElement).click();
+    await fixture.whenStable();
 
     await submit();
 
@@ -194,6 +196,7 @@ describe('AdminCongratulationsManagePageComponent', () => {
               publicId: 'framed-by-santi/posts/new',
               width: 900,
             },
+            whole: true,
           },
         ],
         message: 'Hugs',

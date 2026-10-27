@@ -41,6 +41,21 @@ describe('congratulationFromDocument', () => {
     expect(read(null)).toEqual({ createdAt: 1, from: 'Ana', id: 'c1', media: [], message: 'Hi' });
   });
 
+  it('should keep a photo marked to show whole, and read any other value as cropped', () => {
+    const media = read({
+      items: [
+        { kind: 'photo', photo, whole: true },
+        { kind: 'photo', photo: second, whole: 'yes' },
+      ],
+      kind: 'gallery',
+    })?.media;
+
+    expect(media).toEqual([
+      { kind: 'photo', photo, whole: true },
+      { kind: 'photo', photo: second },
+    ]);
+  });
+
   it('should read a gallery of photos and videos in order', () => {
     const items = [
       { kind: 'youtube', video: 'dQw4w9WgXcQ' },

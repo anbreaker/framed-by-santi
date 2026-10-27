@@ -140,6 +140,15 @@
                       [value]="row.alt"
                       (input)="onAlt(i, $event)"
                     />
+                    <label class="congrats-form__check" [attr.for]="'congrats-whole-' + i">
+                      <input
+                        type="checkbox"
+                        [checked]="row.whole"
+                        [id]="'congrats-whole-' + i"
+                        (change)="onWhole(i, $event)"
+                      />
+                      {{ t('whole') }}
+                    </label>
                   }
                 }
               }

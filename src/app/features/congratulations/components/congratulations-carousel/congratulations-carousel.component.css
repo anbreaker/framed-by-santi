@@ -124,6 +124,23 @@
   width: 100%;
 }
 
+/* A photo marked to show whole is not cropped: it shows centred, over its blurred backdrop. */
+.congrats__photo--whole {
+  object-fit: contain;
+  position: relative;
+}
+
+/* Scaled up a little so the blur does not leave soft, see-through edges inside the frame. */
+.congrats__backdrop {
+  filter: blur(24px) brightness(0.7);
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  transform: scale(1.15);
+  width: 100%;
+}
+
 /* The whole photo is the button that opens it full screen. */
 .congrats__enlarge {
   background: none;
@@ -131,7 +148,9 @@
   cursor: zoom-in;
   display: block;
   height: 100%;
+  overflow: hidden;
   padding: 0;
+  position: relative;
   width: 100%;
 
   &:focus-visible {

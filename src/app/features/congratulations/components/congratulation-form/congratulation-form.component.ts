@@ -22,6 +22,7 @@ import {
   CongratulationMedia,
   MAX_FROM_LENGTH,
   MAX_MESSAGE_LENGTH,
+  photoMedia,
 } from '../../models/congratulation.model';
 import { cloudinaryVideoPoster } from '../../utils/cloudinary-video';
 import { youtubePoster, youtubeVideoId } from '../../utils/youtube';
@@ -31,7 +32,7 @@ import { youtubePoster, youtubeVideoId } from '../../utils/youtube';
  * or media ready to save as it is (a saved item or a YouTube link).
  */
 export type MediaEntry =
-  | { alt: string; file: File; kind: 'photo' }
+  | { alt: string; file: File; kind: 'photo'; whole: boolean }
   | { file: File; kind: 'video' }
   | { kind: 'ready'; media: CongratulationMedia };
 
@@ -57,10 +58,10 @@ const PREVIEW_WIDTH = 160;
  * URL of the file as their preview; saved items a small image from Cloudinary.
  */
 type MediaRow = { key: number } & (
-  | { alt: string; file: File; kind: 'photo'; preview: string | null }
+  | { alt: string; file: File; kind: 'photo'; preview: string | null; whole: boolean }
   | { file: File; kind: 'video'; preview: string | null }
   | { kind: 'youtube'; link: string }
-  | { alt: string; kind: 'saved-photo'; photo: Photo; preview: string }
+  | { alt: string; kind: 'saved-photo'; photo: Photo; preview: string; whole: boolean }
   | { kind: 'saved-video'; preview: string | null; publicId: string }
 );
 
@@ -146,6 +147,12 @@ export class CongratulationFormComponent {
     this.updateRow(index, (row) => ('alt' in row ? { ...row, alt } : row));
   }
 
+  /** Marks a photo to show whole, over a blurred copy of itself, instead of cropped to the frame. */
+  protected onWhole(index: number, event: Event): void {
+    const whole = (event.target as HTMLInputElement).checked;
+    this.updateRow(index, (row) => ('whole' in row ? { ...row, whole } : row));
+  }
+
   protected onLink(index: number, event: Event): void {
     const link = (event.target as HTMLInputElement).value;
     this.updateRow(index, (row) => (row.kind === 'youtube' ? { ...row, link } : row));
@@ -159,6 +166,7 @@ export class CongratulationFormComponent {
       key: this.rowKey++,
       kind: 'photo',
       preview: this.previewOf(file),
+      whole: false,
     }));
   }
 
@@ -232,7 +240,7 @@ export class CongratulationFormComponent {
   private entryOf(row: MediaRow): MediaEntry {
     switch (row.kind) {
       case 'photo':
-        return { alt: row.alt.trim(), file: row.file, kind: 'photo' };
+        return { alt: row.alt.trim(), file: row.file, kind: 'photo', whole: row.whole };
       case 'video':
         return { file: row.file, kind: 'video' };
       case 'youtube':
@@ -240,7 +248,7 @@ export class CongratulationFormComponent {
       case 'saved-photo':
         return {
           kind: 'ready',
-          media: { kind: 'photo', photo: { ...row.photo, alt: row.alt.trim() } },
+          media: photoMedia({ ...row.photo, alt: row.alt.trim() }, row.whole),
         };
       case 'saved-video':
         return { kind: 'ready', media: { kind: 'cloudinary', publicId: row.publicId } };
@@ -272,6 +280,7 @@ export class CongratulationFormComponent {
             kind: 'saved-photo',
             photo: media.photo,
             preview: photoUrl(media.photo, PREVIEW_WIDTH),
+            whole: media.whole === true,
           };
         case 'youtube':
           return { key, kind: 'youtube', link: `https://youtu.be/${media.video}` };

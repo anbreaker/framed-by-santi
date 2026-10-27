@@ -103,6 +103,7 @@
         "title": "Gestionar felicitaciones",
         "video": "Vídeo de Cloudinary (adjunto {{n}})",
         "viewLink": "Ver como Santi",
+        "whole": "Foto vertical completa (con marco difuminado)",
         "youtube": "Enlace de YouTube (adjunto {{n}})",
         "youtubeHint": "El vídeo puede ser público u oculto."
       },

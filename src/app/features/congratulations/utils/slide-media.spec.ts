@@ -33,6 +33,7 @@ describe('slideItems', () => {
       },
       {
         alt: 'Ana and Santi',
+        backdrop: null,
         kind: 'photo',
         photo,
         src: 'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_1600/framed-by-santi/posts/p1',
@@ -49,6 +50,30 @@ describe('slideItems', () => {
         },
       },
     ]);
+  });
+
+  it('should give a photo marked to show whole a blurred copy of itself behind it, and crop the rest', () => {
+    const upright = {
+      alt: '',
+      height: 1200,
+      id: 'p2',
+      publicId: 'framed-by-santi/posts/p2',
+      width: 900,
+    };
+
+    const [whole, cropped] = slideItems(
+      [
+        { kind: 'photo', photo: upright, whole: true },
+        { kind: 'photo', photo: upright },
+      ],
+      config
+    );
+
+    expect(whole).toMatchObject({
+      backdrop:
+        'https://res.cloudinary.com/demo/image/upload/c_limit,f_auto,q_auto,w_480/framed-by-santi/posts/p2',
+    });
+    expect(cropped).toMatchObject({ backdrop: null });
   });
 
   it('should leave out a link that is not a YouTube video and a Cloudinary video without a cloud', () => {
