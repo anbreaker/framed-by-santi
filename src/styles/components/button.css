@@ -51,7 +51,6 @@
   opacity: 0;
   pointer-events: none;
   position: absolute;
-  transform: scale(1.12);
   transition:
     opacity var(--duration-fast) var(--ease-out),
     transform var(--duration-base) var(--ease-out);
@@ -69,9 +68,14 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .btn::after {
-    transform: none;
+/*
+ * The frame waits enlarged, to close in on hover, only where buttons sit side by side. On narrow screens
+ * buttons span the width, and the invisible enlarged frame would widen the page; there, and with reduced
+ * motion, it only fades in.
+ */
+@media (hover: hover) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .btn:not(:hover, :focus-visible)::after {
+    transform: scale(1.12);
   }
 }
 
