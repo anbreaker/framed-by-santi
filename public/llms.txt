@@ -1,0 +1,15 @@
+# Framed by Santi
+
+> Street photography from New York by Santi García, shot on a Fujifilm X100VI. The site shows his photo sets, grouped by theme, and a short page about him.
+
+The site is available in English, Spanish and Portuguese. Each photo set has its own page with every photo of the set, its description and its theme.
+
+## Pages
+
+- [Home](https://framed-by-santi.vercel.app/): Introduction to Santi and his latest photo sets
+- [Gallery](https://framed-by-santi.vercel.app/gallery): All published photo sets, filterable by theme
+- [About](https://framed-by-santi.vercel.app/about): Who Santi is, his city and his camera
+
+## Optional
+
+- [Instagram](https://www.instagram.com/framedbysanti/): More of Santi's photos, posted as he takes them
